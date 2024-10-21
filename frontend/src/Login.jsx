@@ -29,7 +29,7 @@ const Login = () => {
 
     return (
         <div>
-            <h1>Login</h1>
+            <h1 className='text-3xl font-bold underline'>Login</h1>
             <form action="" onSubmit={handleSubmit}>
                 <input type="text" value={values.users} onChange={e => setValues({ ...values, users: e.target.value })} />
                 <input type="password" value={values.password} onChange={e => setValues({ ...values, password: e.target.value })} />

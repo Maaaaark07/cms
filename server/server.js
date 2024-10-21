@@ -75,7 +75,7 @@ const verifyUser = (req, res, next) => {
 };
 
 app.get('/', verifyUser, (req, res) => {
-    return res.json({ Status: 'Success', user: req.user }); // Send user info back
+    return res.json({ Status: 'Success', user: req.user });
 });
 
 app.post('/login', (req, res) => {
@@ -91,13 +91,12 @@ app.post('/login', (req, res) => {
                     const users = data[0].users;
                     const token = jwt.sign({ users }, "jwt-secret-key", { expiresIn: '1d' });
 
-                    // Log generated token
                     console.log('Generated Token:', token);
 
                     res.cookie('token', token, {
                         httpOnly: true,
-                        secure: false, // Use true if using HTTPS
-                        sameSite: 'Lax', // Adjust as needed
+                        secure: false,
+                        sameSite: 'Lax',
                     });
                     return res.json({ Status: "Success" });
                 } else {
