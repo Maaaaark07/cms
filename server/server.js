@@ -29,6 +29,7 @@ app.get('/set-cookie', (req, res) => {
         httpOnly: true,
         secure: false,
         sameSite: 'Lax',
+        path: '/',
     });
     res.send('Cookie has been set');
 });
@@ -83,10 +84,16 @@ app.post('/login', (req, res) => {
     const sql = "SELECT * FROM cbs_users WHERE users = ?";
 
     db.query(sql, [users], (err, data) => {
-        if (err) return res.json({ Error: "Invalid" });
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ Error: "Database error" });
+        }
         if (data.length > 0) {
             bcrypt.compare(password.toString(), data[0].password, (err, result) => {
-                if (err) return res.json({ Error: "Password Compare Error" });
+                if (err) {
+                    console.error(err);
+                    return res.status(500).json({ Error: "Password Compare Error" });
+                }
                 if (result) {
                     const users = data[0].users;
                     const token = jwt.sign({ users }, "jwt-secret-key", { expiresIn: '1d' });
@@ -97,22 +104,28 @@ app.post('/login', (req, res) => {
                         httpOnly: true,
                         secure: false,
                         sameSite: 'Lax',
+                        path: '/',
                     });
                     return res.json({ Status: "Success" });
                 } else {
-                    return res.json({ Error: "Password Error" });
+                    return res.json({ Error: "Invalid password" });
                 }
             });
         } else {
-            return res.json({ Error: "Invalid" });
+            return res.json({ Error: "User not found" });
         }
     });
 });
 
+
+app.get('/home', verifyUser, (req, res) => {
+    return res.json({ Status: 'Success', user: req.user });
+});
+
 app.get('/logout', (req, res) => {
-    res.clearCookie('token');
+    res.clearCookie('token', { path: '/' });
     return res.json({ Status: "Success" });
-})
+});
 
 app.listen(8080, () => {
     console.log('listen')
