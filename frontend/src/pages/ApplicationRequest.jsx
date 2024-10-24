@@ -1,6 +1,7 @@
 import React from 'react'
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
+import Breadcrumbs from '../components/Breadcrumbs'
 
 const ApplicationRequest = () => {
     return (
@@ -10,6 +11,7 @@ const ApplicationRequest = () => {
                 <Sidebar />
                 <main className="flex-grow p-4 bg-gray-100">
                     <div className="flex-grow p-6 bg-gray-100">
+                        <Breadcrumbs />
                         <h1>Application Request</h1>
                     </div>
                 </main>

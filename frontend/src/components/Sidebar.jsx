@@ -41,7 +41,7 @@ const Sidebar = () => {
                     </li>
                     <li className="my-2">
                         <NavLink
-                            to="/resident-management"
+                            to="/Resident-Management"
                             className={({ isActive }) =>
                                 `flex items-center p-2 rounded transition-colors duration-200 ${isActive ? 'bg-blue-100 text-blue-500' : 'hover:bg-blue-100 hover:text-blue-500'}`
                             }
@@ -52,7 +52,7 @@ const Sidebar = () => {
                     </li>
                     <li className="my-2">
                         <NavLink
-                            to="/application-request"
+                            to="/Application-Request"
                             className={({ isActive }) =>
                                 `flex items-center p-2 rounded transition-colors duration-200 ${isActive ? 'bg-blue-100 text-blue-500' : 'hover:bg-blue-100 hover:text-blue-500'}`
                             }
@@ -63,7 +63,7 @@ const Sidebar = () => {
                     </li>
                     <li className="my-2">
                         <NavLink
-                            to="/incident-report"
+                            to="/Incident-Report"
                             className={({ isActive }) =>
                                 `flex items-center p-2 rounded transition-colors duration-200 ${isActive ? 'bg-blue-100 text-blue-500' : 'hover:bg-blue-100 hover:text-blue-500'}`
                             }
@@ -74,7 +74,7 @@ const Sidebar = () => {
                     </li>
                     <li className="my-2">
                         <NavLink
-                            to="/user-management"
+                            to="/User-Management"
                             className={({ isActive }) =>
                                 `flex items-center p-2 rounded transition-colors duration-200 ${isActive ? 'bg-blue-100 text-blue-500' : 'hover:bg-blue-100 hover:text-blue-500'}`
                             }
@@ -85,7 +85,7 @@ const Sidebar = () => {
                     </li>
                     <li className="my-2">
                         <NavLink
-                            to="/reports"
+                            to="/Reports"
                             className={({ isActive }) =>
                                 `flex items-center p-2 rounded transition-colors duration-200 ${isActive ? 'bg-blue-100 text-blue-500' : 'hover:bg-blue-100 hover:text-blue-500'}`
                             }

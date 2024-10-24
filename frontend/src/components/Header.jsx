@@ -1,8 +1,43 @@
-import React from 'react';
-import { FiSettings } from 'react-icons/fi';
-import cmsLogo from '../assets/cms-logo.png'
+import React, { useState, useEffect } from 'react';
+import { TiArrowSortedDown } from "react-icons/ti";
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import cmsLogo from '../assets/cms-logo.png';
 
 const Header = () => {
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [user, setUser] = useState(null);
+    const [role, setRole] = useState(null);
+    const [error, setError] = useState(null);
+    const navigate = useNavigate();
+
+    const toggleDropdown = () => {
+        setIsDropdownOpen(!isDropdownOpen);
+    };
+
+    useEffect(() => {
+        axios.get('http://localhost:8080/home', { withCredentials: true })
+            .then(res => {
+                if (res.data.Status === 'Success') {
+                    setUser(res.data.user); // assuming this is a string
+                    setRole(res.data.role); // assuming this is a string as well
+                } else {
+                    setError(res.data.Error || 'Not authorized');
+                }
+            })
+            .catch(err => setError('An error occurred'));
+    }, []);
+
+    const handleLogout = () => {
+        axios.get('http://localhost:8080/logout', { withCredentials: true })
+            .then(res => {
+                if (res.data.Status === "Success") {
+                    navigate('/');
+                }
+            })
+            .catch(err => console.log(err));
+    };
+
     return (
         <header className="bg-white shadow-md p-4 flex justify-between items-center">
             <div className="flex items-center">
@@ -12,11 +47,41 @@ const Header = () => {
                     <span className='text-xs text-gray-400'>Colo Management System</span>
                 </div>
             </div>
-            <div className="flex items-center">
-                <button className="flex items-center text-gray-600 hover:text-blue-500 focus:outline-none">
-                    <FiSettings className="h-6 w-6" />
+            <div className="flex items-center relative">
+                <button
+                    className="flex items-center gap-1 text-gray-600 focus:outline-none"
+                    onClick={toggleDropdown}
+                    aria-haspopup="true"
+                    aria-expanded={isDropdownOpen}
+                >
+                    <img src={cmsLogo} alt="Logo" className="h-10 w-10 object-contain mr-3" />
+                    <div className='flex flex-col items-start'>
+                        {user && (
+                            <>
+                                <p className='text-sm'>{user || 'Guest'}</p>
+                                <p className="text-blue-500 text-xs">{role || 'Guest'}</p>
+                            </>
+                        )}
+                    </div>
+                    <TiArrowSortedDown className="h-4 w-4 ml-3 text-blue-500" />
                 </button>
+                {isDropdownOpen && (
+                    <div className="absolute right-3 top-full mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-md z-10">
+                        <div className="p-2">
+                            <div className="text-gray-700 font-semibold">{user}</div>
+                            <div className="text-gray-600">{role}</div> {/* Displaying role here as well */}
+                        </div>
+                        <div className="border-t border-gray-200"></div>
+                        <button className="w-full text-left p-2 text-gray-600 hover:bg-gray-100">
+                            Profile Settings
+                        </button>
+                        <button onClick={handleLogout} className="w-full text-left p-2 text-red-500 hover:bg-gray-100">
+                            Logout
+                        </button>
+                    </div>
+                )}
             </div>
+            {error && <div className="text-red-500">{error}</div>} {/* Displaying error messages */}
         </header>
     );
 };

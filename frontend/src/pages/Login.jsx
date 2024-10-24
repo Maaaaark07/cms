@@ -30,6 +30,7 @@ const Login = () => {
 
         axios.post('http://localhost:8080/login', values, { withCredentials: true })
             .then(res => {
+
                 if (res.data.Status === 'Success') {
                     setValues({ users: '', password: '' });
                     navigate('/home');

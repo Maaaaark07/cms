@@ -60,7 +60,6 @@ app.post('/register', (req, res) => {
 })
 
 const verifyUser = (req, res, next) => {
-    console.log("Cookies received:", req.cookies);
     const token = req.cookies.token;
     if (!token) {
         return res.json({ Error: "Not authorized" });
@@ -69,14 +68,15 @@ const verifyUser = (req, res, next) => {
         if (err) {
             return res.json({ Error: "Token is not okay" });
         } else {
-            req.user = decoded.users;
+            console.log(decoded);
+            req.user = { users: decoded.users, role: decoded.role };
             next();
         }
     });
 };
 
 app.get('/', verifyUser, (req, res) => {
-    return res.json({ Status: 'Success', user: req.user });
+    return res.json({ Status: 'Success', user: req.user, role: req.user.role });
 });
 
 app.post('/login', (req, res) => {
@@ -95,11 +95,11 @@ app.post('/login', (req, res) => {
                     return res.status(500).json({ Error: "Password Compare Error" });
                 }
                 if (result) {
-                    const users = data[0].users;
-                    const token = jwt.sign({ users }, "jwt-secret-key", { expiresIn: '1d' });
+                    const user = data[0].users;
+                    const role = data[0].role;
+                    const token = jwt.sign({ users: user, role: role }, "jwt-secret-key", { expiresIn: '1d' });
 
                     console.log('Generated Token:', token);
-
                     res.cookie('token', token, {
                         httpOnly: true,
                         secure: false,
@@ -117,9 +117,9 @@ app.post('/login', (req, res) => {
     });
 });
 
-
 app.get('/home', verifyUser, (req, res) => {
-    return res.json({ Status: 'Success', user: req.user });
+    console.log(req.user);
+    return res.json({ Status: 'Success', user: req.user.users, role: req.user.role });
 });
 
 app.get('/logout', (req, res) => {
