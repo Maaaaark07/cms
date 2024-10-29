@@ -19,8 +19,8 @@ const Header = () => {
         axios.get('http://localhost:8080/home', { withCredentials: true })
             .then(res => {
                 if (res.data.Status === 'Success') {
-                    setUser(res.data.user); // assuming this is a string
-                    setRole(res.data.role); // assuming this is a string as well
+                    setUser(res.data.user);
+                    setRole(res.data.role);
                 } else {
                     setError(res.data.Error || 'Not authorized');
                 }

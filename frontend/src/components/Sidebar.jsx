@@ -14,7 +14,7 @@ const Sidebar = () => {
     const toggleSidebar = () => setIsOpen(!isOpen);
 
     return (
-        <div className={`relative flex flex-col h-screen ${isOpen ? 'w-72' : 'w-[70px]'} bg-white text-gray-600 transition-width duration-300 shadow-md`}>
+        <div className={`relative flex flex-col h-full ${isOpen ? 'w-72' : 'w-[70px]'} bg-white text-gray-600 transition-width duration-300 shadow-md`}>
             <button
                 onClick={toggleSidebar}
                 className="absolute top-[-15px] -right-3 bg-white border border-gray-300 rounded-xl p-1 shadow-md focus:outline-none"

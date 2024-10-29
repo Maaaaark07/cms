@@ -6,7 +6,7 @@ const Breadcrumbs = () => {
     const pathnames = location.pathname.split("/").filter(x => x);
 
     return (
-        <nav className="breadcrumb">
+        <nav className="breadcrumb mb-5">
             <ul className="flex space-x-2">
                 {pathnames[0] === "home" ? (
                     <li>
