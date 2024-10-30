@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 app.use(cors({
     origin: "http://localhost:5173",
-    methods: ["POST", "GET"],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
 }));
@@ -131,6 +131,51 @@ app.get('/registered-voters', verifyUser, (req, res) => {
     });
 });
 
+// Endpoint to get resident details
+app.get('/residents', verifyUser, (req, res) => {
+    const sql = `
+        SELECT * FROM cbs_resident
+    `;
+
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ Error: 'Failed to retrieve resident data' });
+        }
+        res.json(results);
+    });
+});
+
+// Add Resident API
+app.post('/add-resident', async (req, res) => {
+    const {
+        ResidentID, FirstName, LastName, MiddleName, Age, birthday, Gender,
+        Address, ContactNumber, Email, CivilStatus, Occupation, HouseholdID,
+        BarangayID, RegistrationDate, Status, RegisteredVoter, VoterIDNumber, VotingPrecinct
+    } = req.body;
+
+    // Validate required fields
+    if (!FirstName || !LastName || !Age || !Gender || !Address || !ContactNumber) {
+        return res.status(400).json({ message: 'Please fill in all required fields.' });
+    }
+
+    try {
+        const query = `
+            INSERT INTO cbs_resident 
+            (ResidentID, FirstName, LastName, MiddleName, Age, birthday, Gender, Address, ContactNumber, Email, CivilStatus, Occupation, HouseholdID, BarangayID, RegistrationDate, Status, RegisteredVoter, VoterIDNumber, VotingPrecinct)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+        const values = [ResidentID, FirstName, LastName, MiddleName, Age, birthday, Gender, Address, ContactNumber, Email, CivilStatus, Occupation, HouseholdID, BarangayID, RegistrationDate, Status, RegisteredVoter, VoterIDNumber, VotingPrecinct];
+
+        await db.query(query, values);
+        res.status(201).json({ message: 'Resident added successfully' });
+    } catch (error) {
+        console.error("Error adding resident:", error);
+        res.status(500).json({ message: 'Failed to add resident' });
+    }
+});
+
+
 app.get('/home', verifyUser, (req, res) => {
     console.log(req.user);
     return res.json({ Status: 'Success', user: req.user.users, role: req.user.role });
@@ -181,6 +226,25 @@ app.get('/blotter', (req, res) => {
             return res.status(500).json({ Error: 'Failed to retrieve blotter data' });
         }
         res.json(results);
+    });
+});
+
+// Delete Residents
+app.delete('/residents/:id', (req, res) => {
+    const residentId = req.params.id;
+    const query = 'DELETE FROM cbs_resident WHERE ResidentID = ?';
+
+    db.query(query, [residentId], (error, results) => {
+        if (error) {
+            console.error("Error deleting resident:", error);
+            return res.status(500).json({ message: 'Error deleting resident' });
+        }
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ message: 'Resident not found' });
+        }
+
+        res.status(200).json({ message: 'Resident deleted successfully' });
     });
 });
 

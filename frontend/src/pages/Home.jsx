@@ -7,9 +7,7 @@ import 'chart.js/auto';
 import axios from 'axios';
 import Breadcrumbs from '../components/Breadcrumbs';
 import DashboardCard from '../components/DashboardCard';
-import { FaRegFileLines } from "react-icons/fa6";
-import { FaArrowRightLong } from "react-icons/fa6";
-import BlotterList from '../components/BlotterList'; // Import the new component
+import BlotterList from '../components/BlotterList';
 
 const Home = () => {
     const [user, setUser] = useState(null);

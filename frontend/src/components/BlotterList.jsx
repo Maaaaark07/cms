@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaRegFileLines } from "react-icons/fa6";
 import { FaArrowRightLong } from "react-icons/fa6";
 
@@ -33,10 +34,10 @@ const BlotterList = ({ blotterData }) => {
                         </div>
                     </div>
                 ))}
-            <div className='flex items-center w-full justify-center gap-2 mt-4 text-center'>
+            <Link to="/Incident-Report" className='flex items-center w-full justify-center gap-2 mt-4 text-center'>
                 <span className='text-sm text-blue-500'>View</span>
                 <FaArrowRightLong className='w-3 h-3 text-blue-600' />
-            </div>
+            </Link>
         </div>
     );
 };
