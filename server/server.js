@@ -146,7 +146,6 @@ app.get('/residents', verifyUser, (req, res) => {
     });
 });
 
-// Add Resident API
 app.post('/add-resident', async (req, res) => {
     const {
         ResidentID, FirstName, LastName, MiddleName, Age, birthday, Gender,
@@ -154,7 +153,6 @@ app.post('/add-resident', async (req, res) => {
         BarangayID, RegistrationDate, Status, RegisteredVoter, VoterIDNumber, VotingPrecinct
     } = req.body;
 
-    // Validate required fields
     if (!FirstName || !LastName || !Age || !Gender || !Address || !ContactNumber) {
         return res.status(400).json({ message: 'Please fill in all required fields.' });
     }
