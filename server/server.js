@@ -160,7 +160,7 @@ app.post('/add-resident', async (req, res) => {
     try {
         const query = `
             INSERT INTO cbs_resident 
-            (ResidentID, FirstName, LastName, MiddleName, Age, birthday, Gender, Address, ContactNumber, Email, CivilStatus, Occupation, HouseholdID, BarangayID, RegistrationDate, Status, RegisteredVoter, VoterIDNumber, VotingPrecinct)
+            (ResidentID, FirstName, LastName, MiddleName, Age, birthday, Gender, Address, ContactNumber, Email, CivilStatus, Occupation, HouseholdID, JuanBataanID, RegistrationDate, Status, RegisteredVoter, VoterIDNumber, VotingPrecinct)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
         const values = [ResidentID, FirstName, LastName, MiddleName, Age, birthday, Gender, Address, ContactNumber, Email, CivilStatus, Occupation, HouseholdID, BarangayID, RegistrationDate, Status, RegisteredVoter, VoterIDNumber, VotingPrecinct];
@@ -243,6 +243,19 @@ app.delete('/residents/:id', (req, res) => {
         }
 
         res.status(200).json({ message: 'Resident deleted successfully' });
+    });
+});
+
+// Endpoint to get total resident count
+app.get('/residents/count', (req, res) => {
+    const query = 'SELECT COUNT(*) AS count FROM cbs_resident';
+
+    db.query(query, (err, result) => {
+        if (err) {
+            console.error("Error fetching resident count:", err);
+            return res.status(500).json({ message: 'Server error' });
+        }
+        res.status(200).json({ count: result[0].count });
     });
 });
 

@@ -8,8 +8,7 @@ import Search from '../components/Search';
 import axios from 'axios';
 import { RxAvatar } from "react-icons/rx";
 import { GrEdit } from "react-icons/gr";
-import { FaRegEye } from "react-icons/fa";
-import { FaRegTrashAlt } from "react-icons/fa";
+import { FaRegEye, FaRegTrashAlt } from "react-icons/fa";
 import { IoFingerPrint } from 'react-icons/io5';
 import ActionModal from '../components/ActionModal';
 import AddResidentModal from '../components/AddResidentModal';
@@ -23,9 +22,11 @@ const ResidentManagement = () => {
     const [actionType, setActionType] = useState('');
     const [residentToDelete, setResidentToDelete] = useState(null);
     const [isAddResidentModalOpen, setIsAddResidentModalOpen] = useState(false);
+    const [totalResidents, setTotalResidents] = useState(0);
 
     useEffect(() => {
         fetchResidents();
+        fetchTotalResidentCount();
     }, []);
 
     const fetchResidents = async () => {
@@ -37,10 +38,20 @@ const ResidentManagement = () => {
         }
     };
 
+    const fetchTotalResidentCount = async () => {
+        try {
+            const response = await axios.get('http://localhost:8080/residents/count', { withCredentials: true });
+            setTotalResidents(response.data.count);
+        } catch (error) {
+            console.error("Error fetching residents count:", error);
+        }
+    };
+
     const deleteResident = async (residentId) => {
         try {
             await axios.delete(`http://localhost:8080/residents/${residentId}`, { withCredentials: true });
             fetchResidents();
+            fetchTotalResidentCount();
         } catch (error) {
             console.error("Error deleting resident:", error);
         }
@@ -78,6 +89,11 @@ const ResidentManagement = () => {
         setCurrentPage(1);
     };
 
+    const handleResidentAdded = () => {
+        fetchResidents();
+        fetchTotalResidentCount();
+    };
+
     const filteredResidents = residents.filter(resident => {
         const fullName = `${resident.FirstName} ${resident.LastName} ${resident.HouseholdID}`.toLowerCase();
         return fullName.includes(searchQuery.toLowerCase()) ||
@@ -112,9 +128,12 @@ const ResidentManagement = () => {
                                 <AddResidentModal
                                     isOpen={isAddResidentModalOpen}
                                     onClose={() => setIsAddResidentModalOpen(false)}
-                                    onResidentAdded={fetchResidents}
+                                    onResidentAdded={handleResidentAdded}
                                 />
                             </div>
+                        </div>
+                        <div className="text-sm text-gray-500 mb-4">
+                            Total Residents: {totalResidents}
                         </div>
                         <div className="overflow-x-auto mt-4">
                             <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden text-sm">
@@ -180,16 +199,14 @@ const ResidentManagement = () => {
                             itemsPerPage={itemsPerPage}
                             onItemsPerPageChange={handleItemsPerPageChange}
                         />
+                        <ActionModal
+                            isOpen={isModalOpen}
+                            onClose={() => setIsModalOpen(false)}
+                            onConfirm={handleModalConfirm}
+                        />
                     </div>
                 </main>
             </div>
-            <ActionModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onConfirm={handleModalConfirm}
-                actionType={actionType}
-                residentName={residentToDelete ? `${residentToDelete.FirstName} ${residentToDelete.LastName}` : ''}
-            />
         </div>
     );
 };
