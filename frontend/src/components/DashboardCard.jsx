@@ -8,7 +8,6 @@ import Card from './Card';
 const API_URLS = {
     registeredVoters: 'http://localhost:8080/registered-voters',
     residentCount: 'http://localhost:8080/resident-count',
-    // Add endpoints for households and establishments if they are fetched from an API
 };
 
 const DashboardCard = () => {

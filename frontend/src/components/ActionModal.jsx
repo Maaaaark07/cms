@@ -16,8 +16,7 @@ const ActionModal = ({ isOpen, onClose, onConfirm, actionType, residentName }) =
                 <div className="flex justify-end space-x-4">
                     <button
                         onClick={onConfirm}
-                        className={`text-white px-4 py-2 rounded ${actionType === 'delete' ? 'bg-red-600' : 'bg-green-600'
-                            }`}
+                        className={`text-white px-4 py-2 rounded ${actionType === 'delete' ? 'bg-red-600' : 'bg-green-600'}`}
                     >
                         {actionType === 'delete' ? 'Delete' : 'Confirm'}
                     </button>

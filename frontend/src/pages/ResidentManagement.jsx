@@ -3,19 +3,21 @@ import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Breadcrumbs from '../components/Breadcrumbs';
 import Pagination from '../components/Pagination';
-import { IoPersonAddOutline } from "react-icons/io5";
 import Search from '../components/Search';
+import ActionModal from '../components/ActionModal';
+import AddResidentModal from '../components/AddResidentModal';
+import SuccessMessage from '../components/SuccessMessage';
 import axios from 'axios';
 import { RxAvatar } from "react-icons/rx";
 import { GrEdit } from "react-icons/gr";
 import { FaRegEye, FaRegTrashAlt } from "react-icons/fa";
 import { IoFingerPrint } from 'react-icons/io5';
-import ActionModal from '../components/ActionModal';
-import AddResidentModal from '../components/AddResidentModal';
+import { IoPersonAddOutline } from "react-icons/io5";
 
 const ResidentManagement = () => {
     const [residents, setResidents] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
+    const [success, setSuccess] = useState(false);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [searchQuery, setSearchQuery] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -23,6 +25,7 @@ const ResidentManagement = () => {
     const [residentToDelete, setResidentToDelete] = useState(null);
     const [isAddResidentModalOpen, setIsAddResidentModalOpen] = useState(false);
     const [totalResidents, setTotalResidents] = useState(0);
+    const [deleteSuccess, setDeleteSuccess] = useState(false);
 
     useEffect(() => {
         fetchResidents();
@@ -51,7 +54,8 @@ const ResidentManagement = () => {
         try {
             await axios.delete(`http://localhost:8080/residents/${residentId}`, { withCredentials: true });
             fetchResidents();
-            fetchTotalResidentCount();
+            setDeleteSuccess(true);
+            setTimeout(() => setDeleteSuccess(false), 3000);
         } catch (error) {
             console.error("Error deleting resident:", error);
         }
@@ -67,6 +71,7 @@ const ResidentManagement = () => {
         if (actionType === 'delete' && residentToDelete) {
             await deleteResident(residentToDelete.ResidentID);
             setIsModalOpen(false);
+            setResidentToDelete(null);
             setSearchQuery('');
         } else {
             setIsModalOpen(false);
@@ -92,6 +97,8 @@ const ResidentManagement = () => {
     const handleResidentAdded = () => {
         fetchResidents();
         fetchTotalResidentCount();
+        setSuccess(true);
+        setTimeout(() => setSuccess(false), 3000);
     };
 
     const filteredResidents = residents.filter(resident => {
@@ -203,6 +210,16 @@ const ResidentManagement = () => {
                             isOpen={isModalOpen}
                             onClose={() => setIsModalOpen(false)}
                             onConfirm={handleModalConfirm}
+                            actionType={actionType}
+                        />
+                        <SuccessMessage
+                            message="Resident added successfully!"
+                            isVisible={success}
+                        />
+                        <SuccessMessage
+                            message="Resident deleted successfully!"
+                            isVisible={deleteSuccess}
+                            variant="delete"
                         />
                     </div>
                 </main>

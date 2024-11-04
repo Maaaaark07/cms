@@ -26,6 +26,7 @@ const AddResidentModal = ({ isOpen, onClose, onResidentAdded }) => {
     });
 
     const [errorMessage, setErrorMessage] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -58,6 +59,8 @@ const AddResidentModal = ({ isOpen, onClose, onResidentAdded }) => {
             } else {
                 setErrorMessage('Failed to add resident');
             }
+        } finally {
+            setLoading(false); // Stop loading
         }
     };
 
@@ -176,8 +179,19 @@ const AddResidentModal = ({ isOpen, onClose, onResidentAdded }) => {
                                 </>
                             )}
                             <div className="flex justify-end gap-4 mt-4 md:col-span-3">
-                                <button type="button" onClick={onClose} className="bg-gray-300 px-4 py-2 rounded-md">Cancel</button>
-                                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-md">Add Resident</button>
+                                <div className="flex justify-end gap-4 mt-4 md:col-span-3">
+                                    <button type="button" onClick={onClose} className="bg-gray-300 px-4 py-2 rounded-md">Cancel</button>
+                                    <button type="submit" className={`bg-blue-600 text-white px-4 py-2 rounded-md ${loading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={loading}>
+                                        {loading ? (
+                                            <span className="flex items-center">
+                                                <svg className="animate-spin h-5 w-5 mr-2 border-t-2 border-b-2 border-white rounded-full" />
+                                                Loading...
+                                            </span>
+                                        ) : (
+                                            'Add Resident'
+                                        )}
+                                    </button>
+                                </div>
                             </div>
                         </form>
                     </div>
