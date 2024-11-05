@@ -173,6 +173,52 @@ app.post('/add-resident', async (req, res) => {
     }
 });
 
+// Update Resident
+app.put('/update-resident/:id', async (req, res) => {
+    const {
+        FirstName, LastName, MiddleName, Age, birthday, Gender, Address, ContactNumber,
+        Email, CivilStatus, Occupation, HouseholdID, JuanBataanID, RegistrationDate,
+        Status, RegisteredVoter, VoterIDNumber, VotingPrecinct
+    } = req.body;
+
+    const { id: ResidentID } = req.params;
+    console.log("Gender Value:", Gender);
+
+    if (!ResidentID || !FirstName || !LastName || !Age || !Gender || !Address || !ContactNumber) {
+        return res.status(400).json({ message: 'Please fill in all required fields.' });
+    }
+
+    try {
+        const query = `
+            UPDATE cbs_resident
+            SET FirstName = ?, LastName = ?, MiddleName = ?, Age = ?, birthday = ?, Gender = ?,
+                Address = ?, ContactNumber = ?, Email = ?, CivilStatus = ?, Occupation = ?, 
+                HouseholdID = ?, JuanBataanID = ?, RegistrationDate = ?, Status = ?, 
+                RegisteredVoter = ?, VoterIDNumber = ?, VotingPrecinct = ?
+            WHERE ResidentID = ?
+        `;
+        const values = [
+            FirstName, LastName, MiddleName, Age, birthday, Gender, Address, ContactNumber,
+            Email, CivilStatus, Occupation, HouseholdID, JuanBataanID, RegistrationDate,
+            Status, RegisteredVoter, VoterIDNumber, VotingPrecinct, ResidentID
+        ];
+
+        const result = await db.query(query, values);
+
+        console.log("Query result:", result);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Resident not found or no changes made' });
+        }
+
+        res.status(200).json({ message: 'Resident updated successfully' });
+    } catch (error) {
+        console.error("Error updating resident:", error);
+        res.status(500).json({ message: 'Failed to update resident' });
+    }
+});
+
+
 
 app.get('/home', verifyUser, (req, res) => {
     console.log(req.user);
@@ -246,7 +292,6 @@ app.delete('/residents/:id', (req, res) => {
     });
 });
 
-// Endpoint to get total resident count
 app.get('/residents/count', (req, res) => {
     const query = 'SELECT COUNT(*) AS count FROM cbs_resident';
 

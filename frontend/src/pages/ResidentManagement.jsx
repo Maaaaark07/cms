@@ -7,6 +7,7 @@ import Search from '../components/Search';
 import ActionModal from '../components/ActionModal';
 import AddResidentModal from '../components/AddResidentModal';
 import SuccessMessage from '../components/SuccessMessage';
+import EditResidentModal from '../components/EditResidentModal';
 import axios from 'axios';
 import { RxAvatar } from "react-icons/rx";
 import { GrEdit } from "react-icons/gr";
@@ -17,15 +18,18 @@ import { IoPersonAddOutline } from "react-icons/io5";
 const ResidentManagement = () => {
     const [residents, setResidents] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [success, setSuccess] = useState(false);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [searchQuery, setSearchQuery] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [actionType, setActionType] = useState('');
     const [residentToDelete, setResidentToDelete] = useState(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [isAddResidentModalOpen, setIsAddResidentModalOpen] = useState(false);
     const [totalResidents, setTotalResidents] = useState(0);
+    const [currentResident, setCurrentResident] = useState(null);
     const [deleteSuccess, setDeleteSuccess] = useState(false);
+    const [success, setSuccess] = useState(false);
+    const [updateSuccess, setupdatedSuccess] = useState(false)
 
     useEffect(() => {
         fetchResidents();
@@ -41,6 +45,13 @@ const ResidentManagement = () => {
         }
     };
 
+    const onResidentUpdated = () => {
+        fetchResidents();
+        fetchTotalResidentCount();
+        setupdatedSuccess(true); // Set success state to true
+        setTimeout(() => setupdatedSuccess(false), 3000);
+    }
+
     const fetchTotalResidentCount = async () => {
         try {
             const response = await axios.get('http://localhost:8080/residents/count', { withCredentials: true });
@@ -48,6 +59,11 @@ const ResidentManagement = () => {
         } catch (error) {
             console.error("Error fetching residents count:", error);
         }
+    };
+
+    const handleEditClick = (resident) => {
+        setCurrentResident(resident);
+        setIsEditModalOpen(true);
     };
 
     const deleteResident = async (residentId) => {
@@ -177,7 +193,12 @@ const ResidentManagement = () => {
                                             </td>
                                             <td className="p-3 text-gray-500">{resident.ContactNumber}</td>
                                             <td className="p-3 text-gray-500 flex items-center justify-center gap-2">
-                                                <div className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'><GrEdit className='w-5 h-5 text-gray-500' /></div>
+                                                <div
+                                                    className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'
+                                                    onClick={() => handleEditClick(resident)}
+                                                >
+                                                    <GrEdit className='w-5 h-5 text-gray-500' />
+                                                </div>
                                                 <div className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'><FaRegEye className='w-5 h-5 text-gray-500' /></div>
                                                 <div
                                                     className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'
@@ -212,6 +233,12 @@ const ResidentManagement = () => {
                             onConfirm={handleModalConfirm}
                             actionType={actionType}
                         />
+                        <EditResidentModal
+                            isOpen={isEditModalOpen}
+                            onClose={() => setIsEditModalOpen(false)}
+                            residentData={currentResident}
+                            onResidentUpdated={onResidentUpdated}
+                        />
                         <SuccessMessage
                             message="Resident added successfully!"
                             isVisible={success}
@@ -220,6 +247,10 @@ const ResidentManagement = () => {
                             message="Resident deleted successfully!"
                             isVisible={deleteSuccess}
                             variant="delete"
+                        />
+                        <SuccessMessage
+                            message="Resident updated successfully!"
+                            isVisible={updateSuccess}
                         />
                     </div>
                 </main>
