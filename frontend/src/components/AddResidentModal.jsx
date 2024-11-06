@@ -27,11 +27,11 @@ const AddResidentModal = ({ isOpen, onClose, onResidentAdded, residentData }) =>
 
     const [errorMessage, setErrorMessage] = useState('');
     const [loading, setLoading] = useState(false);
-    const isEditMode = !!residentData; // Check if we are in edit mode
+    const isEditMode = !!residentData;
 
     useEffect(() => {
         if (isEditMode && residentData) {
-            setFormData(residentData); // Set form data to existing resident data
+            setFormData(residentData);
         }
     }, [isEditMode, residentData]);
 

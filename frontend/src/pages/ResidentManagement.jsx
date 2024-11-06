@@ -8,6 +8,7 @@ import ActionModal from '../components/ActionModal';
 import AddResidentModal from '../components/AddResidentModal';
 import SuccessMessage from '../components/SuccessMessage';
 import EditResidentModal from '../components/EditResidentModal';
+import ViewResidentModal from '../components/ViewResidentModal';
 import axios from 'axios';
 import { RxAvatar } from "react-icons/rx";
 import { GrEdit } from "react-icons/gr";
@@ -30,6 +31,7 @@ const ResidentManagement = () => {
     const [deleteSuccess, setDeleteSuccess] = useState(false);
     const [success, setSuccess] = useState(false);
     const [updateSuccess, setupdatedSuccess] = useState(false)
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
     useEffect(() => {
         fetchResidents();
@@ -45,10 +47,15 @@ const ResidentManagement = () => {
         }
     };
 
+    const handleViewClick = (resident) => {
+        setCurrentResident(resident);
+        setIsViewModalOpen(true);
+    };
+
     const onResidentUpdated = () => {
         fetchResidents();
         fetchTotalResidentCount();
-        setupdatedSuccess(true); // Set success state to true
+        setupdatedSuccess(true);
         setTimeout(() => setupdatedSuccess(false), 3000);
     }
 
@@ -199,7 +206,10 @@ const ResidentManagement = () => {
                                                 >
                                                     <GrEdit className='w-5 h-5 text-gray-500' />
                                                 </div>
-                                                <div className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'><FaRegEye className='w-5 h-5 text-gray-500' /></div>
+                                                <div className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'
+                                                    onClick={() => handleViewClick(resident)}
+                                                >
+                                                    <FaRegEye className='w-5 h-5 text-gray-500' /></div>
                                                 <div
                                                     className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'
                                                     onClick={() => handleDeleteClick(resident)}
@@ -238,6 +248,11 @@ const ResidentManagement = () => {
                             onClose={() => setIsEditModalOpen(false)}
                             residentData={currentResident}
                             onResidentUpdated={onResidentUpdated}
+                        />
+                        <ViewResidentModal
+                            isOpen={isViewModalOpen}
+                            onClose={() => setIsViewModalOpen(false)}
+                            residentData={currentResident}
                         />
                         <SuccessMessage
                             message="Resident added successfully!"
