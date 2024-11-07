@@ -175,6 +175,7 @@ app.post('/add-resident', async (req, res) => {
 
 // Update Resident
 app.put('/update-resident/:id', async (req, res) => {
+    console.log("Request Body:", req.body); // Log the entire request body
     const {
         FirstName, LastName, MiddleName, Age, birthday, Gender, Address, ContactNumber,
         Email, CivilStatus, Occupation, HouseholdID, JuanBataanID, RegistrationDate,
@@ -182,7 +183,7 @@ app.put('/update-resident/:id', async (req, res) => {
     } = req.body;
 
     const { id: ResidentID } = req.params;
-    console.log("Gender Value:", Gender);
+    console.log("Gender Value:", Gender); // Log the specific field to check if it's being received
 
     if (!ResidentID || !FirstName || !LastName || !Age || !Gender || !Address || !ContactNumber) {
         return res.status(400).json({ message: 'Please fill in all required fields.' });
@@ -205,7 +206,7 @@ app.put('/update-resident/:id', async (req, res) => {
 
         const result = await db.query(query, values);
 
-        console.log("Query result:", result);
+        console.log("Query result:", result); // Log the query result for debugging
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Resident not found or no changes made' });

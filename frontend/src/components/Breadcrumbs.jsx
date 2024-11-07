@@ -31,14 +31,28 @@ const Breadcrumbs = () => {
                                 <li key={index}>
                                     {isLast ? (
                                         <span className="text-gray-500">
-                                            {value.charAt(0).toUpperCase() + value.slice(1).replaceAll('-', ' ')}
+                                            {value
+                                                .split('-')
+                                                .map((word, i) =>
+                                                    i === 0
+                                                        ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                                                        : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                                                )
+                                                .join(' ')}
                                         </span>
                                     ) : (
                                         <Link to={routeTo} className="text-blue-500 hover:underline">
-                                            {value.charAt(0).toUpperCase() + value.slice(1)}
+                                            {value
+                                                .split('-')
+                                                .map((word, i) =>
+                                                    i === 0
+                                                        ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                                                        : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                                                )
+                                                .join(' ')}
                                         </Link>
                                     )}
-                                    {!isLast && <span className="mx-2">/</span>}
+                                    {!isLast && <span className="ml-2">/</span>}
                                 </li>
                             );
                         })}

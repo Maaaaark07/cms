@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Breadcrumbs from '../components/Breadcrumbs';
 import Pagination from '../components/Pagination';
 import Search from '../components/Search';
 import ActionModal from '../components/ActionModal';
-import AddResidentModal from '../components/AddResidentModal';
 import SuccessMessage from '../components/SuccessMessage';
-import EditResidentModal from '../components/EditResidentModal';
 import ViewResidentModal from '../components/ViewResidentModal';
 import axios from 'axios';
 import { RxAvatar } from "react-icons/rx";
@@ -24,7 +23,6 @@ const ResidentManagement = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [actionType, setActionType] = useState('');
     const [residentToDelete, setResidentToDelete] = useState(null);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [isAddResidentModalOpen, setIsAddResidentModalOpen] = useState(false);
     const [totalResidents, setTotalResidents] = useState(0);
     const [currentResident, setCurrentResident] = useState(null);
@@ -32,6 +30,7 @@ const ResidentManagement = () => {
     const [success, setSuccess] = useState(false);
     const [updateSuccess, setupdatedSuccess] = useState(false)
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchResidents();
@@ -47,16 +46,19 @@ const ResidentManagement = () => {
         }
     };
 
+    const handleAddResidentClick = () => {
+        navigate('/resident-management/add-resident');
+    }
+
     const handleViewClick = (resident) => {
         setCurrentResident(resident);
         setIsViewModalOpen(true);
     };
 
-    const onResidentUpdated = () => {
-        fetchResidents();
-        fetchTotalResidentCount();
-        setupdatedSuccess(true);
-        setTimeout(() => setupdatedSuccess(false), 3000);
+    const handleEditClick = (resident) => {
+        setCurrentResident(resident);
+        navigate('/resident-management/edit-resident', { state: { residentData: resident } });
+        console.log(resident);
     }
 
     const fetchTotalResidentCount = async () => {
@@ -68,10 +70,6 @@ const ResidentManagement = () => {
         }
     };
 
-    const handleEditClick = (resident) => {
-        setCurrentResident(resident);
-        setIsEditModalOpen(true);
-    };
 
     const deleteResident = async (residentId) => {
         try {
@@ -117,13 +115,6 @@ const ResidentManagement = () => {
         setCurrentPage(1);
     };
 
-    const handleResidentAdded = () => {
-        fetchResidents();
-        fetchTotalResidentCount();
-        setSuccess(true);
-        setTimeout(() => setSuccess(false), 3000);
-    };
-
     const filteredResidents = residents.filter(resident => {
         const fullName = `${resident.FirstName} ${resident.LastName} ${resident.HouseholdID}`.toLowerCase();
         return fullName.includes(searchQuery.toLowerCase()) ||
@@ -151,15 +142,10 @@ const ResidentManagement = () => {
                                 />
                             </div>
                             <div>
-                                <button className='bg-blue-600 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full' onClick={() => setIsAddResidentModalOpen(true)}>
+                                <button className='bg-blue-600 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full' onClick={handleAddResidentClick}>
                                     <IoPersonAddOutline className='w-4 h-4 text-white font-bold' />
                                     Add Resident
                                 </button>
-                                <AddResidentModal
-                                    isOpen={isAddResidentModalOpen}
-                                    onClose={() => setIsAddResidentModalOpen(false)}
-                                    onResidentAdded={handleResidentAdded}
-                                />
                             </div>
                         </div>
                         <div className="text-sm text-gray-500 mb-4">
@@ -242,12 +228,6 @@ const ResidentManagement = () => {
                             onClose={() => setIsModalOpen(false)}
                             onConfirm={handleModalConfirm}
                             actionType={actionType}
-                        />
-                        <EditResidentModal
-                            isOpen={isEditModalOpen}
-                            onClose={() => setIsEditModalOpen(false)}
-                            residentData={currentResident}
-                            onResidentUpdated={onResidentUpdated}
                         />
                         <ViewResidentModal
                             isOpen={isViewModalOpen}

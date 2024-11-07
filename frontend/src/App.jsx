@@ -9,6 +9,8 @@ import ApplicationRequest from './pages/ApplicationRequest';
 import IncidentReport from './pages/IncidentReport';
 import UserManagement from './pages/UserManagement';
 import Reports from './pages/Reports';
+import EditResidentPage from './pages/EditResidentPage ';
+import AddResidentPage from './pages/AddResidentPage';
 
 const App = () => {
   return (
@@ -21,6 +23,22 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/resident-management/add-resident"
+          element={
+            <ProtectedRoute>
+              <AddResidentPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/resident-management/edit-resident"
+          element={
+            <ProtectedRoute>
+              <EditResidentPage />
             </ProtectedRoute>
           }
         />
