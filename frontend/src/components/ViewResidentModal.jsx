@@ -7,6 +7,10 @@ const ViewResidentModal = ({ isOpen, onClose, residentData }) => {
 
     if (!isOpen || !residentData) return null;
 
+    const date = new Date(residentData.birthday);
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    const formattedDate = date.toLocaleDateString('en-US', options);
+
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg w-full max-w-lg mx-4 shadow-lg">
@@ -33,25 +37,25 @@ const ViewResidentModal = ({ isOpen, onClose, residentData }) => {
                 <div className="border-b border-gray-400 mb-4">
                     <button
                         onClick={() => setActiveTab('Personal')}
-                        className={`px-4 py-2 ${activeTab === 'Personal' ? 'border-b-2 border-gray-700 font-semibold text-gray-900' : 'text-gray-600'}`}
+                        className={`px-4 py-2 ${activeTab === 'Personal' ? 'border-b-2 border-blue-300 font-semibold text-blue-500' : 'text-gray-400'}`}
                     >
                         Personal
                     </button>
                     <button
                         onClick={() => setActiveTab('Contact')}
-                        className={`px-4 py-2 ${activeTab === 'Contact' ? 'border-b-2 border-gray-700 font-semibold text-gray-900' : 'text-gray-600'}`}
+                        className={`px-4 py-2 ${activeTab === 'Contact' ? 'border-b-2 border-blue-300 font-semibold text-blue-500' : 'text-gray-400'}`}
                     >
                         Contact
                     </button>
                     <button
                         onClick={() => setActiveTab('Household')}
-                        className={`px-4 py-2 ${activeTab === 'Household' ? 'border-b-2 border-gray-700 font-semibold text-gray-900' : 'text-gray-600'}`}
+                        className={`px-4 py-2 ${activeTab === 'Household' ? 'border-b-2 border-blue-300 font-semibold text-blue-500' : 'text-gray-400'}`}
                     >
                         Household
                     </button>
                     <button
                         onClick={() => setActiveTab('Voter Info')}
-                        className={`px-4 py-2 ${activeTab === 'Voter Info' ? 'border-b-2 border-gray-700 font-semibold text-gray-900' : 'text-gray-600'}`}
+                        className={`px-4 py-2 ${activeTab === 'Voter Info' ? 'border-b-2 border-blue-300 font-semibold text-blue-500' : 'text-gray-400'}`}
                     >
                         Voter Info
                     </button>
@@ -62,23 +66,23 @@ const ViewResidentModal = ({ isOpen, onClose, residentData }) => {
                     {activeTab === 'Personal' && (
                         <div>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
-                                <FaUser className="mr-2 text-gray-800" />
+                                <FaUser className="mr-2 text-gray-400" />
                                 <span className="text-gray-600 mr-2">Age:</span> {residentData.Age}
                             </p>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
-                                <FaCalendarAlt className="mr-2 text-gray-800" />
-                                <span className="text-gray-600 mr-2">Birthday:</span> {residentData.birthday}
+                                <FaCalendarAlt className="mr-2 text-gray-400" />
+                                <span className="text-gray-600 mr-2">Birthday:</span> {formattedDate}
                             </p>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
-                                <FaTransgenderAlt className="mr-2 text-gray-800" />
+                                <FaTransgenderAlt className="mr-2 text-gray-400" />
                                 <span className="text-gray-600 mr-2">Gender:</span> {residentData.Gender}
                             </p>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
-                                <FaRing className="mr-2 text-gray-800" />
+                                <FaRing className="mr-2 text-gray-400" />
                                 <span className="text-gray-600 mr-2">Civil Status:</span> {residentData.CivilStatus}
                             </p>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
-                                <FaBriefcase className="mr-2 text-gray-800" />
+                                <FaBriefcase className="mr-2 text-gray-400" />
                                 <span className="text-gray-600 mr-2">Occupation:</span> {residentData.Occupation}
                             </p>
                         </div>
@@ -86,15 +90,15 @@ const ViewResidentModal = ({ isOpen, onClose, residentData }) => {
                     {activeTab === 'Contact' && (
                         <div>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
-                                <FaPhone className="mr-2 text-gray-800" />
+                                <FaPhone className="mr-2 text-gray-400" />
                                 <span className="text-gray-600 mr-2">Contact Number:</span> {residentData.ContactNumber}
                             </p>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
-                                <FaEnvelope className="mr-2 text-gray-800" />
+                                <FaEnvelope className="mr-2 text-gray-400" />
                                 <span className="text-gray-600 mr-2">Email:</span> {residentData.Email}
                             </p>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
-                                <FaMapMarkerAlt className="mr-2 text-gray-800" />
+                                <FaMapMarkerAlt className="mr-2 text-gray-400" />
                                 <span className="text-gray-600 mr-2">Address:</span> {residentData.Address}
                             </p>
                         </div>
@@ -102,11 +106,11 @@ const ViewResidentModal = ({ isOpen, onClose, residentData }) => {
                     {activeTab === 'Household' && (
                         <div>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
-                                <FaHome className="mr-2 text-gray-800" />
+                                <FaHome className="mr-2 text-gray-400" />
                                 <span className="text-gray-600 mr-2">Household ID:</span> {residentData.HouseholdID}
                             </p>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
-                                <FaMapMarkedAlt className="mr-2 text-gray-800" />
+                                <FaMapMarkedAlt className="mr-2 text-gray-400" />
                                 <span className="text-gray-600 mr-2">Juan Bataan ID:</span> {residentData.JuanBataanID}
                             </p>
                         </div>
@@ -114,15 +118,15 @@ const ViewResidentModal = ({ isOpen, onClose, residentData }) => {
                     {activeTab === 'Voter Info' && (
                         <div>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
-                                <FaIdCard className="mr-2 text-gray-800" />
+                                <FaIdCard className="mr-2 text-gray-400" />
                                 <span className="text-gray-600 mr-2">Registered Voter:</span> {residentData.RegisteredVoter ? 'Yes' : 'No'}
                             </p>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
-                                <FaIdCard className="mr-2 text-gray-800" />
+                                <FaIdCard className="mr-2 text-gray-400" />
                                 <span className="text-gray-600 mr-2">Voter ID Number:</span> {residentData.VoterIDNumber}
                             </p>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
-                                <FaMapMarkedAlt className="mr-2 text-gray-800" />
+                                <FaMapMarkedAlt className="mr-2 text-gray-400" />
                                 <span className="text-gray-600 mr-2">Voting Precinct:</span> {residentData.VotingPrecinct}
                             </p>
                         </div>

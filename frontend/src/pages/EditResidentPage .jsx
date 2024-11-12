@@ -5,6 +5,10 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Breadcrumbs from '../components/Breadcrumbs';
+import { BsFillPersonVcardFill } from "react-icons/bs";
+import { MdContactPhone } from "react-icons/md";
+import { FaHouseUser } from "react-icons/fa6";
+import { IoIosFingerPrint } from "react-icons/io";
 
 const EditResidentPage = ({ }) => {
     const [formData, setFormData] = useState({
@@ -60,6 +64,11 @@ const EditResidentPage = ({ }) => {
         }));
     };
 
+    const handleCancel = () => {
+        navigate('/resident-management');
+    }
+
+
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         return date.toISOString().split('T')[0];
@@ -101,134 +110,210 @@ const EditResidentPage = ({ }) => {
                 <main className="flex-grow p-4 bg-gray-100">
                     <div className="flex-grow p-6 bg-gray-100">
                         <Breadcrumbs />
-                        <div className="mx-auto">
-                            <h2 className="text-2xl font-semibold text-gray-500 mb-6">Edit Resident</h2>
+                        <div className="mx-auto bg-white p-10 rounded-lg">
+                            <div className='leading-2 mb-6'>
+                                <h2 className="text-xl font-semibold text-gray-500">Edit Resident</h2>
+                                <p className="text-xs text-gray-400">
+                                    Update the details of the selected resident below. Ensure all required fields are filled out accurately.
+                                </p>
+                            </div>
                             {errorMessage && <p className="text-red-500 text-sm mb-4">{errorMessage}</p>}
-                            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <label className="block mb-1">
-                                    First Name
-                                    <input type="text" name="FirstName" value={formData.FirstName} onChange={handleChange} required className="border p-2 mb-2 w-full rounded-md focus:outline-blue-400" />
-                                </label>
-                                <label className="block mb-1">
-                                    Last Name
-                                    <input type="text" name="LastName" value={formData.LastName} onChange={handleChange} required className="border p-2 mb-2 w-full rounded-md focus:outline-blue-400" />
-                                </label>
-                                <label className="block mb-1">
-                                    Middle Name
-                                    <input type="text" name="MiddleName" value={formData.MiddleName} onChange={handleChange} className="border p-2 mb-2 w-full rounded-md focus:outline-blue-400" />
-                                </label>
-                                <label className="block mb-1">
-                                    Age
-                                    <input type="number" name="Age" value={formData.Age} onChange={handleChange} required className="border p-2 mb-2 w-full rounded-md focus:outline-blue-400" />
-                                </label>
-                                <label className="block mb-1">
-                                    Birthday
-                                    <input
-                                        type="date"
-                                        name="birthday"
-                                        value={formData.birthday}
-                                        onChange={handleChange}
-                                        className="border p-2 mb-2 w-full rounded-md focus:outline-blue-400"
-                                    />
-                                </label>
-                                <label className="block mb-1">
-                                    Gender
-                                    <select name="Gender" value={formData.Gender} onChange={handleChange} required className="border p-2 mb-2 w-full rounded-md focus:outline-blue-400">
-                                        <option value="">Select Gender</option>
-                                        <option value="M">Male</option>
-                                        <option value="F">Female</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                </label>
-                                <label className="block mb-1">
-                                    Address
-                                    <input type="text" name="Address" value={formData.Address} onChange={handleChange} required className="border p-2 mb-2 w-full rounded-md focus:outline-blue-400" />
-                                </label>
-                                <label className="block mb-1">
-                                    Contact Number
-                                    <input type="text" name="ContactNumber" value={formData.ContactNumber} onChange={handleChange} required className="border p-2 mb-2 w-full rounded-md focus:outline-blue-400" />
-                                </label>
-                                <label className="block mb-1">
-                                    Email
-                                    <input type="email" name="Email" value={formData.Email} onChange={handleChange} className="border p-2 mb-2 w-full rounded-md focus:outline-blue-400" />
-                                </label>
-                                <label className="block mb-1">
-                                    Civil Status
-                                    <select name="CivilStatus" value={formData.CivilStatus} onChange={handleChange} className="border p-2 mb-2 w-full rounded-md focus:outline-blue-400">
-                                        <option value="">Select Civil Status</option>
-                                        <option value="Single">Single</option>
-                                        <option value="Married">Married</option>
-                                        <option value="Widowed">Widowed</option>
-                                        <option value="Divorced">Divorced</option>
-                                    </select>
-                                </label>
-                                <label className="block mb-1">
-                                    Occupation
-                                    <input type="text" name="Occupation" value={formData.Occupation} onChange={handleChange} className="border p-2 mb-2 w-full rounded-md focus:outline-blue-400" />
-                                </label>
-                                <label className="block mb-1">
-                                    Household ID
-                                    <input type="text" name="HouseholdID" value={formData.HouseholdID} onChange={handleChange} required className="border p-2 mb-2 w-full rounded-md focus:outline-blue-400" />
-                                </label>
-                                <label className="block mb-1">
-                                    Juan Bataan ID
-                                    <div className='relative'>
-                                        <img src={JuanBataanLogo} alt="Juan Bataan Logo" className="w-5 h-5 absolute left-2 top-2" />
-                                        <input type="text" name="JuanBataanID" value={formData.JuanBataanID} onChange={handleChange} className="border p-2 pl-8 mb-2 w-full rounded-md focus:outline-blue-400" />
+                            {formData && (
+                                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="col-span-1 md:col-span-3 mb-4">
+                                        <div className='flex items-center gap-3 mb-4'>
+                                            <BsFillPersonVcardFill className='w-6 h-6 text-gray-400' />
+                                            <h2 className="text-sm font-bold text-gray-500">Personal Details</h2>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            <div>
+                                                <label className="block mb-2 text-sm font-medium text-gray-500">First Name</label>
+                                                <input type="text" name="FirstName" value={formData.FirstName} onChange={handleChange} required className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                            </div>
+                                            <div>
+                                                <label className="block mb-2 text-sm font-medium text-gray-500">Last Name</label>
+                                                <input type="text" name="LastName" value={formData.LastName} onChange={handleChange} required className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                            </div>
+                                            <div>
+                                                <label className="block mb-2 text-sm font-medium text-gray-500">
+                                                    Middle Name
+                                                </label>
+                                                <input type="text" name="MiddleName" value={formData.MiddleName} onChange={handleChange} className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                            </div>
+                                            <div>
+                                                <label className="block mb-2 text-sm font-medium text-gray-500">
+                                                    Age
+                                                </label>
+                                                <input type="number" name="Age" value={formData.Age} onChange={handleChange} required className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                            </div>
+                                            <div>
+                                                <label className="block mb-2 text-sm font-medium text-gray-500">
+                                                    Birthday
+                                                </label>
+                                                <input
+                                                    type="date"
+                                                    name="birthday"
+                                                    value={formData.birthday}
+                                                    onChange={handleChange}
+                                                    className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block mb-2 text-sm font-medium text-gray-500">
+                                                    Gender
+                                                </label>
+                                                <select name="Gender" value={formData.Gender} onChange={handleChange} required className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                    <option value="">Select Gender</option>
+                                                    <option value="M">Male</option>
+                                                    <option value="F">Female</option>
+                                                    <option value="Other">Other</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block mb-2 text-sm font-medium text-gray-500">
+                                                    Occupation
+                                                </label>
+                                                <input type="text" name="Occupation" value={formData.Occupation} onChange={handleChange} required className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                            </div>
+                                            <div>
+                                                <label className="block mb-2 text-sm font-medium text-gray-500">
+                                                    Civil Status
+                                                </label>
+                                                <select name="CivilStatus" value={formData.CivilStatus} onChange={handleChange} className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                    <option value="">Select Civil Status</option>
+                                                    <option value="Single">Single</option>
+                                                    <option value="Married">Married</option>
+                                                    <option value="Widowed">Widowed</option>
+                                                    <option value="Divorced">Divorced</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
-                                </label>
-                                <label className="block mb-1">
-                                    Registration Date
-                                    <input
-                                        type="date"
-                                        name="RegistrationDate"
-                                        value={formData.RegistrationDate}
-                                        onChange={handleChange}
-                                        className="border p-2 mb-2 w-full rounded-md focus:outline-blue-400"
-                                    />
-                                </label>
-                                <label className="block mb-1">
-                                    Status
-                                    <select name="Status" value={formData.Status} onChange={handleChange} className="border p-2 mb-2 w-full rounded-md focus:outline-blue-400">
-                                        <option value="">Select Status</option>
-                                        <option value="Active">Active</option>
-                                        <option value="Inactive">Inactive</option>
-                                    </select>
-                                </label>
-                                <label className="flex items-center mb-2 md:col-span-3">
-                                    <input type="checkbox" name="RegisteredVoter" checked={formData.RegisteredVoter} onChange={handleCheckboxChange} className="mr-2 focus:outline-blue-400" />
-                                    Registered Voter
-                                </label>
-                                {formData.RegisteredVoter ? (
-                                    <>
-                                        <label className="block mb-1 md:col-span-3">
-                                            Voter ID Number
-                                            <input
-                                                type="text"
-                                                name="VoterIDNumber"
-                                                value={formData.VoterIDNumber}
-                                                onChange={handleChange}
-                                                className="border p-2 mb-2 w-full rounded-md focus:outline-blue-400"
-                                            />
-                                        </label>
-                                        <label className="block mb-1 md:col-span-3">
-                                            Voting Precinct
-                                            <input
-                                                type="text"
-                                                name="VotingPrecinct"
-                                                value={formData.VotingPrecinct}
-                                                onChange={handleChange}
-                                                className="border p-2 mb-2 w-full rounded-md focus:outline-blue-400"
-                                            />
-                                        </label>
-                                    </>
-                                ) : null}
-                                <div className="col-span-full mt-4">
-                                    <button type="submit" disabled={loading} className="bg-blue-500 text-white px-4 py-2 rounded-md w-full">
-                                        {loading ? 'Updating...' : 'Update Resident'}
-                                    </button>
-                                </div>
-                            </form>
+
+                                    <div className="col-span-1 md:col-span-3 mb-4">
+                                        <div className='flex items-center gap-3 mb-4'>
+                                            <MdContactPhone className='w-6 h-6 text-gray-400' />
+                                            <h2 className="text-sm font-bold text-gray-500">Contact Information</h2>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            <div>
+                                                <label className="block mb-2 text-sm font-medium text-gray-500">
+                                                    Address
+                                                </label>
+                                                <input type="text" name="Address" value={formData.Address} onChange={handleChange} required className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                            </div>
+                                            <div>
+                                                <label className="block mb-2 text-sm font-medium text-gray-500">
+                                                    Contact Number
+                                                </label>
+                                                <input type="text" name="ContactNumber" value={formData.ContactNumber} onChange={handleChange} required className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                            </div>
+                                            <div>
+                                                <label className="block mb-2 text-sm font-medium text-gray-500">
+                                                    Email
+                                                </label>
+                                                <input type="email" name="Email" value={formData.Email} onChange={handleChange} className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div className="col-span-1 md:col-span-3 mb-4">
+                                        <div className='flex items-center gap-3 mb-4'>
+                                            <FaHouseUser className='w-6 h-6 text-gray-400' />
+                                            <h2 className="text-sm font-bold text-gray-500">Household Information</h2>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            <div>
+                                                <label className="block mb-2 text-sm font-medium text-gray-500">
+                                                    Household ID
+                                                </label>
+                                                <input type="text" name="HouseholdID" value={formData.HouseholdID} onChange={handleChange} required className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                            </div>
+                                            <div>
+                                                <label className="block mb-2 text-sm font-medium text-gray-500">
+                                                    Juan Bataan ID
+                                                </label>
+                                                <div className='relative'>
+                                                    <img src={JuanBataanLogo} alt="Juan Bataan Logo" className="w-5 h-5 absolute left-2 top-2" />
+                                                    <input type="text" name="JuanBataanID" value={formData.JuanBataanID} onChange={handleChange} className="border p-2 pl-9  text-gray-500  text-sm w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block mb-2 text-sm font-medium text-gray-500">
+                                                    Registration Date
+                                                </label>
+                                                <input
+                                                    type="date"
+                                                    name="RegistrationDate"
+                                                    value={formData.RegistrationDate}
+                                                    onChange={handleChange}
+                                                    className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block mb-2 text-sm font-medium text-gray-500">
+                                                    Status
+                                                </label>
+                                                <select name="Status" value={formData.Status} onChange={handleChange} className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                    <option value="">Select Status</option>
+                                                    <option value="Active">Active</option>
+                                                    <option value="Inactive">Inactive</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="col-span-1 md:col-span-3 mb-4">
+                                        <div className='flex items-center gap-3 mb-4'>
+                                            <IoIosFingerPrint className='w-6 h-6 text-gray-400' />
+                                            <h2 className="block text-sm font-bold text-gray-500">Voter Information</h2>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            <div>
+                                                <label className=" md:col-span-3 block mb-2 text-sm font-medium text-gray-500">
+                                                    Registered Voter
+                                                </label>
+                                                <input type="checkbox" name="RegisteredVoter" checked={formData.RegisteredVoter} onChange={handleCheckboxChange} className="mr-2 focus:outline-blue-400 " />
+                                            </div>
+                                            {formData.RegisteredVoter ? (
+                                                <>
+                                                    <div>
+                                                        <label className="block mb-2 text-sm font-medium text-gray-500 md:col-span-3">
+                                                            Voter ID Number
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            name="VoterIDNumber"
+                                                            value={formData.VoterIDNumber}
+                                                            onChange={handleChange}
+                                                            className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block mb-2 text-sm font-medium text-gray-500 md:col-span-3">
+                                                            Voting Precinct
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            name="VotingPrecinct"
+                                                            value={formData.VotingPrecinct}
+                                                            onChange={handleChange}
+                                                            className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                        />
+                                                    </div>
+                                                </>
+                                            ) : null}
+                                        </div>
+                                    </div>
+                                    <div className="col-span-1 md:col-span-3 flex justify-end mt-4 space-x-4">
+                                        <button type="button" onClick={handleCancel} className="bg-gray-300 text-gray-700 py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400">Cancel</button>
+                                        <button type="submit" disabled={loading} className="bg-blue-500 text-white px-4 py-2 rounded-md">
+                                            {loading ? 'Updating...' : 'Update Resident'}
+                                        </button>
+                                    </div>
+                                </form>
+                            )}
                         </div>
                     </div>
                 </main>

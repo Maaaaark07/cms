@@ -219,8 +219,6 @@ app.put('/update-resident/:id', async (req, res) => {
     }
 });
 
-
-
 app.get('/home', verifyUser, (req, res) => {
     console.log(req.user);
     return res.json({ Status: 'Success', user: req.user.users, role: req.user.role });
