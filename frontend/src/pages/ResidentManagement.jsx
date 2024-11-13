@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -23,24 +23,43 @@ const ResidentManagement = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [actionType, setActionType] = useState('');
     const [residentToDelete, setResidentToDelete] = useState(null);
-    const [isAddResidentModalOpen, setIsAddResidentModalOpen] = useState(false);
     const [totalResidents, setTotalResidents] = useState(0);
     const [currentResident, setCurrentResident] = useState(null);
     const [deleteSuccess, setDeleteSuccess] = useState(false);
     const [success, setSuccess] = useState(false);
     const [updateSuccess, setupdatedSuccess] = useState(false)
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [successMessageText, setSuccessMessageText] = useState('');
     const navigate = useNavigate();
+    const location = useLocation();
+    const { setSuccessMessage } = location.state || {};
+
 
     useEffect(() => {
         fetchResidents();
         fetchTotalResidentCount();
+
+        const editSuccessMessage = sessionStorage.getItem('residentEditSuccess');
+        const addedSuccessMessage = sessionStorage.getItem('residentAddedSuccess');
+
+        if (editSuccessMessage === 'true') {
+            setSuccess(true);
+            setSuccessMessageText('Resident successfully updated.');
+            setTimeout(() => setSuccess(false), 3000);
+            sessionStorage.removeItem('residentEditSuccess');
+        } else if (addedSuccessMessage === 'true') {
+            setSuccess(true);
+            setSuccessMessageText('Resident successfully added.');
+            setTimeout(() => setSuccess(false), 3000);
+            sessionStorage.removeItem('residentAddedSuccess');
+        }
     }, []);
 
     const fetchResidents = async () => {
         try {
             const response = await axios.get('http://localhost:8080/residents', { withCredentials: true });
             setResidents(response.data);
+
         } catch (error) {
             console.error("Error fetching residents data:", error);
         }
@@ -49,6 +68,7 @@ const ResidentManagement = () => {
     const handleAddResidentClick = () => {
         navigate('/resident-management/add-resident');
     }
+
 
     const handleViewClick = (resident) => {
         setCurrentResident(resident);
@@ -235,7 +255,7 @@ const ResidentManagement = () => {
                             residentData={currentResident}
                         />
                         <SuccessMessage
-                            message="Resident added successfully!"
+                            message={successMessageText}
                             isVisible={success}
                         />
                         <SuccessMessage
@@ -244,7 +264,7 @@ const ResidentManagement = () => {
                             variant="delete"
                         />
                         <SuccessMessage
-                            message="Resident updated successfully!"
+                            message={successMessageText}
                             isVisible={updateSuccess}
                         />
                     </div>

@@ -12,7 +12,7 @@ import { IoIosFingerPrint } from "react-icons/io";
 
 
 
-const AddResidentPage = () => {
+const AddResidentPage = ({ setSuccess }) => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         ResidentID: '',
@@ -82,6 +82,7 @@ const AddResidentPage = () => {
 
         try {
             await axios.post('http://localhost:8080/add-resident', formData, { withCredentials: true });
+            sessionStorage.setItem('residentAddedSuccess', 'true');
             navigate('/resident-management');
         } catch (error) {
             setErrorMessage(error.response?.data?.message || 'Failed to save resident');

@@ -83,6 +83,7 @@ const EditResidentPage = ({ }) => {
             const response = await axios.put(`http://localhost:8080/update-resident/${formData.ResidentID}`, formData, { withCredentials: true });
 
             if (response.status === 200) {
+                sessionStorage.setItem('residentEditSuccess', 'true');
                 navigate('/resident-management');
             } else {
                 setErrorMessage('Failed to update resident. Response status: ' + response.status);
