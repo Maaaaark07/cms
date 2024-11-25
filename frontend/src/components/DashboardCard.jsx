@@ -6,8 +6,8 @@ import { FaRegBuilding } from 'react-icons/fa';
 import Card from './Card';
 
 const API_URLS = {
-    registeredVoters: 'http://localhost:8080/registered-voters',
-    residentCount: 'http://localhost:8080/resident-count',
+    registeredVoters: 'http://localhost:8080/stats/registered-voters',
+    residentCount: 'http://localhost:8080/residents/count',
 };
 
 const DashboardCard = () => {
@@ -42,10 +42,11 @@ const DashboardCard = () => {
 
             if (residentsResponse.ok) {
                 const residentsData = await residentsResponse.json();
-                setResidentCount(residentsData.NumberOfResidents);
+                setResidentCount(residentsData.count);
             } else {
                 console.error('Error fetching resident count:', await residentsResponse.json());
             }
+
         } catch (error) {
             console.error('Error fetching data:', error);
         } finally {

@@ -81,7 +81,7 @@ const AddResidentPage = ({ setSuccess }) => {
         if (!validateFormData()) return;
 
         try {
-            await axios.post('http://localhost:8080/add-resident', formData, { withCredentials: true });
+            await axios.post('http://localhost:8080/residents/add', formData, { withCredentials: true });
             sessionStorage.setItem('residentAddedSuccess', 'true');
             navigate('/resident-management');
         } catch (error) {

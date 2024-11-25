@@ -80,7 +80,7 @@ const EditResidentPage = ({ }) => {
         setLoading(true);
 
         try {
-            const response = await axios.put(`http://localhost:8080/update-resident/${formData.ResidentID}`, formData, { withCredentials: true });
+            const response = await axios.put(`http://localhost:8080/residents/update/${formData.ResidentID}`, formData, { withCredentials: true });
 
             if (response.status === 200) {
                 sessionStorage.setItem('residentEditSuccess', 'true');

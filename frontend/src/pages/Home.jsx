@@ -60,7 +60,7 @@ const Home = () => {
     useEffect(() => {
         const fetchPopulationData = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/population-stats', { withCredentials: true });
+                const response = await axios.get('http://localhost:8080/stats/population', { withCredentials: true });
                 const { male, female, seniorCitizens, youth, totalPopulation } = response.data;
 
                 setChartData(prevChartData => ({
