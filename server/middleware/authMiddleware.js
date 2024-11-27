@@ -9,7 +9,7 @@ export const verifyUser = (req, res, next) => {
         if (err) {
             return res.json({ Error: "Token is not okay" });
         } else {
-            req.user = { users: decoded.users, role: decoded.role };
+            req.user = { user: decoded.user, role: decoded.role };
             next();
         }
     });

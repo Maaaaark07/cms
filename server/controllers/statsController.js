@@ -1,7 +1,7 @@
 import db from '../config/database.js';
 
 export const getRegisteredVoters = (req, res) => {
-    const sql = "SELECT COUNT(*) AS NumberOfRegisteredVoters FROM cbs_resident WHERE RegisteredVoter = 1";
+    const sql = "SELECT COUNT(*) AS NumberOfRegisteredVoters FROM cbs_residents WHERE is_registered_voter = 1";
 
     db.query(sql, (err, results) => {
         if (err) {
@@ -22,7 +22,7 @@ export const getPopulationStats = (req, res) => {
             COUNT(CASE WHEN age >= 60 THEN 1 END) AS seniorCitizens,
             COUNT(CASE WHEN age < 18 THEN 1 END) AS youth,
             COUNT(*) AS totalPopulation
-        FROM cbs_resident
+        FROM cbs_residents
     `;
 
     db.query(sql, (err, results) => {
@@ -37,7 +37,7 @@ export const getPopulationStats = (req, res) => {
 };
 
 export const getResidentCount = (req, res) => {
-    const sql = "SELECT COUNT(*) AS NumberOfResidents FROM cbs_resident";
+    const sql = "SELECT COUNT(*) AS NumberOfResidents FROM cbs_residents";
 
     db.query(sql, (err, result) => {
         if (err) {
