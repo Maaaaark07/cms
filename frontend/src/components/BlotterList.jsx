@@ -4,6 +4,7 @@ import { FaRegFileLines } from "react-icons/fa6";
 import { FaArrowRightLong } from "react-icons/fa6";
 
 const BlotterList = ({ blotterData }) => {
+  console.log(blotterData);
   const capitalizeFirstLetter = (string) => {
     if (!string) return "";
     return string.charAt(0).toUpperCase() + string.slice(1);
