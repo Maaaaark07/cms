@@ -59,7 +59,6 @@ const ResidentManagement = () => {
         try {
             const response = await axios.get('http://localhost:8080/residents', { withCredentials: true });
             setResidents(response.data);
-
         } catch (error) {
             console.error("Error fetching residents data:", error);
         }
@@ -68,7 +67,6 @@ const ResidentManagement = () => {
     const handleAddResidentClick = () => {
         navigate('/resident-management/add-resident');
     }
-
 
     const handleViewClick = (resident) => {
         setCurrentResident(resident);
@@ -136,7 +134,7 @@ const ResidentManagement = () => {
     };
 
     const filteredResidents = residents.filter(resident => {
-        const fullName = `${resident.FirstName} ${resident.LastName} ${resident.HouseholdID}`.toLowerCase();
+        const fullName = `${resident.first_name} ${resident.last_name} ${resident.HouseholdID}`.toLowerCase();
         return fullName.includes(searchQuery.toLowerCase()) ||
             resident.HouseholdID.toString().includes(searchQuery);
     });
@@ -185,26 +183,26 @@ const ResidentManagement = () => {
                                 </thead>
                                 <tbody>
                                     {filteredResidents.length > 0 ? displayedResidents.map((resident) => (
-                                        <tr key={resident.ResidentID} className="border-b hover:bg-gray-100 even:bg-gray-50">
+                                        <tr key={resident.resident_id} className="border-b hover:bg-gray-100 even:bg-gray-50">
                                             <td className="p-3 flex items-center gap-2">
                                                 <div className='bg-gray-200 rounded-full'>
                                                     <RxAvatar className='w-8 h-8 text-gray-400' />
                                                 </div>
                                                 <div className='flex flex-col leading-4 text-gray-500'>
-                                                    {`${resident.FirstName} ${resident.LastName}`}
-                                                    <span className='text-xs text-gray-400'>{resident.Occupation}</span>
+                                                    {`${resident.first_name} ${resident.last_name}`}
+                                                    <span className='text-xs text-gray-400'>{resident.occupation}</span>
                                                 </div>
                                             </td>
-                                            <td className="p-3 text-gray-500">{resident.Address}</td>
-                                            <td className="p-3 text-gray-500">{resident.HouseholdID}</td>
+                                            <td className="p-3 text-gray-500">{resident.address}</td>
+                                            <td className="p-3 text-gray-500">{resident.household_id}</td>
                                             <td className="p-3 text-gray-500">
-                                                {resident.RegisteredVoter ? (
+                                                {resident.is_registered_voter ? (
                                                     <IoFingerPrint className='text-green-500 h-6 w-6' />
                                                 ) : (
                                                     <IoFingerPrint className='text-red-500 h-6 w-6' />
                                                 )}
                                             </td>
-                                            <td className="p-3 text-gray-500">{resident.ContactNumber}</td>
+                                            <td className="p-3 text-gray-500">{resident.contact_number}</td>
                                             <td className="p-3 text-gray-500 flex items-center justify-center gap-2">
                                                 <div
                                                     className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'

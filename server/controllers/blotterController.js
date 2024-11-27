@@ -1,7 +1,7 @@
 import db from '../config/database.js';
 
 export const getAllBlotters = (req, res) => {
-    const sql = "SELECT * FROM cbs_blotter ORDER BY incident_date DESC";
+    const sql = "SELECT * FROM cbs_blotters ORDER BY incident_date DESC";
 
     db.query(sql, (err, results) => {
         if (err) {
@@ -28,7 +28,7 @@ export const addBlotter = async (req, res) => {
     }
 
     const sql = `
-        INSERT INTO cbs_blotter 
+        INSERT INTO cbs_blotters 
         (incident_type, complainant, respondent, incident_date, incident_location, incident_description, status)
         VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
@@ -69,7 +69,7 @@ export const updateBlotter = async (req, res) => {
     }
 
     const sql = `
-        UPDATE cbs_blotter
+        UPDATE cbs_blotters
         SET incident_type = ?, complainant = ?, respondent = ?, 
             incident_date = ?, incident_location = ?, 
             incident_description = ?, status = ?
@@ -103,7 +103,7 @@ export const updateBlotter = async (req, res) => {
 
 export const deleteBlotter = async (req, res) => {
     const { id } = req.params;
-    const sql = 'DELETE FROM cbs_blotter WHERE id = ?';
+    const sql = 'DELETE FROM cbs_blotters WHERE id = ?';
 
     try {
         const result = await db.query(sql, [id]);

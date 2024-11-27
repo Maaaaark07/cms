@@ -5,13 +5,13 @@ import db from '../config/database.js';
 const salt = 10;
 
 export const register = (req, res) => {
-    const { users, password } = req.body;
-    const sql = "INSERT INTO cbs_users (`users`, `password`) VALUES (?, ?)";
+    const { user, password } = req.body;
+    const sql = "INSERT INTO cbs_users (`user`, `password`) VALUES (?, ?)";
 
     bcrypt.hash(password, salt, (err, hash) => {
         if (err) return res.json({ Error: "Error hashing password" });
 
-        const values = [users, hash];
+        const values = [user, hash];
         db.query(sql, values, (err, result) => {
             if (err) return res.json({ Error: "Inserting Data error" });
             return res.json({ Status: "Success" });
@@ -21,7 +21,7 @@ export const register = (req, res) => {
 
 export const login = (req, res) => {
     const { users, password } = req.body;
-    const sql = "SELECT * FROM cbs_users WHERE users = ?";
+    const sql = "SELECT * FROM cbs_users WHERE user = ?";
 
     db.query(sql, [users], (err, data) => {
         if (err) return res.status(500).json({ Error: "Database error" });
@@ -32,7 +32,7 @@ export const login = (req, res) => {
 
                 if (result) {
                     const token = jwt.sign(
-                        { users: data[0].users, role: data[0].role },
+                        { user: data[0].user, role: data[0].role },
                         "jwt-secret-key",
                         { expiresIn: '1d' }
                     );
@@ -59,7 +59,11 @@ export const logout = (req, res) => {
 };
 
 export const getHome = (req, res) => {
-    return res.json({ Status: 'Success', user: req.user.users, role: req.user.role });
+    return res.json({
+        Status: 'Success',
+        user: req.user.user,
+        role: req.user.role,
+    });
 };
 
 export const setCookie = (req, res) => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import JuanBataanLogo from '../assets/juanbataan.png';
@@ -9,34 +9,124 @@ import { BsFillPersonVcardFill } from "react-icons/bs";
 import { MdContactPhone } from "react-icons/md";
 import { FaHouseUser } from "react-icons/fa6";
 import { IoIosFingerPrint } from "react-icons/io";
-
+import { FaMapLocationDot } from "react-icons/fa6";
 
 
 const AddResidentPage = ({ setSuccess }) => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        ResidentID: '',
         FirstName: '',
         LastName: '',
         MiddleName: '',
+        Suffix: '',
         Age: '',
         birthday: '',
+        BirthPlace: '',
         Gender: '',
         Address: '',
+        Region_ID: '',
+        Province_ID: '',
+        City_ID: '',
+        Barangay_ID: '',
+        Purok_ID: '',
+        IsLocalResident: false,
         ContactNumber: '',
         Email: '',
         CivilStatus: '',
         Occupation: '',
+        IsHouseholdHead: false,
         HouseholdID: '',
-        JuanBataanID: '',
-        RegistrationDate: '',
-        Status: '',
-        RegisteredVoter: false,
+        IsRegisteredVoter: false,
         VoterIDNumber: '',
-        VotingPrecinct: '',
+        IsJuanBataanMember: false,
+        JuanBataanID: '',
+        LastUpdated: '',
     });
     const [errorMessage, setErrorMessage] = useState('');
     const [loading, setLoading] = useState(false);
+    const [allRegion, setAllRegion] = useState([]);
+    const [allProvinces, setAllProvinces] = useState([]);
+    const [allCities, setAllCities] = useState([]);
+    const [allBarangay, setAllBarangay] = useState([]);
+    const [selectedRegion, setSelectedRegion] = useState('');
+    const [selectedProvince, setSelectedProvince] = useState('');
+    const [selectedCity, setSelectedCity] = useState('');
+    const [selectedBarangay, setSelectedBarangay] = useState('');
+
+    useEffect(() => {
+        fetchAllRegion();
+    }, []);
+
+    useEffect(() => {
+        if (selectedRegion) {
+            fetchAllProvince(selectedRegion);
+        }
+    }, [selectedRegion]);
+
+    useEffect(() => {
+        if (selectedProvince) {
+            fetchAllCity(selectedProvince);
+        }
+    }, [selectedProvince]);
+
+    useEffect(() => {
+        if (selectedCity) {
+            fetchAllBarangay(selectedCity);
+        }
+    }, [selectedCity]);
+
+    const fetchAllRegion = async () => {
+        try {
+            const response = await axios.get('http://localhost:8080/location/region', { withCredentials: true });
+            setAllRegion(response.data);
+        } catch (error) {
+            console.error("Error fetching all Region:", error)
+        }
+    }
+
+    const fetchAllProvince = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8080/location/provinces/${selectedRegion}`, { withCredentials: true });
+            setAllProvinces(response.data);
+            if (response.data.length > 0) {
+                setSelectedProvince(response.data[0].iid);
+            } else {
+                setSelectedProvince('');
+                setAllCities([]);
+                setSelectedCity('');
+            }
+        } catch (error) {
+            console.error("Error fetching all Region:", error)
+        }
+    }
+
+    const fetchAllCity = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8080/location/cities/${selectedProvince}`, { withCredentials: true });
+            setAllCities(response.data);
+            if (response.data.length > 0) {
+                setSelectedCity(response.data[0].iid);
+            } else {
+                setSelectedCity('');
+            }
+        } catch (error) {
+            console.error("Error fetching all Region:", error)
+        }
+    }
+
+    const fetchAllBarangay = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8080/location/barangay/${selectedCity}`, { withCredentials: true });
+            setAllBarangay(response.data);
+            if (response.data.length > 0) {
+                setSelectedBarangay(response.data[0].iid);
+            } else {
+                setSelectedBarangay('');
+            }
+        } catch (error) {
+            console.error("Error fetching all Region:", error)
+        }
+    }
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -121,9 +211,29 @@ const AddResidentPage = ({ setSuccess }) => {
                                             <label className="block mb-2 text-sm font-medium text-gray-500">Last Name</label>
                                             <input type="text" name="LastName" value={formData.LastName} onChange={handleChange} placeholder="Doe" required className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                         </div>
-                                        <div>
-                                            <label className="block mb-2 text-sm font-medium text-gray-500">Middle Name</label>
-                                            <input type="text" name="MiddleName" value={formData.MiddleName} onChange={handleChange} placeholder="Smith" className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        <div className='flex gap-4'>
+                                            <div className='flex-2'>
+                                                <label className="block mb-2 text-sm font-medium text-gray-500">Middle Name</label>
+                                                <input type="text" name="MiddleName" value={formData.MiddleName} onChange={handleChange} placeholder="Smith" className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                            </div>
+                                            <div className='flex-1'>
+                                                <label className="block mb-2 text-sm font-medium text-gray-500">Suffix</label>
+                                                <select
+                                                    name="Suffix"
+                                                    value={formData.Suffix || ''}
+                                                    onChange={handleChange}
+                                                    className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                >
+                                                    <option value="">Suffix</option>
+                                                    <option value="Jr.">Jr.</option>
+                                                    <option value="Sr.">Sr.</option>
+                                                    <option value="II">II</option>
+                                                    <option value="III">III</option>
+                                                    <option value="IV">IV</option>
+                                                    <option value="V">V</option>
+                                                    <option value="">None</option>
+                                                </select>
+                                            </div>
                                         </div>
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">Age</label>
@@ -134,13 +244,8 @@ const AddResidentPage = ({ setSuccess }) => {
                                             <input type="date" name="birthday" value={formData.birthday} onChange={handleChange} className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                         </div>
                                         <div>
-                                            <label className="block mb-2 text-sm font-medium text-gray-500">Gender</label>
-                                            <select name="Gender" value={formData.Gender} onChange={handleChange} required className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                                <option value="">Select Gender</option>
-                                                <option value="Male">Male</option>
-                                                <option value="Female">Female</option>
-                                                <option value="Other">Other</option>
-                                            </select>
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">Birth Place</label>
+                                            <input type="text" name="BirthPlace" value={formData.BirthPlace} onChange={handleChange} className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                         </div>
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">Occupation</label>
@@ -159,13 +264,18 @@ const AddResidentPage = ({ setSuccess }) => {
                                             </select>
                                         </div>
                                         <div>
-                                            <label className="block mb-2 text-sm font-medium text-gray-500">
-                                                Status
-                                            </label>
-                                            <select name="Status" value={formData.Status} onChange={handleChange} className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                                <option value="">Select Status</option>
-                                                <option value="Active">Active</option>
-                                                <option value="Inactive">Inactive</option>
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">Gender</label>
+                                            <select
+                                                name="Gender"
+                                                value={formData.Gender || ''}
+                                                onChange={handleChange}
+                                                required
+                                                className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            >
+                                                <option value="">Select Gender</option>
+                                                <option value="Male">Male</option>
+                                                <option value="Female">Female</option>
+                                                <option value="Other">Other</option>
                                             </select>
                                         </div>
                                     </div>
@@ -174,11 +284,11 @@ const AddResidentPage = ({ setSuccess }) => {
                                 {/* Contact Information Section */}
                                 <div className="col-span-1 md:col-span-3 mb-4">
                                     <div className='flex items-center gap-3 mb-4'>
-                                        <MdContactPhone className='w-6 h-6 text-gray-400' />
-                                        <h2 className="text-sm font-bold text-gray-500">Contact Information</h2>
+                                        <FaMapLocationDot className='w-6 h-6 text-gray-400' />
+                                        <h2 className="text-sm font-bold text-gray-500">Address Information</h2>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        <div>
+                                        {/* <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">Contact Number</label>
                                             <input type="text" name="ContactNumber" value={formData.ContactNumber} onChange={handleChange} placeholder='09134567894' required className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                         </div>
@@ -189,6 +299,82 @@ const AddResidentPage = ({ setSuccess }) => {
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">Address</label>
                                             <input type="text" name="Address" value={formData.Address} onChange={handleChange} required placeholder='#12 Rizal St. Quezon City' className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div> */}
+                                        <div>
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">Region</label>
+                                            <select
+                                                value={selectedRegion}
+                                                onChange={(e) => {
+                                                    const regionId = Number(e.target.value);
+                                                    setSelectedRegion(regionId);
+                                                }}
+                                                className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            >
+                                                <option value="">Select Region</option>
+                                                {allRegion.map((region) => (
+                                                    <option value={region.iid} key={region.iid}>{region.iname}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">Province</label>
+                                            <select
+                                                value={selectedProvince}
+                                                onChange={(e) => {
+                                                    const provinceId = Number(e.target.value);
+                                                    setSelectedProvince(provinceId);
+                                                }}
+                                                disabled={!selectedRegion}
+                                                className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            >
+                                                {allProvinces.length > 0 ? (
+                                                    allProvinces.map((province) => (
+                                                        <option value={province.iid} key={province.iid}>{province.iname}</option>
+                                                    ))
+                                                ) : (
+                                                    <option value="">No Provinces Available</option>
+                                                )}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">City</label>
+                                            <select
+                                                value={selectedCity}
+                                                onChange={(e) => {
+                                                    const cityId = Number(e.target.value);
+                                                    setSelectedCity(cityId);
+                                                }}
+                                                disabled={!selectedProvince}
+                                                className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            >
+                                                {allCities.length > 0 ? (
+                                                    allCities.map((city) => (
+                                                        <option value={city.iid} key={city.iid}>{city.iname}</option>
+                                                    ))
+                                                ) : (
+                                                    <option value="">No Cities Available</option>
+                                                )}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">Barangay</label>
+                                            <select
+                                                value={selectedBarangay}
+                                                onChange={(e) => {
+                                                    const barangayId = Number(e.target.value);
+                                                    setSelectedBarangay(barangayId);
+                                                }}
+                                                disabled={!selectedCity}
+                                                className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            >
+                                                {allBarangay.length > 0 ? (
+                                                    allBarangay.map((barangay) => (
+                                                        <option value={barangay.iid} key={barangay.iid}>{barangay.iname}</option>
+                                                    ))
+                                                ) : (
+                                                    <option value="">No Barangay Available</option>
+                                                )}
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
