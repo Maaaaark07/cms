@@ -28,7 +28,7 @@ const AddResidentPage = ({ setSuccess }) => {
         Province_ID: '',
         City_ID: '',
         Barangay_ID: '',
-        Purok_ID: '',
+        Purok: '',
         IsLocalResident: false,
         ContactNumber: '',
         Email: '',
@@ -128,6 +128,42 @@ const AddResidentPage = ({ setSuccess }) => {
         }
     }
 
+    const handleRegionChange = (e) => {
+        const regionId = e.target.value;
+        setSelectedRegion(regionId);
+        setFormData(prevState => ({
+            ...prevState,
+            Region_ID: regionId
+        }));
+    };
+
+    const handleProvinceChange = (e) => {
+        const provinceId = e.target.value;
+        setSelectedProvince(provinceId);
+        setFormData(prevState => ({
+            ...prevState,
+            Province_ID: provinceId
+        }));
+    };
+
+    const handleCityChange = (e) => {
+        const cityId = e.target.value;
+        setSelectedCity(cityId);
+        setFormData(prevState => ({
+            ...prevState,
+            City_ID: cityId
+        }));
+    };
+
+    const handleBarangayChange = (e) => {
+        const barangayId = e.target.value;
+        setSelectedBarangay(barangayId);
+        setFormData(prevState => ({
+            ...prevState,
+            Barangay_ID: barangayId
+        }));
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
@@ -136,12 +172,27 @@ const AddResidentPage = ({ setSuccess }) => {
         }));
     };
 
-    const handleCheckboxChange = (e) => {
-        setFormData((prevData) => ({
+    const handleIsHouseholdHead = (e) => {
+        setFormData(prevData => ({
             ...prevData,
-            RegisteredVoter: e.target.checked,
+            IsHouseholdHead: e.target.value === 'yes' ? 1 : 0,
         }));
     };
+
+    const handleIsRegisteredVoter = (e) => {
+        setFormData(prevData => ({
+            ...prevData,
+            IsRegisteredVoter: e.target.value === 'yes' ? 1 : 0,
+        }));
+    };
+
+    const handleIsJuanBataanMember = (e) => {
+        setFormData(prevData => ({
+            ...prevData,
+            IsJuanBataanMember: e.target.value === 'yes' ? 1 : 0
+        }));
+    };
+
 
     const handleCancel = () => {
         navigate('/resident-management');
@@ -168,7 +219,15 @@ const AddResidentPage = ({ setSuccess }) => {
         setErrorMessage('');
         setLoading(true);
 
-        if (!validateFormData()) return;
+        // if (!validateFormData()) return;+
+
+        setFormData(prevData => ({
+            ...prevData,
+            Region_ID: selectedRegion,
+            Province_ID: selectedProvince,
+            City_ID: selectedCity,
+            Barangay_ID: selectedBarangay
+        }));
 
         try {
             await axios.post('http://localhost:8080/residents/add', formData, { withCredentials: true });
@@ -281,33 +340,19 @@ const AddResidentPage = ({ setSuccess }) => {
                                     </div>
                                 </div>
 
-                                {/* Contact Information Section */}
+                                {/* Address Information Section */}
                                 <div className="col-span-1 md:col-span-3 mb-4">
                                     <div className='flex items-center gap-3 mb-4'>
                                         <FaMapLocationDot className='w-6 h-6 text-gray-400' />
                                         <h2 className="text-sm font-bold text-gray-500">Address Information</h2>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        {/* <div>
-                                            <label className="block mb-2 text-sm font-medium text-gray-500">Contact Number</label>
-                                            <input type="text" name="ContactNumber" value={formData.ContactNumber} onChange={handleChange} placeholder='09134567894' required className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                                        </div>
-                                        <div>
-                                            <label className="block mb-2 text-sm font-medium text-gray-500">Email</label>
-                                            <input type="email" name="Email" value={formData.Email} onChange={handleChange} placeholder='JohnDoe@email.com' className="border border-gray-300 p-2 w-full text-sm rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                                        </div>
-                                        <div>
-                                            <label className="block mb-2 text-sm font-medium text-gray-500">Address</label>
-                                            <input type="text" name="Address" value={formData.Address} onChange={handleChange} required placeholder='#12 Rizal St. Quezon City' className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                                        </div> */}
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">Region</label>
                                             <select
-                                                value={selectedRegion}
-                                                onChange={(e) => {
-                                                    const regionId = Number(e.target.value);
-                                                    setSelectedRegion(regionId);
-                                                }}
+                                                value={selectedRegion || ''}
+                                                name='Region_ID'
+                                                onChange={handleRegionChange}
                                                 className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             >
                                                 <option value="">Select Region</option>
@@ -319,11 +364,9 @@ const AddResidentPage = ({ setSuccess }) => {
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">Province</label>
                                             <select
-                                                value={selectedProvince}
-                                                onChange={(e) => {
-                                                    const provinceId = Number(e.target.value);
-                                                    setSelectedProvince(provinceId);
-                                                }}
+                                                value={selectedProvince || ''}
+                                                name='Province_ID'
+                                                onChange={handleProvinceChange}
                                                 disabled={!selectedRegion}
                                                 className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             >
@@ -339,11 +382,9 @@ const AddResidentPage = ({ setSuccess }) => {
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">City</label>
                                             <select
-                                                value={selectedCity}
-                                                onChange={(e) => {
-                                                    const cityId = Number(e.target.value);
-                                                    setSelectedCity(cityId);
-                                                }}
+                                                value={selectedCity || ''}
+                                                name='City_ID'
+                                                onChange={handleCityChange}
                                                 disabled={!selectedProvince}
                                                 className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             >
@@ -359,11 +400,9 @@ const AddResidentPage = ({ setSuccess }) => {
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">Barangay</label>
                                             <select
-                                                value={selectedBarangay}
-                                                onChange={(e) => {
-                                                    const barangayId = Number(e.target.value);
-                                                    setSelectedBarangay(barangayId);
-                                                }}
+                                                value={selectedBarangay || ''}
+                                                name='Barangay_ID'
+                                                onChange={handleBarangayChange}
                                                 disabled={!selectedCity}
                                                 className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             >
@@ -376,6 +415,28 @@ const AddResidentPage = ({ setSuccess }) => {
                                                 )}
                                             </select>
                                         </div>
+                                        <div>
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">Purok / Street</label>
+                                            <input type="text" name="Purok" value={formData.Purok} onChange={handleChange} placeholder='Purok' required className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Contact Information Section */}
+                                <div className='col-span-1 md:col-span-3 mb-4'>
+                                    <div className='flex items-center gap-3 mb-4'>
+                                        <MdContactPhone className='w-6 h-6 text-gray-400' />
+                                        <h2 className="text-sm font-bold text-gray-500">Contact Information</h2>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        <div>
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">Contact Number</label>
+                                            <input type="text" name="ContactNumber" value={formData.ContactNumber} onChange={handleChange} placeholder='09134567894' required className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div>
+                                        <div>
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">Email</label>
+                                            <input type="email" name="Email" value={formData.Email} onChange={handleChange} placeholder='JohnDoe@email.com' className="border border-gray-300 p-2 w-full text-sm rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div>
                                     </div>
                                 </div>
 
@@ -385,65 +446,110 @@ const AddResidentPage = ({ setSuccess }) => {
                                         <FaHouseUser className='w-6 h-6 text-gray-400' />
                                         <h2 className="text-sm font-bold text-gray-500">Household Information</h2>
                                     </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 mb-4 gap-6">
+                                        <div>
+                                            <div className='leading-3 mb-4'>
+                                                <label className="block text-sm font-medium text-gray-500">Are you head of the family?</label>
+                                            </div>
+                                            <div className="flex items-center space-x-4">
+                                                <label className="flex items-center space-x-2">
+                                                    <input
+                                                        type="radio"
+                                                        name="IsHouseholdHead"
+                                                        value="yes"
+                                                        checked={formData.IsHouseholdHead === 1}
+                                                        onChange={handleIsHouseholdHead}
+                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                                    />
+                                                    <span className="text-sm text-gray-700">Yes</span>
+                                                </label>
+                                                <label className="flex items-center space-x-2">
+                                                    <input
+                                                        type="radio"
+                                                        name="IsHouseholdHead"
+                                                        value="no"
+                                                        checked={formData.IsHouseholdHead === 0}
+                                                        onChange={handleIsHouseholdHead}
+                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                                    />
+                                                    <span className="text-sm text-gray-700">No</span>
+                                                </label>
+                                            </div>
+                                        </div>
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">Household ID</label>
-                                            <input type="text" name="HouseholdID" value={formData.HouseholdID} onChange={handleChange} required placeholder='12345' className="border text-sm text-gray-500 border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                            <input type="text" name="HouseholdID" value={formData.HouseholdID} onChange={handleChange} placeholder='12345' className="border text-sm text-gray-500 border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 mb-4 gap-6">
+                                        <div>
+                                            <div className='leading-3 mb-4'>
+                                                <label className="block text-sm font-medium text-gray-500">Are you Barangay Registered Voter?</label>
+                                            </div>
+                                            <div className="flex items-center space-x-4">
+                                                <label className="flex items-center space-x-2">
+                                                    <input
+                                                        type="radio"
+                                                        name="IsRegisteredVoter"
+                                                        value="yes"
+                                                        checked={formData.IsRegisteredVoter === 1}
+                                                        onChange={handleIsRegisteredVoter}
+                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                                    />
+                                                    <span className="text-sm text-gray-700">Yes</span>
+                                                </label>
+                                                <label className="flex items-center space-x-2">
+                                                    <input
+                                                        type="radio"
+                                                        name="IsRegisteredVoter"
+                                                        value="no"
+                                                        checked={formData.IsRegisteredVoter === 0}
+                                                        onChange={handleIsRegisteredVoter}
+                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                                    />
+                                                    <span className="text-sm text-gray-700">No</span>
+                                                </label>
+                                            </div>
                                         </div>
                                         <div>
-                                            <label className="block mb-2 text-sm font-medium text-gray-500">Juan Bataan ID</label>
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">Voter ID</label>
+                                            <input type="text" name="VoterIDNumber" value={formData.VoterIDNumber} onChange={handleChange} placeholder='12345' className="border text-sm text-gray-500 border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 mb-4 gap-6">
+                                        <div>
+                                            <div className='leading-3 mb-4'>
+                                                <label className="block text-sm font-medium text-gray-500">Are you a member of One Bataan?</label>
+                                            </div>
+                                            <div className="flex items-center space-x-4">
+                                                <label className="flex items-center space-x-2">
+                                                    <input
+                                                        type="radio"
+                                                        name="IsJuanBataanMember"
+                                                        value="yes"
+                                                        checked={formData.IsJuanBataanMember === 1}
+                                                        onChange={handleIsJuanBataanMember}
+                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                                    />
+                                                    <span className="text-sm text-gray-700">Yes</span>
+                                                </label>
+                                                <label className="flex items-center space-x-2">
+                                                    <input
+                                                        type="radio"
+                                                        name="IsJuanBataanMember"
+                                                        value="no"
+                                                        checked={formData.IsJuanBataanMember === 0}
+                                                        onChange={handleIsJuanBataanMember}
+                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                                    />
+                                                    <span className="text-sm text-gray-700">No</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">One Bataan ID</label>
                                             <input type="text" name="JuanBataanID" value={formData.JuanBataanID} onChange={handleChange} placeholder='12345' className="border text-sm text-gray-500 border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                         </div>
-                                        <div>
-                                            <label className="block mb-2 text-sm font-medium text-gray-500">
-                                                Registration Date
-                                            </label>
-                                            <input
-                                                type="date"
-                                                name="RegistrationDate"
-                                                value={formData.RegistrationDate}
-                                                onChange={handleChange}
-                                                className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Voter Information Section */}
-                                <div className="col-span-1 md:col-span-3 mb-4">
-                                    <div className='flex items-center gap-3 mb-4'>
-                                        <IoIosFingerPrint className='w-6 h-6 text-gray-400' />
-                                        <h2 className="block text-sm font-bold text-gray-500">Voter Information</h2>
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        <div>
-                                            <label className="block mb-2 text-sm font-medium text-gray-500">Registered Voter</label>
-                                            <label className="relative inline-flex items-center cursor-pointer">
-                                                <input
-                                                    type="checkbox"
-                                                    name="RegisteredVoter"
-                                                    checked={formData.RegisteredVoter}
-                                                    onChange={handleCheckboxChange}
-                                                    className="sr-only peer"
-                                                />
-                                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer  peer-checked:bg-blue-600"></div>
-                                                <div
-                                                    className="w-5 h-5 bg-white border absolute left-[2px] border-gray-300 rounded-full shadow transform transition-all peer-checked:translate-x-5 peer-checked:border-white"
-                                                ></div>
-                                            </label>
-                                        </div>
-                                        {formData.RegisteredVoter && (
-                                            <>
-                                                <div>
-                                                    <label className="block mb-2 text-sm font-medium text-gray-500">Voter ID Number</label>
-                                                    <input type="text" name="VoterIDNumber" value={formData.VoterIDNumber} onChange={handleChange} className="border text-sm text-gray-500 border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-                                                </div>
-                                                <div>
-                                                    <label className="block mb-2 text-sm font-medium text-gray-500">Voting Precinct</label>
-                                                    <input type="text" name="VotingPrecinct" value={formData.VotingPrecinct} onChange={handleChange} className="border text-sm text-gray-500 border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-                                                </div>
-                                            </>
-                                        )}
                                     </div>
                                 </div>
 

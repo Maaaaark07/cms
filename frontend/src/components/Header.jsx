@@ -9,6 +9,7 @@ const Header = () => {
     const [user, setUser] = useState(null);
     const [role, setRole] = useState(null);
     const [error, setError] = useState(null);
+    const [barangayId, setBarangaId] = useState('')
     const navigate = useNavigate();
 
     const toggleDropdown = () => {
@@ -21,6 +22,7 @@ const Header = () => {
                 if (res.data.Status === 'Success') {
                     setUser(res.data.user);
                     setRole(res.data.role);
+                    setBarangaId(res.data.barangay)
                 } else {
                     setError(res.data.Error || 'Not authorized');
                 }

@@ -32,7 +32,7 @@ export const login = (req, res) => {
 
                 if (result) {
                     const token = jwt.sign(
-                        { user: data[0].user, role: data[0].role },
+                        { user: data[0].user, role: data[0].role, barangay_id: data[0].barangay_id },
                         "jwt-secret-key",
                         { expiresIn: '1d' }
                     );
@@ -63,6 +63,7 @@ export const getHome = (req, res) => {
         Status: 'Success',
         user: req.user.user,
         role: req.user.role,
+        barangay_id: req.user.barangay_id,
     });
 };
 

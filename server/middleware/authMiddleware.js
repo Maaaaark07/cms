@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt, { decode } from 'jsonwebtoken';
 
 export const verifyUser = (req, res, next) => {
     const token = req.cookies.token;
@@ -9,7 +9,8 @@ export const verifyUser = (req, res, next) => {
         if (err) {
             return res.json({ Error: "Token is not okay" });
         } else {
-            req.user = { user: decoded.user, role: decoded.role };
+            console.log(decoded)
+            req.user = { user: decoded.user, role: decoded.role, barangay_id: decoded.barangay_id};
             next();
         }
     });

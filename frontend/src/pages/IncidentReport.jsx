@@ -20,7 +20,6 @@ const IncidentReport = () => {
                 withCredentials: true,
             });
             setBlooters(response.data);
-            console.log(blotters);
         } catch (error) {
             console.error("Error fetching blotters data:", error);
         }
