@@ -14,6 +14,7 @@ import { GrEdit } from "react-icons/gr";
 import { FaRegEye, FaRegTrashAlt } from "react-icons/fa";
 import { IoFingerPrint } from 'react-icons/io5';
 import { IoPersonAddOutline } from "react-icons/io5";
+import { useAuth } from '../components/AuthContext';
 
 const ResidentManagement = () => {
     const [residents, setResidents] = useState([]);
@@ -31,6 +32,7 @@ const ResidentManagement = () => {
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [successMessageText, setSuccessMessageText] = useState('');
     const navigate = useNavigate();
+    const { barangayId } = useAuth();
     const location = useLocation();
     const { setSuccessMessage } = location.state || {};
 
@@ -151,6 +153,7 @@ const ResidentManagement = () => {
                 <main className="flex-grow p-4 bg-gray-100">
                     <div className="flex-grow p-6 bg-gray-100">
                         <Breadcrumbs />
+                        <div>{barangayId}</div>
                         <h1 className='text-2xl font-bold text-gray-500 mb-6'>Resident Management</h1>
                         <div className='flex items-center justify-between mb-6'>
                             <div className='relative max-w-96 w-full'>
