@@ -30,7 +30,7 @@ const Home = () => {
     const { barangayId } = useAuth();
     useEffect(() => {
         axios
-            .get("http://localhost:8080/blotter", { withCredentials: true })
+            .get("http://localhost:8080/blotter/" + barangayId, { withCredentials: true })
             .then((response) => setBlotterData(response.data))
             .catch((error) => {
                 console.error("Error fetching blotter data:", error);
@@ -105,7 +105,6 @@ const Home = () => {
                 <main className="flex-grow p-4 bg-gray-100">
                     <div className="flex-grow p-6 bg-gray-100">
                         <Breadcrumbs />
-                        <div>{barangayId}</div>
                         <div className="">
                             <DashboardCard />
                         </div>
