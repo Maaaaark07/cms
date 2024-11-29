@@ -10,10 +10,10 @@ import { verifyUser } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.get('/', verifyUser, getAllResidents);
+router.get('/:id', verifyUser, getAllResidents);
 router.post('/add', verifyUser, addResident);
 router.put('/update/:id', verifyUser, updateResident);
 router.delete('/:id', verifyUser, deleteResident);
-router.get('/count', verifyUser, getResidentCount);
+router.get('/count/:id', verifyUser, getResidentCount);
 
 export default router;

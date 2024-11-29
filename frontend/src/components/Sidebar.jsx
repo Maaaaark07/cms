@@ -6,7 +6,7 @@ import { FaWpforms } from 'react-icons/fa';
 import { MdOutlineReport } from 'react-icons/md';
 import { LuUsers } from 'react-icons/lu';
 import { HiDocumentReport } from 'react-icons/hi';
-import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'; // Toggle icons
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(true);

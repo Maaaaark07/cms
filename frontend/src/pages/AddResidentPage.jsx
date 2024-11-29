@@ -15,32 +15,13 @@ import { FaMapLocationDot } from "react-icons/fa6";
 const AddResidentPage = ({ setSuccess }) => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        FirstName: '',
-        LastName: '',
-        MiddleName: '',
-        Suffix: '',
-        Age: '',
-        birthday: '',
-        BirthPlace: '',
-        Gender: '',
-        Address: '',
-        Region_ID: '',
-        Province_ID: '',
-        City_ID: '',
-        Barangay_ID: '',
-        Purok: '',
-        IsLocalResident: false,
-        ContactNumber: '',
-        Email: '',
-        CivilStatus: '',
-        Occupation: '',
-        IsHouseholdHead: false,
-        HouseholdID: '',
-        IsRegisteredVoter: false,
-        VoterIDNumber: '',
-        IsJuanBataanMember: false,
-        JuanBataanID: '',
-        LastUpdated: '',
+        FirstName: '', LastName: '', MiddleName: '', Suffix: '',
+        Age: '', birthday: '', BirthPlace: '', Gender: '', Address: '',
+        Region_ID: '', Province_ID: '', City_ID: '', Barangay_ID: '', Purok: '',
+        IsLocalResident: false, ResidentType: '', ContactNumber: '', Email: '',
+        CivilStatus: '', Occupation: '', IsHouseholdHead: false, HouseholdID: '',
+        IsRegisteredVoter: false, VoterIDNumber: '', IsJuanBataanMember: false,
+        JuanBataanID: '', LastUpdated: '',
     });
     const [errorMessage, setErrorMessage] = useState('');
     const [loading, setLoading] = useState(false);
@@ -87,46 +68,84 @@ const AddResidentPage = ({ setSuccess }) => {
     const fetchAllProvince = async () => {
         try {
             const response = await axios.get(`http://localhost:8080/location/provinces/${selectedRegion}`, { withCredentials: true });
-            setAllProvinces(response.data);
-            if (response.data.length > 0) {
-                setSelectedProvince(response.data[0].iid);
+            const provinces = response.data;
+            setAllProvinces(provinces);
+
+            if (provinces.length > 0) {
+                const defaultProvince = provinces[0].iid;
+                setSelectedProvince(defaultProvince);
+                setFormData((prevState) => ({
+                    ...prevState,
+                    Province_ID: defaultProvince,
+                }));
             } else {
                 setSelectedProvince('');
                 setAllCities([]);
                 setSelectedCity('');
+                setFormData((prevState) => ({
+                    ...prevState,
+                    Province_ID: '',
+                    City_ID: '',
+                    Barangay_ID: '',
+                }));
             }
         } catch (error) {
-            console.error("Error fetching all Region:", error)
+            console.error("Error fetching all Provinces:", error);
         }
-    }
+    };
 
     const fetchAllCity = async () => {
         try {
             const response = await axios.get(`http://localhost:8080/location/cities/${selectedProvince}`, { withCredentials: true });
-            setAllCities(response.data);
-            if (response.data.length > 0) {
-                setSelectedCity(response.data[0].iid);
+            const cities = response.data;
+            setAllCities(cities);
+
+            if (cities.length > 0) {
+                const defaultCity = cities[0].iid;
+                setSelectedCity(defaultCity);
+                setFormData((prevState) => ({
+                    ...prevState,
+                    City_ID: defaultCity,
+                }));
             } else {
                 setSelectedCity('');
+                setAllBarangay([]);
+                setSelectedBarangay('');
+                setFormData((prevState) => ({
+                    ...prevState,
+                    City_ID: '',
+                    Barangay_ID: '',
+                }));
             }
         } catch (error) {
-            console.error("Error fetching all Region:", error)
+            console.error("Error fetching all Cities:", error);
         }
-    }
+    };
 
     const fetchAllBarangay = async () => {
         try {
             const response = await axios.get(`http://localhost:8080/location/barangay/${selectedCity}`, { withCredentials: true });
-            setAllBarangay(response.data);
-            if (response.data.length > 0) {
-                setSelectedBarangay(response.data[0].iid);
+            const barangays = response.data;
+            setAllBarangay(barangays);
+
+            if (barangays.length > 0) {
+                const defaultBarangay = barangays[0].iid;
+                setSelectedBarangay(defaultBarangay);
+                setFormData((prevState) => ({
+                    ...prevState,
+                    Barangay_ID: defaultBarangay,
+                }));
             } else {
                 setSelectedBarangay('');
+                setFormData((prevState) => ({
+                    ...prevState,
+                    Barangay_ID: '',
+                }));
             }
         } catch (error) {
-            console.error("Error fetching all Region:", error)
+            console.error("Error fetching all Barangays:", error);
         }
-    }
+    };
 
     const handleRegionChange = (e) => {
         const regionId = e.target.value;
@@ -186,6 +205,13 @@ const AddResidentPage = ({ setSuccess }) => {
         }));
     };
 
+    const handleIsLocalResident = (e) => {
+        setFormData(prevData => ({
+            ...prevData,
+            IsLocalResident: e.target.value === 'yes' ? 1 : 0,
+        }));
+    }
+
     const handleIsJuanBataanMember = (e) => {
         setFormData(prevData => ({
             ...prevData,
@@ -199,18 +225,12 @@ const AddResidentPage = ({ setSuccess }) => {
     }
 
     const validateFormData = () => {
-        const { FirstName, LastName, Age, Gender, Address, ContactNumber, RegisteredVoter, VoterIDNumber, VotingPrecinct } = formData;
+        const { FirstName, LastName, Age, Gender, Address, ContactNumber } = formData;
 
         if (!FirstName || !LastName || !Age || !Gender || !Address || !ContactNumber) {
             setErrorMessage('Please fill in all required fields.');
             return false;
         }
-
-        if (RegisteredVoter && (!VoterIDNumber || !VotingPrecinct)) {
-            setErrorMessage('Please provide Voter ID Number and Voting Precinct for registered voters.');
-            return false;
-        }
-
         return true;
     };
 
@@ -219,7 +239,7 @@ const AddResidentPage = ({ setSuccess }) => {
         setErrorMessage('');
         setLoading(true);
 
-        // if (!validateFormData()) return;+
+        if (!validateFormData()) return;
 
         setFormData(prevData => ({
             ...prevData,
@@ -264,16 +284,16 @@ const AddResidentPage = ({ setSuccess }) => {
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">First Name</label>
-                                            <input type="text" name="FirstName" value={formData.FirstName} onChange={handleChange} placeholder="John" required className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                            <input type="text" name="FirstName" value={formData.FirstName} onChange={handleChange} placeholder="First Name" required className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                         </div>
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">Last Name</label>
-                                            <input type="text" name="LastName" value={formData.LastName} onChange={handleChange} placeholder="Doe" required className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                            <input type="text" name="LastName" value={formData.LastName} onChange={handleChange} placeholder="Last Name" required className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                         </div>
                                         <div className='flex gap-4'>
                                             <div className='flex-2'>
                                                 <label className="block mb-2 text-sm font-medium text-gray-500">Middle Name</label>
-                                                <input type="text" name="MiddleName" value={formData.MiddleName} onChange={handleChange} placeholder="Smith" className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                                <input type="text" name="MiddleName" value={formData.MiddleName} onChange={handleChange} placeholder="Middle Name" className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                             </div>
                                             <div className='flex-1'>
                                                 <label className="block mb-2 text-sm font-medium text-gray-500">Suffix</label>
@@ -296,7 +316,7 @@ const AddResidentPage = ({ setSuccess }) => {
                                         </div>
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">Age</label>
-                                            <input type="number" name="Age" value={formData.Age} onChange={handleChange} required placeholder='25' className="border text-sm border-gray-300 p-2 text-gray-500 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                            <input type="number" name="Age" value={formData.Age} onChange={handleChange} required placeholder='Age' className="border text-sm border-gray-300 p-2 text-gray-500 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                         </div>
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">Birthday</label>
@@ -418,6 +438,35 @@ const AddResidentPage = ({ setSuccess }) => {
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">Purok / Street</label>
                                             <input type="text" name="Purok" value={formData.Purok} onChange={handleChange} placeholder='Purok' required className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div>
+                                        <div>
+                                            <div className='leading-3 mb-4'>
+                                                <label className="block text-sm font-medium text-gray-500">Are you a local resident?</label>
+                                            </div>
+                                            <div className="flex items-center space-x-4">
+                                                <label className="flex items-center space-x-2">
+                                                    <input
+                                                        type="radio"
+                                                        name="IsLocalResident"
+                                                        value="yes"
+                                                        checked={formData.IsLocalResident === 1}
+                                                        onChange={handleIsLocalResident}
+                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                                    />
+                                                    <span className="text-sm text-gray-700">Yes</span>
+                                                </label>
+                                                <label className="flex items-center space-x-2">
+                                                    <input
+                                                        type="radio"
+                                                        name="IsLocalResident"
+                                                        value="no"
+                                                        checked={formData.IsLocalResident === 0}
+                                                        onChange={handleIsLocalResident}
+                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                                    />
+                                                    <span className="text-sm text-gray-700">No</span>
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

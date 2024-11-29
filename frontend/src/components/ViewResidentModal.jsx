@@ -21,10 +21,10 @@ const ViewResidentModal = ({ isOpen, onClose, residentData }) => {
                     </div>
                     <div>
                         <h2 className="text-xl font-semibold text-gray-500">
-                            {residentData.FirstName} {residentData.LastName}
+                            {residentData.first_name} {residentData.last_name} {residentData.suffix}
                         </h2>
                         <p className="text-sm text-gray-600">
-                            Resident ID: {residentData.ResidentID}
+                            Resident ID: {residentData.resident_id}
                         </p>
                     </div>
 
@@ -67,7 +67,7 @@ const ViewResidentModal = ({ isOpen, onClose, residentData }) => {
                         <div>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
                                 <FaUser className="mr-2 text-gray-400" />
-                                <span className="text-gray-600 mr-2">Age:</span> {residentData.Age}
+                                <span className="text-gray-600 mr-2">Age:</span> {residentData.age}
                             </p>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
                                 <FaCalendarAlt className="mr-2 text-gray-400" />
@@ -75,15 +75,15 @@ const ViewResidentModal = ({ isOpen, onClose, residentData }) => {
                             </p>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
                                 <FaTransgenderAlt className="mr-2 text-gray-400" />
-                                <span className="text-gray-600 mr-2">Gender:</span> {residentData.Gender}
+                                <span className="text-gray-600 mr-2">Gender:</span> {residentData.gender}
                             </p>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
                                 <FaRing className="mr-2 text-gray-400" />
-                                <span className="text-gray-600 mr-2">Civil Status:</span> {residentData.CivilStatus}
+                                <span className="text-gray-600 mr-2">Civil Status:</span> {residentData.civil_status}
                             </p>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
                                 <FaBriefcase className="mr-2 text-gray-400" />
-                                <span className="text-gray-600 mr-2">Occupation:</span> {residentData.Occupation}
+                                <span className="text-gray-600 mr-2">Occupation:</span> {residentData.occupation}
                             </p>
                         </div>
                     )}
@@ -91,15 +91,15 @@ const ViewResidentModal = ({ isOpen, onClose, residentData }) => {
                         <div>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
                                 <FaPhone className="mr-2 text-gray-400" />
-                                <span className="text-gray-600 mr-2">Contact Number:</span> {residentData.ContactNumber}
+                                <span className="text-gray-600 mr-2">Contact Number:</span> {residentData.contact_number}
                             </p>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
                                 <FaEnvelope className="mr-2 text-gray-400" />
-                                <span className="text-gray-600 mr-2">Email:</span> {residentData.Email}
+                                <span className="text-gray-600 mr-2">Email:</span> {residentData.email}
                             </p>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
                                 <FaMapMarkerAlt className="mr-2 text-gray-400" />
-                                <span className="text-gray-600 mr-2">Address:</span> {residentData.Address}
+                                <span className="text-gray-600 mr-2">Address:</span> {residentData.city}, {residentData.barangay}, {residentData.purok}
                             </p>
                         </div>
                     )}
@@ -107,7 +107,7 @@ const ViewResidentModal = ({ isOpen, onClose, residentData }) => {
                         <div>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
                                 <FaHome className="mr-2 text-gray-400" />
-                                <span className="text-gray-600 mr-2">Household ID:</span> {residentData.HouseholdID}
+                                <span className="text-gray-600 mr-2">Household ID:</span> {residentData.household_id}
                             </p>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
                                 <FaMapMarkedAlt className="mr-2 text-gray-400" />

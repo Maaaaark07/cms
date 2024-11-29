@@ -59,7 +59,7 @@ const ResidentManagement = () => {
 
     const fetchResidents = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/residents', { withCredentials: true });
+            const response = await axios.get('http://localhost:8080/residents/' + barangayId, { withCredentials: true });
             setResidents(response.data);
         } catch (error) {
             console.error("Error fetching residents data:", error);
@@ -83,7 +83,7 @@ const ResidentManagement = () => {
 
     const fetchTotalResidentCount = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/residents/count', { withCredentials: true });
+            const response = await axios.get('http://localhost:8080/residents/count/' + barangayId, { withCredentials: true });
             setTotalResidents(response.data.count);
         } catch (error) {
             console.error("Error fetching residents count:", error);
@@ -136,9 +136,13 @@ const ResidentManagement = () => {
     };
 
     const filteredResidents = residents.filter(resident => {
-        const fullName = `${resident.first_name} ${resident.last_name} ${resident.HouseholdID}`.toLowerCase();
+        const fullName = `${resident.first_name || ''} ${resident.last_name || ''} ${resident.Household_ID || ''}`.toLowerCase();
+        const householdIdString = resident.Household_ID != null
+            ? resident.Household_ID.toString()
+            : '';
+
         return fullName.includes(searchQuery.toLowerCase()) ||
-            resident.HouseholdID.toString().includes(searchQuery);
+            householdIdString.includes(searchQuery.toLowerCase());
     });
 
     const totalFilteredPages = Math.ceil(filteredResidents.length / itemsPerPage);
@@ -153,7 +157,6 @@ const ResidentManagement = () => {
                 <main className="flex-grow p-4 bg-gray-100">
                     <div className="flex-grow p-6 bg-gray-100">
                         <Breadcrumbs />
-                        <div>{barangayId}</div>
                         <h1 className='text-2xl font-bold text-gray-500 mb-6'>Resident Management</h1>
                         <div className='flex items-center justify-between mb-6'>
                             <div className='relative max-w-96 w-full'>
@@ -192,11 +195,16 @@ const ResidentManagement = () => {
                                                     <RxAvatar className='w-8 h-8 text-gray-400' />
                                                 </div>
                                                 <div className='flex flex-col leading-4 text-gray-500'>
-                                                    {`${resident.first_name} ${resident.last_name}`}
+                                                    <span className='text-sm text-gray-500'>{`${resident.first_name} ${resident.last_name} ${resident.suffix}`}</span>
                                                     <span className='text-xs text-gray-400'>{resident.occupation}</span>
                                                 </div>
                                             </td>
-                                            <td className="p-3 text-gray-500">{resident.address}</td>
+                                            <td className="p-3 text-gray-500">
+                                                <div className='flex flex-col leading-4 text-gray-500'>
+                                                    <span className='text-sm text-gray-500'>{resident.purok}</span>
+                                                    <span className='text-xs text-gray-400'>{resident.city}, {resident.barangay}</span>
+                                                </div>
+                                            </td>
                                             <td className="p-3 text-gray-500">{resident.household_id}</td>
                                             <td className="p-3 text-gray-500">
                                                 {resident.is_registered_voter ? (

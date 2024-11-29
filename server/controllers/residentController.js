@@ -1,16 +1,27 @@
 import db from '../config/database.js';
 
-export const getAllResidents = (req, res) => {
-    const sql = "SELECT * FROM cbs_residents";
-    const barangay_id = 5628;
+export const getAllResidents = async (req, res) => {
+    const { id } = req.params;
+    const sql = "CALL GetAllResidents(?)";
 
-    db.query(sql, (err, results) => {
-        if (err) {
-            console.error('Database error:', err);
-            return res.status(500).json({ Error: 'Failed to retrieve resident data' });
-        }
-        res.json(results);
-    });
+    try {
+        const results = await new Promise((resolve, reject) => {
+            db.query(sql, [id], (err, results) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+        res.json(results[0]);
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({
+            error: "Failed to retrieve blotter data",
+            details: error.message,
+        });
+    }
 };
 
 export const addResident = async (req, res) => {
@@ -18,38 +29,39 @@ export const addResident = async (req, res) => {
         const params = req.body;
         const sql = `
           CALL AddResident(
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
           )
         `;
 
         console.log(params);
     
         const values = [
-          params.first_name,
-          params.last_name,
-          params.middle_name,
-          params.suffix,
-          params.age,
-          params.birthday,
-          params.birth_place,
-          params.occupation,
-          params.civil_status,
-          params.gender,
-          params.address,
-          params.region_id,
-          params.province_id,
-          params.city_id,
-          params.barangay_id,
-          params.purok,
-          params.is_local_resident,
-          params.contact_number,
-          params.email,
-          params.is_household_head,
-          params.household_id,
-          params.is_registered_voter,
-          params.voter_id_number,
-          params.is_juan_bataan_member,
-          params.juan_bataan_id,
+           params.FirstName,       
+          params.LastName,       
+          params.MiddleName,      
+          params.Suffix,           
+          params.Age,             
+          params.birthday,       
+          params.BirthPlace,    
+          params.Occupation,      
+          params.CivilStatus,   
+          params.Gender,        
+          params.Address,        
+          params.Region_ID,     
+          params.Province_ID,     
+          params.City_ID,      
+          params.Barangay_ID,   
+          params.Purok,           
+          params.IsLocalResident,
+          params.ResidentType,  
+          params.ContactNumber,   
+          params.Email,         
+          params.IsHouseholdHead,  
+          params.HouseholdID,     
+          params.IsRegisteredVoter,
+          params.VoterIDNumber,  
+          params.IsJuanBataanMember,
+          params.JuanBataanID, 
         ];
 
         await db.query(sql, values);
@@ -122,14 +134,17 @@ export const deleteResident = (req, res) => {
 };
 
 export const getResidentCount = (req, res) => {
-    const query = 'SELECT COUNT(*) AS count FROM cbs_residents';
+    const { id } = req.params;
+    const sql = "CALL GetResidentsCount(?)";
 
-    db.query(query, (err, result) => {
+   db.query(sql, [id], (err, result) => {
         if (err) {
             console.error("Error fetching resident count:", err);
             return res.status(500).json({ message: 'Server error' });
         }
-        res.status(200).json({ count: result[0].count });
+        const count = result[0]?.[0]?.NumberOfResidents || 0;
+
+        res.status(200).json({ count });
     });
 };
 

@@ -7,7 +7,7 @@ import Card from './Card';
 
 const API_URLS = {
     registeredVoters: 'http://localhost:8080/stats/registered-voters',
-    residentCount: 'http://localhost:8080/residents/count',
+    residentCount: 'http://localhost:8080/stats/count',
 };
 
 const DashboardCard = () => {
@@ -42,7 +42,7 @@ const DashboardCard = () => {
 
             if (residentsResponse.ok) {
                 const residentsData = await residentsResponse.json();
-                setResidentCount(residentsData.count);
+                setResidentCount(residentsData.NumberOfResidents);
             } else {
                 console.error('Error fetching resident count:', await residentsResponse.json());
             }

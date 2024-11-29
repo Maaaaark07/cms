@@ -1,54 +1,5 @@
 import db from "../config/database.js";
 
-// export const getAllBlotters = (req, res) => {
-//   const sql = `
-//       SELECT
-//         b.blotter_id,
-//         b.report_date,
-//         b.incident_date,
-//         b.witnesses,
-//         b.incident_type,
-//         b.incident_location,
-//         b.incident_description,
-//         b.status,
-//         b.resolution,
-//         b.notes,
-//         b.barangay_id,
-//         r1.first_name AS reporter_first_name,
-//         r1.last_name AS reporter_last_name,
-//         r1.middle_name AS reporter_middle_name,
-//         r1.suffix AS reporter_suffix,
-//         r2.first_name AS complainant_first_name,
-//         r2.last_name AS complainant_last_name,
-//         r2.middle_name AS complainant_middle_name,
-//         r2.suffix AS complainant_suffix,
-//         r3.first_name AS respondent_first_name,
-//         r3.last_name AS respondent_last_name,
-//         r3.middle_name AS respondent_middle_name,
-//         r3.suffix AS respondent_suffix
-//       FROM
-//         cbs_blotters b
-//       LEFT JOIN
-//         cbs_residents r1 ON b.reporter_id = r1.resident_id
-//       LEFT JOIN
-//         cbs_residents r2 ON b.complainant_id = r2.resident_id
-//       LEFT JOIN
-//         cbs_residents r3 ON b.respondent_id = r3.resident_id
-//       ORDER BY
-//         b.incident_date DESC
-//     `;
-
-//   // Execute the query
-//   db.query(sql, (err, results) => {
-//     if (err) {
-//       console.error("Database error:", err);
-//       return res.status(500).json({ Error: "Failed to retrieve blotter data" });
-//     }
-
-//     res.json(results);
-//   });
-// };
-
 export const getAllBlotters = async (req, res) => {
     const { id } = req.params;
     const sql = "CALL GetAllBlotters(?)";

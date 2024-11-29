@@ -43,7 +43,6 @@ export const login = (req, res) => {
                         sameSite: 'Lax',
                         path: '/',
                     });
-                    console.log(data[0]);
                     return res.json({ Status: "Success", Id: data[0].barangay_id });
                 }
                 return res.json({ Error: "Invalid password" });

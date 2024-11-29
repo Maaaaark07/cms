@@ -38,7 +38,7 @@ export const getPopulationStats = (req, res) => {
 
 export const getResidentCount = (req, res) => {
     const sql = "SELECT COUNT(*) AS NumberOfResidents FROM cbs_residents";
-
+    
     db.query(sql, (err, result) => {
         if (err) {
             console.error("Database error:", err);
