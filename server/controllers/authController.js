@@ -43,7 +43,8 @@ export const login = (req, res) => {
                         sameSite: 'Lax',
                         path: '/',
                     });
-                    return res.json({ Status: "Success" });
+                    console.log(data[0]);
+                    return res.json({ Status: "Success", Id: data[0].barangay_id });
                 }
                 return res.json({ Error: "Invalid password" });
             });
@@ -63,7 +64,7 @@ export const getHome = (req, res) => {
         Status: 'Success',
         user: req.user.user,
         role: req.user.role,
-        barangay_id: req.user.barangay_id,
+        barangay_id: req.user.barangay_id
     });
 };
 

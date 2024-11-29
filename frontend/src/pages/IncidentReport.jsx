@@ -6,9 +6,11 @@ import Pagination from '../components/Pagination';
 import axios from "axios";
 import Search from '../components/Search';
 import { IoPersonAddOutline } from "react-icons/io5";
+import { useAuth } from "../components/AuthContext";
 
 const IncidentReport = () => {
     const [blotters, setBlooters] = useState(null);
+    const { barangayId } = useAuth();
 
     useEffect(() => {
         fetchBlotters();
@@ -16,7 +18,7 @@ const IncidentReport = () => {
 
     async function fetchBlotters() {
         try {
-            const response = await axios.get("http://localhost:8080/blotter", {
+            const response = await axios.get("http://localhost:8080/blotter/" + barangayId, {
                 withCredentials: true,
             });
             setBlooters(response.data);
@@ -24,6 +26,8 @@ const IncidentReport = () => {
             console.error("Error fetching blotters data:", error);
         }
     }
+
+    console.log(blotters);
 
     return (
         <div className="flex flex-col h-screen">
@@ -36,10 +40,10 @@ const IncidentReport = () => {
                         <h1 className='text-2xl font-bold text-gray-500 mb-6'>Incident Report</h1>
                         <div className='flex items-center justify-between mb-6'>
                             <div className='relative max-w-96 w-full'>
-                                <Search
+                                {/* <Search
                                     searchQuery={null}
                                     onSearchChange={null}
-                                />
+                                /> */}
                             </div>
                             <div>
                                 <button className='bg-blue-600 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full'>
@@ -47,9 +51,6 @@ const IncidentReport = () => {
                                     Add Incident Report
                                 </button>
                             </div>
-                        </div>
-                        <div className="text-sm text-gray-500 mb-4">
-                            Total Residents: {0}
                         </div>
                         <div className="overflow-x-auto mt-4">
                             <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden text-sm">

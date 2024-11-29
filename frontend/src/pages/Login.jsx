@@ -5,6 +5,7 @@ import { RiLockPasswordFill } from "react-icons/ri";
 import cmsBackground from '../assets/cms-background.png'
 import cmsLogo from '../assets/cms-logo.png'
 import axios from 'axios';
+import { useAuth } from '../components/AuthContext';
 
 const Login = () => {
     const [isEmailFocused, setIsEmailFocused] = useState(false);
@@ -16,6 +17,7 @@ const Login = () => {
     });
 
     const navigate = useNavigate();
+    const { setBarangayId } = useAuth();
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -30,9 +32,10 @@ const Login = () => {
 
         axios.post('http://localhost:8080/login', values, { withCredentials: true })
             .then(res => {
-
                 if (res.data.Status === 'Success') {
                     setValues({ users: '', password: '' });
+                    setBarangayId(res.data.Id);
+                    console.log(res.data.Id)
                     navigate('/home');
                 } else {
                     setError(res.data.Error || "Login failed. Please try again.");
