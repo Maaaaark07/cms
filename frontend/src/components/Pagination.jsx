@@ -30,7 +30,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange, itemsPerPage, onIte
                 </span>
                 <button
                     onClick={() => onPageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
+                    disabled={currentPage === totalPages || totalPages === 0}
                     className="px-3 py-1 border bg-blue-500 text-sm text-white rounded disabled:opacity-50"
                 >
                     Next
