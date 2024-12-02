@@ -330,7 +330,7 @@ const AddResidentPage = ({ setSuccess }) => {
                         <div className="mx-auto bg-white p-10 rounded-lg">
                             <div className="mb-6 leading-3">
                                 <h1 className="text-xl font-semibold text-gray-500">Add New Resident</h1>
-                                <p className="text-xs text-gray-400">Fill out the form below to add a new resident to the system.</p>
+                                <p className="text-sm text-gray-400 mt-2">Fill out the form below to add a new resident to the system.</p>
                             </div>
                             {errorMessage && <p className="text-red-500 text-sm mb-4">{errorMessage}</p>}
                             <form onSubmit={handleAddResident} className="grid grid-cols-1 md:grid-cols-3 gap-6">

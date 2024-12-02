@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../components/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
@@ -12,6 +13,7 @@ import { IoPersonAddOutline } from "react-icons/io5";
 import { RxAvatar } from "react-icons/rx";
 import { GrEdit } from "react-icons/gr";
 import { FaRegEye, FaRegTrashAlt } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const IncidentReport = () => {
     const { barangayId } = useAuth();
@@ -22,6 +24,8 @@ const IncidentReport = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchBlotters();
@@ -151,7 +155,7 @@ const IncidentReport = () => {
                                 />
                             </div>
                             <div>
-                                <button className='bg-blue-600 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full'>
+                                <button className='bg-blue-600 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full' onClick={() => navigate("/incident-report/add-report")}>
                                     <IoPersonAddOutline className='w-4 h-4 text-white font-bold' />
                                     Add Incident Report
                                 </button>
@@ -196,14 +200,13 @@ const IncidentReport = () => {
                                                                     className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'>
                                                                     <GrEdit className='w-5 h-5 text-gray-500' />
                                                                 </div>
-                                                                <div className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'
-
-                                                                >
-                                                                    <FaRegEye className='w-5 h-5 text-gray-500' /></div>
+                                                                <div className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'>
+                                                                    <Link to={`/Incident-Report-View/` + blotter.blotter_id}>
+                                                                        <FaRegEye className='w-5 h-5 text-gray-500' />
+                                                                    </Link>
+                                                                </div>
                                                                 <div
-                                                                    className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'
-
-                                                                >
+                                                                    className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'>
                                                                     <FaRegTrashAlt className='w-5 h-5 text-red-500' />
                                                                 </div>
                                                             </td>
@@ -230,8 +233,8 @@ const IncidentReport = () => {
                             onItemsPerPageChange={handleItemsPerPageChange} />
                     </div>
                 </main>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 

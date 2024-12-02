@@ -8,6 +8,7 @@ import ResidentManagement from "./pages/ResidentManagement";
 import ApplicationRequest from "./pages/ApplicationRequest";
 import IncidentReport from "./pages/IncidentReport";
 import IncidentReportViewPage from "./pages/IncidentRepotViewPage";
+import AddIncidentReportPage from "./pages/AddIncidentReportPage";
 import UserManagement from "./pages/UserManagement";
 import Reports from "./pages/Reports";
 import EditResidentPage from "./pages/EditResidentPage ";
@@ -72,6 +73,14 @@ const App = () => {
                     element={
                         <ProtectedRoute>
                             <IncidentReportViewPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/incident-report/add-report"
+                    element={
+                        <ProtectedRoute>
+                            <AddIncidentReportPage />
                         </ProtectedRoute>
                     }
                 />
