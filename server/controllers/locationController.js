@@ -94,3 +94,27 @@ export const getAllBarangay = (req, res) => {
         res.json(results);
     });
 }
+
+export const getAllPurok = (req, res) => {
+    const barangay_id = req.params.id.replace('${', '').replace('}', '');
+    const parsedBarangayId = parseInt(barangay_id, 10);
+
+    if (!parsedBarangayId) {
+        return res.status(400).json({ error: 'Invalid Barangay ID' });
+    }
+
+    const sql = `SELECT iid, iname, barangay_id FROM ph_puroks WHERE barangay_id = ?`;
+
+    db.query(sql, [barangay_id], (err, results) => {
+        if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ error: 'Failed to retrieve provinces' });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'No Purok found for this Barangay' });
+        }
+
+        res.json(results);
+    });
+}

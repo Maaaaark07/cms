@@ -8,20 +8,19 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import { BsFillPersonVcardFill } from "react-icons/bs";
 import { MdContactPhone } from "react-icons/md";
 import { FaHouseUser } from "react-icons/fa6";
-import { IoIosFingerPrint } from "react-icons/io";
+import { IoIosInformationCircle } from "react-icons/io";
 import { FaMapLocationDot } from "react-icons/fa6";
 
 
 const AddResidentPage = ({ setSuccess }) => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        FirstName: '', LastName: '', MiddleName: '', Suffix: '',
-        Age: '', birthday: '', BirthPlace: '', Gender: '', Address: '',
-        Region_ID: '', Province_ID: '', City_ID: '', Barangay_ID: '', Purok: '',
+        FirstName: '', LastName: '', MiddleName: '', Suffix: '', birthday: '', BirthPlace: '', Gender: '', Address: '',
+        Region_ID: '', Province_ID: '', City_ID: '', Barangay_ID: '', Purok_ID: '',
         IsLocalResident: false, ResidentType: '', ContactNumber: '', Email: '',
         CivilStatus: '', Occupation: '', IsHouseholdHead: false, HouseholdID: '',
         IsRegisteredVoter: false, VoterIDNumber: '', IsJuanBataanMember: false,
-        JuanBataanID: '', LastUpdated: '',
+        JuanBataanID: '',
     });
     const [errorMessage, setErrorMessage] = useState('');
     const [loading, setLoading] = useState(false);
@@ -29,10 +28,12 @@ const AddResidentPage = ({ setSuccess }) => {
     const [allProvinces, setAllProvinces] = useState([]);
     const [allCities, setAllCities] = useState([]);
     const [allBarangay, setAllBarangay] = useState([]);
+    const [allPuroks, setAllPuroks] = useState([]);
     const [selectedRegion, setSelectedRegion] = useState('');
     const [selectedProvince, setSelectedProvince] = useState('');
     const [selectedCity, setSelectedCity] = useState('');
     const [selectedBarangay, setSelectedBarangay] = useState('');
+    const [selectedPurok, setSelectedPurok] = useState('');
 
     useEffect(() => {
         fetchAllRegion();
@@ -55,6 +56,12 @@ const AddResidentPage = ({ setSuccess }) => {
             fetchAllBarangay(selectedCity);
         }
     }, [selectedCity]);
+
+    useEffect(() => {
+        if (selectedBarangay) {
+            fetchAllPurok(selectedBarangay);
+        }
+    }, [selectedBarangay]);
 
     const fetchAllRegion = async () => {
         try {
@@ -147,12 +154,50 @@ const AddResidentPage = ({ setSuccess }) => {
         }
     };
 
+    const fetchAllPurok = async () => {
+        try {
+            // Ensure selectedBarangay is not empty
+            if (!selectedBarangay) {
+                setAllPuroks([]);
+                return;
+            }
+
+            const response = await axios.get(`http://localhost:8080/location/purok/${selectedBarangay}`, { withCredentials: true });
+            const puroks = response.data;
+            setAllPuroks(puroks);
+
+            if (puroks.length > 0) {
+                const defaultPurok = puroks[0].iid;
+                setSelectedPurok(defaultPurok);
+                setFormData((prevState) => ({
+                    ...prevState,
+                    Purok_ID: defaultPurok,
+                }));
+            } else {
+                setSelectedPurok('');
+                setFormData((prevState) => ({
+                    ...prevState,
+                    Purok_ID: '',
+                }));
+            }
+        } catch (error) {
+            console.error("Error fetching all Puroks:", error);
+            // Optionally, set an error state or show a user-friendly message
+            setAllPuroks([]);
+            setSelectedPurok('');
+        }
+    };
+
     const handleRegionChange = (e) => {
         const regionId = e.target.value;
         setSelectedRegion(regionId);
         setFormData(prevState => ({
             ...prevState,
-            Region_ID: regionId
+            Region_ID: regionId,
+            Province_ID: '',
+            City_ID: '',
+            Barangay_ID: '',
+            Purok_ID: ''
         }));
     };
 
@@ -161,7 +206,10 @@ const AddResidentPage = ({ setSuccess }) => {
         setSelectedProvince(provinceId);
         setFormData(prevState => ({
             ...prevState,
-            Province_ID: provinceId
+            Province_ID: provinceId,
+            City_ID: '',
+            Barangay_ID: '',
+            Purok_ID: ''
         }));
     };
 
@@ -170,7 +218,9 @@ const AddResidentPage = ({ setSuccess }) => {
         setSelectedCity(cityId);
         setFormData(prevState => ({
             ...prevState,
-            City_ID: cityId
+            City_ID: cityId,
+            Barangay_ID: '',
+            Purok_ID: ''
         }));
     };
 
@@ -179,10 +229,19 @@ const AddResidentPage = ({ setSuccess }) => {
         setSelectedBarangay(barangayId);
         setFormData(prevState => ({
             ...prevState,
-            Barangay_ID: barangayId
+            Barangay_ID: barangayId,
+            Purok_ID: ''
         }));
     };
 
+    const handlePurokChange = (e) => {
+        const purokId = e.target.value;
+        setSelectedPurok(purokId);
+        setFormData(prevState => ({
+            ...prevState,
+            Purok_ID: purokId
+        }));
+    };
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
@@ -225,9 +284,9 @@ const AddResidentPage = ({ setSuccess }) => {
     }
 
     const validateFormData = () => {
-        const { FirstName, LastName, Age, Gender, Address, ContactNumber } = formData;
+        const { FirstName, LastName, Gender, Address, ContactNumber } = formData;
 
-        if (!FirstName || !LastName || !Age || !Gender || !Address || !ContactNumber) {
+        if (!FirstName || !LastName || !Gender || !Address || !ContactNumber) {
             setErrorMessage('Please fill in all required fields.');
             return false;
         }
@@ -313,10 +372,6 @@ const AddResidentPage = ({ setSuccess }) => {
                                                     <option value="">None</option>
                                                 </select>
                                             </div>
-                                        </div>
-                                        <div>
-                                            <label className="block mb-2 text-sm font-medium text-gray-500">Age</label>
-                                            <input type="number" name="Age" value={formData.Age} onChange={handleChange} required placeholder='Age' className="border text-sm border-gray-300 p-2 text-gray-500 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                         </div>
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">Birthday</label>
@@ -436,8 +491,36 @@ const AddResidentPage = ({ setSuccess }) => {
                                             </select>
                                         </div>
                                         <div>
-                                            <label className="block mb-2 text-sm font-medium text-gray-500">Purok / Street</label>
-                                            <input type="text" name="Purok" value={formData.Purok} onChange={handleChange} placeholder='Purok' required className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">Purok</label>
+                                            <select
+                                                value={selectedPurok || ''}
+                                                name='Purok_ID'
+                                                onChange={handlePurokChange}
+                                                disabled={!selectedBarangay}
+                                                className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            >
+                                                {allPuroks.length > 0 ? (
+                                                    allPuroks.map((purok) => (
+                                                        <option value={purok.iid} key={purok.iid}>{purok.iname}</option>
+                                                    ))
+                                                ) : (
+                                                    <option value="">No Puroks Available</option>
+                                                )}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">House No.</label>
+                                            <input type="text" name="Address" value={formData.Address} onChange={handleChange} placeholder='House No.' required className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div>
+                                        <div>
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">
+                                                Resident Type
+                                            </label>
+                                            <select name="ResidentType" value={formData.ResidentType} onChange={handleChange} className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                <option value="">Select Resident Type</option>
+                                                <option value="Single">Tenant</option>
+                                                <option value="Married">Business Owner</option>
+                                            </select>
                                         </div>
                                         <div>
                                             <div className='leading-3 mb-4'>
@@ -492,8 +575,8 @@ const AddResidentPage = ({ setSuccess }) => {
                                 {/* Household Information Section */}
                                 <div className="col-span-1 md:col-span-3 mb-4">
                                     <div className='flex items-center gap-3 mb-4'>
-                                        <FaHouseUser className='w-6 h-6 text-gray-400' />
-                                        <h2 className="text-sm font-bold text-gray-500">Household Information</h2>
+                                        <IoIosInformationCircle className='w-6 h-6 text-gray-400' />
+                                        <h2 className="text-sm font-bold text-gray-500">Other Information</h2>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-3 mb-4 gap-6">
                                         <div>

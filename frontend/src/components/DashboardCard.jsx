@@ -3,12 +3,8 @@ import { GrGroup } from 'react-icons/gr';
 import { BsHouseDoor } from 'react-icons/bs';
 import { IoFingerPrint } from 'react-icons/io5';
 import { FaRegBuilding } from 'react-icons/fa';
+import { useAuth } from './AuthContext';
 import Card from './Card';
-
-const API_URLS = {
-    registeredVoters: 'http://localhost:8080/stats/registered-voters',
-    residentCount: 'http://localhost:8080/stats/count',
-};
 
 const DashboardCard = () => {
     const [registeredVoters, setRegisteredVoters] = useState(0);
@@ -25,6 +21,14 @@ const DashboardCard = () => {
     const [loadingResidents, setLoadingResidents] = useState(true);
     const [loadingHousehold, setLoadingHousehold] = useState(true);
     const [loadingEstablishment, setLoadingEstablishment] = useState(true);
+
+    const { barangayId } = useAuth();
+
+    const API_URLS = {
+        registeredVoters: 'http://localhost:8080/stats/registered-voters/' + barangayId,
+        residentCount: 'http://localhost:8080/stats/count',
+    };
+
 
     const fetchData = async () => {
         try {

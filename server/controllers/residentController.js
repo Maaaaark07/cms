@@ -15,6 +15,7 @@ export const getAllResidents = async (req, res) => {
             });
         });
         res.json(results[0]);
+        console.log(results[0]);
     } catch (error) {
         console.error("Database error:", error);
         res.status(500).json({
@@ -26,49 +27,73 @@ export const getAllResidents = async (req, res) => {
 
 export const addResident = async (req, res) => {
     try {
-        const params = req.body;
+        const {
+            FirstName, LastName, MiddleName, Suffix,
+            birthday, BirthPlace, Occupation,
+            CivilStatus, Gender, Address,
+            Region_ID, Province_ID, City_ID,
+            Barangay_ID, Purok_ID, IsLocalResident, ResidentType,
+            ContactNumber, Email,
+            IsHouseholdHead, HouseholdID,
+            IsRegisteredVoter, VoterIDNumber,
+            IsJuanBataanMember, JuanBataanID,
+        } = req.body;
+
         const sql = `
           CALL AddResident(
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
           )
         `;
 
-        console.log(params);
-    
         const values = [
-           params.FirstName,       
-          params.LastName,       
-          params.MiddleName,      
-          params.Suffix,           
-          params.Age,             
-          params.birthday,       
-          params.BirthPlace,    
-          params.Occupation,      
-          params.CivilStatus,   
-          params.Gender,        
-          params.Address,        
-          params.Region_ID,     
-          params.Province_ID,     
-          params.City_ID,      
-          params.Barangay_ID,   
-          params.Purok,           
-          params.IsLocalResident,
-          params.ResidentType,  
-          params.ContactNumber,   
-          params.Email,         
-          params.IsHouseholdHead,  
-          params.HouseholdID,     
-          params.IsRegisteredVoter,
-          params.VoterIDNumber,  
-          params.IsJuanBataanMember,
-          params.JuanBataanID, 
+            FirstName,
+            LastName,
+            MiddleName || null,
+            Suffix || null,
+            birthday,
+            BirthPlace || null,
+            Occupation || null,
+            CivilStatus || null,
+            Gender,
+            Address || null,
+            Region_ID || null,
+            Province_ID || null,
+            City_ID || null,
+            Barangay_ID || null,
+            Purok_ID || null,
+            IsLocalResident ? 1 : 0,
+            ResidentType || null,
+            ContactNumber || null,
+            Email || null,
+            IsHouseholdHead ? 1 : 0,
+            HouseholdID || null,
+            IsRegisteredVoter ? 1 : 0,
+            VoterIDNumber || null,
+            IsJuanBataanMember ? 1 : 0,
+            JuanBataanID || null,
         ];
 
-        await db.query(sql, values);
-        res.status(201).json({ message: 'Resident added successfully' });
+        const [result] = await db.query(sql, values);
+
+        res.status(201).json({
+            message: 'Resident added successfully',
+            residentId: result[0].resident_id,
+        });
     } catch (error) {
         console.error("Error adding resident:", error);
-        res.status(500).json({ message: 'Failed to add resident' });
+
+        if (error.code === 'ER_DUP_ENTRY' || 
+            error.sqlState === '45000' || 
+            error.message.includes('already exists')) {
+            return res.status(409).json({
+                message: 'A resident with similar details already exists',
+            });
+        }
+
+        res.status(500).json({
+            message: 'Failed to add resident',
+            error: error.message,
+        });
     }
 };
 

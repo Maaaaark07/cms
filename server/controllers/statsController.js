@@ -1,15 +1,16 @@
 import db from '../config/database.js';
 
 export const getRegisteredVoters = (req, res) => {
-    const sql = "SELECT COUNT(*) AS NumberOfRegisteredVoters FROM cbs_residents WHERE is_registered_voter = 1";
+    const { id } = req.params; 
+    const sql = "CALL GetRegisteredVoterCount(?)";
 
-    db.query(sql, (err, results) => {
+    db.query(sql, [id], (err, results) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ Error: "Database error" });
         }
 
-        const numberOfRegisteredVoters = results[0].NumberOfRegisteredVoters;
+        const numberOfRegisteredVoters = results[0][0].NumberOfRegisteredVoters;
         return res.json({ NumberOfRegisteredVoters: numberOfRegisteredVoters });
     });
 };

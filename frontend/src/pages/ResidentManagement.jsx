@@ -202,7 +202,7 @@ const ResidentManagement = () => {
                                             <td className="p-3 text-gray-500">
                                                 <div className='flex flex-col leading-4 text-gray-500'>
                                                     <span className='text-sm text-gray-500'>{resident.purok}</span>
-                                                    <span className='text-xs text-gray-400'>{resident.city}, {resident.barangay}</span>
+                                                    <span className='text-xs text-gray-400'>{resident.barangay}, {resident.city}</span>
                                                 </div>
                                             </td>
                                             <td className="p-3 text-gray-500">{resident.household_id}</td>
