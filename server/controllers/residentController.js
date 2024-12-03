@@ -39,23 +39,21 @@ export const addResident = async (req, res) => {
             IsJuanBataanMember, JuanBataanID,
         } = req.body;
 
-        const sql = `
-          CALL AddResident(
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-          )
-        `;
+        console.log('Received Resident Data:', req.body);
+
+        const sql = `CALL AddResident(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
         const values = [
             FirstName,
             LastName,
             MiddleName || null,
             Suffix || null,
-            birthday,
+            birthday ? new Date(birthday).toISOString().split('T')[0] : null,
             BirthPlace || null,
             Occupation || null,
             CivilStatus || null,
             Gender,
-            Address || null,
+            Address,
             Region_ID || null,
             Province_ID || null,
             City_ID || null,
@@ -63,7 +61,7 @@ export const addResident = async (req, res) => {
             Purok_ID || null,
             IsLocalResident ? 1 : 0,
             ResidentType || null,
-            ContactNumber || null,
+            ContactNumber,
             Email || null,
             IsHouseholdHead ? 1 : 0,
             HouseholdID || null,
@@ -73,14 +71,18 @@ export const addResident = async (req, res) => {
             JuanBataanID || null,
         ];
 
-        const [result] = await db.query(sql, values);
+        const result = await db.query(sql, values);
+        console.log(result);
 
         res.status(201).json({
             message: 'Resident added successfully',
-            residentId: result[0].resident_id,
+            residentId: result.insertId, // Use insertId instead of result[0]?.resident_id
         });
     } catch (error) {
-        console.error("Error adding resident:", error);
+        console.error("Complete Error Object:", error);
+        console.error("Error adding resident:", error.message);
+        console.error("SQL Error Code:", error.code);
+        console.error("SQL State:", error.sqlState);
 
         if (error.code === 'ER_DUP_ENTRY' || 
             error.sqlState === '45000' || 
@@ -105,7 +107,7 @@ export const updateResident = async (req, res) => {
         IsHouseholdHead, HouseholdID, IsRegisteredVoter, VoterIDNumber, IsJuanBataanMember, JuanBataanID, LastUpdated
     } = req.body;
 
-    if (!ResidentID || !FirstName || !LastName || !Age || !Gender || !Address || !ContactNumber) {
+    if (!ResidentID || !FirstName || !LastName || !Gender || !Address || !ContactNumber) {
         return res.status(400).json({ message: 'Please fill in all required fields.' });
     }
 
@@ -142,7 +144,7 @@ export const updateResident = async (req, res) => {
 
 export const deleteResident = (req, res) => {
     const residentId = req.params.id;
-    const query = 'DELETE FROM cbs_residents WHERE resident_id = ?';
+    const query = 'CALL DeleteResident(?)';
 
     db.query(query, residentId, (error, results) => {
         if (error) {
@@ -171,5 +173,6 @@ export const getResidentCount = (req, res) => {
 
         res.status(200).json({ count });
     });
+    
 };
 

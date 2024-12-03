@@ -242,12 +242,14 @@ const AddResidentPage = ({ setSuccess }) => {
             Purok_ID: purokId
         }));
     };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
             ...prevData,
             [name]: value,
         }));
+        console.log(name, value);
     };
 
     const handleIsHouseholdHead = (e) => {
@@ -300,16 +302,30 @@ const AddResidentPage = ({ setSuccess }) => {
 
         if (!validateFormData()) return;
 
-        setFormData(prevData => ({
-            ...prevData,
-            Region_ID: selectedRegion,
-            Province_ID: selectedProvince,
-            City_ID: selectedCity,
-            Barangay_ID: selectedBarangay
-        }));
+        // Ensure boolean values are converted to 1/0
+        const formDataToSubmit = {
+            ...formData,
+            IsLocalResident: formData.IsLocalResident ? 1 : 0,
+            IsHouseholdHead: formData.IsHouseholdHead ? 1 : 0,
+            IsRegisteredVoter: formData.IsRegisteredVoter ? 1 : 0,
+            IsJuanBataanMember: formData.IsJuanBataanMember ? 1 : 0,
+
+            MiddleName: formData.MiddleName || null,
+            Suffix: formData.Suffix || null,
+            BirthPlace: formData.BirthPlace || null,
+            Occupation: formData.Occupation || null,
+            CivilStatus: formData.CivilStatus || null,
+            ResidentType: formData.ResidentType || null,
+            Email: formData.Email || null,
+            HouseholdID: formData.HouseholdID || null,
+            VoterIDNumber: formData.VoterIDNumber || null,
+            JuanBataanID: formData.JuanBataanID || null,
+
+            birthday: formData.birthday ? new Date(formData.birthday).toISOString().split('T')[0] : null
+        };
 
         try {
-            await axios.post('http://localhost:8080/residents/add', formData, { withCredentials: true });
+            await axios.post('http://localhost:8080/residents/add', formDataToSubmit, { withCredentials: true });
             sessionStorage.setItem('residentAddedSuccess', 'true');
             navigate('/resident-management');
         } catch (error) {
@@ -518,8 +534,9 @@ const AddResidentPage = ({ setSuccess }) => {
                                             </label>
                                             <select name="ResidentType" value={formData.ResidentType} onChange={handleChange} className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                                                 <option value="">Select Resident Type</option>
-                                                <option value="Single">Tenant</option>
-                                                <option value="Married">Business Owner</option>
+                                                <option value="Permanent">Permanent</option>
+                                                <option value="Tenant">Tenant</option>
+                                                <option value="Business Owner">Business Owner</option>
                                             </select>
                                         </div>
                                         <div>

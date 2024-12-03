@@ -18,8 +18,8 @@ export const getRegisteredVoters = (req, res) => {
 export const getPopulationStats = (req, res) => {
     const sql = `
         SELECT 
-            COUNT(CASE WHEN gender = 'M' THEN 1 END) AS male,
-            COUNT(CASE WHEN gender = 'F' THEN 1 END) AS female,
+            COUNT(CASE WHEN gender = 'Male' THEN 1 END) AS male,
+            COUNT(CASE WHEN gender = 'Female' THEN 1 END) AS female,
             COUNT(CASE WHEN age >= 60 THEN 1 END) AS seniorCitizens,
             COUNT(CASE WHEN age < 18 THEN 1 END) AS youth,
             COUNT(*) AS totalPopulation

@@ -93,7 +93,7 @@ const ResidentManagement = () => {
 
     const deleteResident = async (residentId) => {
         try {
-            await axios.delete(`http://localhost:8080/residents/${residentId}`, { withCredentials: true });
+            await axios.delete(`http://localhost:8080/residents/` + residentId, { withCredentials: true });
             fetchResidents();
             setDeleteSuccess(true);
             setTimeout(() => setDeleteSuccess(false), 3000);
@@ -102,15 +102,17 @@ const ResidentManagement = () => {
         }
     };
 
-    const handleDeleteClick = (resident) => {
-        setResidentToDelete(resident);
+    const handleDeleteClick = (residentId) => {
+        console.log(residentId)
+        setResidentToDelete(residentId);
         setActionType('delete');
         setIsModalOpen(true);
     };
 
     const handleModalConfirm = async () => {
         if (actionType === 'delete' && residentToDelete) {
-            await deleteResident(residentToDelete.ResidentID);
+            console.log(residentToDelete);
+            await deleteResident(residentToDelete);
             setIsModalOpen(false);
             setResidentToDelete(null);
             setSearchQuery('');
@@ -201,7 +203,7 @@ const ResidentManagement = () => {
                                             </td>
                                             <td className="p-3 text-gray-500">
                                                 <div className='flex flex-col leading-4 text-gray-500'>
-                                                    <span className='text-sm text-gray-500'>{resident.purok}</span>
+                                                    <span className='text-sm text-gray-500'>{resident.address} {resident.purok}</span>
                                                     <span className='text-xs text-gray-400'>{resident.barangay}, {resident.city}</span>
                                                 </div>
                                             </td>
@@ -227,7 +229,7 @@ const ResidentManagement = () => {
                                                     <FaRegEye className='w-5 h-5 text-gray-500' /></div>
                                                 <div
                                                     className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'
-                                                    onClick={() => handleDeleteClick(resident)}
+                                                    onClick={() => handleDeleteClick(resident.resident_id)}
                                                 >
                                                     <FaRegTrashAlt className='w-5 h-5 text-red-500' />
                                                 </div>

@@ -99,7 +99,7 @@ const ViewResidentModal = ({ isOpen, onClose, residentData }) => {
                             </p>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
                                 <FaMapMarkerAlt className="mr-2 text-gray-400" />
-                                <span className="text-gray-600 mr-2">Address:</span> {residentData.city}, {residentData.barangay}, {residentData.purok}
+                                <span className="text-gray-600 mr-2">Address:</span>{residentData.address} {residentData.purok} {residentData.barangay},  {residentData.city}
                             </p>
                         </div>
                     )}
@@ -107,11 +107,11 @@ const ViewResidentModal = ({ isOpen, onClose, residentData }) => {
                         <div>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
                                 <FaHome className="mr-2 text-gray-400" />
-                                <span className="text-gray-600 mr-2">Household ID:</span> {residentData.household_id}
+                                <span className="text-gray-600 mr-2">Household ID:</span> {residentData.household_id ? residentData.household_id : 'N/A'}
                             </p>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
                                 <FaMapMarkedAlt className="mr-2 text-gray-400" />
-                                <span className="text-gray-600 mr-2">Juan Bataan ID:</span> {residentData.JuanBataanID}
+                                <span className="text-gray-600 mr-2">Juan Bataan ID:</span> {residentData.JuanBataanID ? residentData.JuanBataanID : 'N/A'}
                             </p>
                         </div>
                     )}
@@ -123,11 +123,7 @@ const ViewResidentModal = ({ isOpen, onClose, residentData }) => {
                             </p>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
                                 <FaIdCard className="mr-2 text-gray-400" />
-                                <span className="text-gray-600 mr-2">Voter ID Number:</span> {residentData.VoterIDNumber}
-                            </p>
-                            <p className="flex items-center text-sm text-gray-600 mb-2">
-                                <FaMapMarkedAlt className="mr-2 text-gray-400" />
-                                <span className="text-gray-600 mr-2">Voting Precinct:</span> {residentData.VotingPrecinct}
+                                <span className="text-gray-600 mr-2">Voter ID Number:</span> {residentData.VoterIDNumber ? residentData.VoterIDNumber : 'N/A'}
                             </p>
                         </div>
                     )}
