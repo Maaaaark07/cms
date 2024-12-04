@@ -102,34 +102,52 @@ export const addResident = async (req, res) => {
 export const updateResident = async (req, res) => {
     const { id: ResidentID } = req.params;
     const {
-        FirstName, LastName, MiddleName, Suffix, Age, birthday, BirthPlace, Gender, Address, Region_ID,
-        Province_ID, City_ID, Barangay_ID, purok, IsLocalResident, ContactNumber, Email, CivilStatus, Occupation,
-        IsHouseholdHead, HouseholdID, IsRegisteredVoter, VoterIDNumber, IsJuanBataanMember, JuanBataanID, LastUpdated
+            first_name, last_name, middle_name, suffix,
+            birthday, birth_place, occupation,
+            civil_status, gender, address,
+            region_id, province_id, city_id,
+            barangay_id, purok_id, is_local_resident, resident_type,
+            contact_number, email,
+            is_household_head, household_id,
+            is_registered_voter, voter_id_number,
+            is_juan_bataan_member, juan_bataan_id,
     } = req.body;
 
-    if (!ResidentID || !FirstName || !LastName || !Gender || !Address || !ContactNumber) {
+    if (!ResidentID || !first_name || !last_name || !gender || !address || !contact_number) {
         return res.status(400).json({ message: 'Please fill in all required fields.' });
     }
 
     try {
-        const query = `
-            UPDATE cbs_residents
-            SET first_name = ?, last_name = ?, middle_name = ?, suffix = ?, age = ?, birthday = ?, 
-                birth_place = ?, gender = ?, address = ?, region_id = ?, province_id = ?, city_id = ?, 
-                barangay_id = ?, purok = ?, is_local_resident = ?, contact_number = ?, email = ?, 
-                civil_status = ?, occupation = ?, is_household_head = ?, household_id = ?, 
-                is_registered_voter = ?, voter_id_number = ?, is_juan_bataan_member = ?, juan_bataan_id = ?, 
-                last_updated = ?
-            WHERE resident_id = ?
-        `;
+        const sql = `CALL UpdateResident(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         const values = [
-            FirstName, LastName, MiddleName, Suffix, Age, birthday, BirthPlace, Gender, Address, Region_ID,
-            Province_ID, City_ID, Barangay_ID, purok, IsLocalResident, ContactNumber, Email, CivilStatus, Occupation,
-            IsHouseholdHead, HouseholdID, IsRegisteredVoter, VoterIDNumber, IsJuanBataanMember, JuanBataanID, LastUpdated,
-            ResidentID
+            first_name,
+            last_name,
+            middle_name || null,
+            suffix || null,
+            birthday ? new Date(birthday).toISOString().split('T')[0] : null,
+            birth_place || null,
+            occupation || null,
+            civil_status || null,
+            gender,
+            address,
+            region_id || null,
+            province_id || null,
+            city_id || null,
+            barangay_id || null,
+            purok_id || null,
+            is_local_resident ? 1 : 0,
+            resident_type || null,
+            contact_number,
+            email || null,
+            is_household_head ? 1 : 0,
+            household_id || null,
+            is_registered_voter ? 1 : 0,
+            voter_id_number || null,
+            is_juan_bataan_member ? 1 : 0,
+            juan_bataan_id || null,
         ];
 
-        const result = await db.query(query, values);
+        const result = await db.query(sql, values);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Resident not found or no changes made' });

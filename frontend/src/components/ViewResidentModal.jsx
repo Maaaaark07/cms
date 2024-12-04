@@ -111,7 +111,7 @@ const ViewResidentModal = ({ isOpen, onClose, residentData }) => {
                             </p>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
                                 <FaMapMarkedAlt className="mr-2 text-gray-400" />
-                                <span className="text-gray-600 mr-2">Juan Bataan ID:</span> {residentData.JuanBataanID ? residentData.JuanBataanID : 'N/A'}
+                                <span className="text-gray-600 mr-2">Juan Bataan ID:</span> {residentData.juan_bataan_id ? residentData.juan_bataan_id : 'N/A'}
                             </p>
                         </div>
                     )}
@@ -119,11 +119,11 @@ const ViewResidentModal = ({ isOpen, onClose, residentData }) => {
                         <div>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
                                 <FaIdCard className="mr-2 text-gray-400" />
-                                <span className="text-gray-600 mr-2">Registered Voter:</span> {residentData.RegisteredVoter ? 'Yes' : 'No'}
+                                <span className="text-gray-600 mr-2">Registered Voter:</span> {residentData.is_registered_voter ? 'Yes' : 'No'}
                             </p>
                             <p className="flex items-center text-sm text-gray-600 mb-2">
                                 <FaIdCard className="mr-2 text-gray-400" />
-                                <span className="text-gray-600 mr-2">Voter ID Number:</span> {residentData.VoterIDNumber ? residentData.VoterIDNumber : 'N/A'}
+                                <span className="text-gray-600 mr-2">Voter ID Number:</span> {residentData.voter_id_number ? residentData.voter_id_number : 'N/A'}
                             </p>
                         </div>
                     )}

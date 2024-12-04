@@ -65,6 +65,7 @@ const ResidentManagement = () => {
             console.error("Error fetching residents data:", error);
         }
     };
+    console.log(residents);
 
     const handleAddResidentClick = () => {
         navigate('/resident-management/add-resident');

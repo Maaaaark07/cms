@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import JuanBataanLogo from '../assets/juanbataan.png';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { BsFillPersonVcardFill } from "react-icons/bs";
 import { MdContactPhone } from "react-icons/md";
-import { FaHouseUser } from "react-icons/fa6";
 import { IoIosInformationCircle } from "react-icons/io";
 import { FaMapLocationDot } from "react-icons/fa6";
 
@@ -302,14 +300,12 @@ const AddResidentPage = ({ setSuccess }) => {
 
         if (!validateFormData()) return;
 
-        // Ensure boolean values are converted to 1/0
         const formDataToSubmit = {
             ...formData,
             IsLocalResident: formData.IsLocalResident ? 1 : 0,
             IsHouseholdHead: formData.IsHouseholdHead ? 1 : 0,
             IsRegisteredVoter: formData.IsRegisteredVoter ? 1 : 0,
             IsJuanBataanMember: formData.IsJuanBataanMember ? 1 : 0,
-
             MiddleName: formData.MiddleName || null,
             Suffix: formData.Suffix || null,
             BirthPlace: formData.BirthPlace || null,
