@@ -63,13 +63,13 @@ const Sidebar = () => {
                     </li>
                     <li className="my-2">
                         <NavLink
-                            to="/Incident-Report"
+                            to="/Blotter-Report"
                             className={({ isActive }) =>
                                 `flex items-center p-2 rounded transition-colors duration-200 ${isActive ? 'bg-blue-100 text-blue-500' : 'hover:bg-blue-100 hover:text-blue-500'}`
                             }
                         >
                             <MdOutlineReport className={`h-6 w-6 ${!isOpen ? 'h-8 w-8' : ''} transition-transform`} />
-                            {isOpen && <span className="ml-3">Incident Report</span>}
+                            {isOpen && <span className="ml-3">Blotter Report</span>}
                         </NavLink>
                     </li>
                     <li className="my-2">

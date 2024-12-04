@@ -9,7 +9,7 @@ import Breadcrumbs from "../components/Breadcrumbs";
 import Pagination from '../components/Pagination';
 import Search from '../components/Search';
 
-import { IoPersonAddOutline } from "react-icons/io5";
+import { IoPersonAddOutline, IoDocumentText } from "react-icons/io5";
 import { RxAvatar } from "react-icons/rx";
 import { GrEdit } from "react-icons/gr";
 import { FaRegEye, FaRegTrashAlt } from "react-icons/fa";
@@ -146,7 +146,7 @@ const IncidentReport = () => {
                 <main className="flex-grow p-4 bg-gray-100">
                     <div className="flex-grow p-6 bg-gray-100">
                         <Breadcrumbs />
-                        <h1 className='text-2xl font-bold text-gray-500 mb-6'>Incident Report</h1>
+                        <h1 className='text-2xl font-bold text-gray-500 mb-6'>Blotter Report</h1>
                         <div className='flex items-center justify-between mb-6'>
                             <div className='relative max-w-96 w-full'>
                                 <Search
@@ -154,10 +154,14 @@ const IncidentReport = () => {
                                     onSearchChange={handleSearchChange}
                                 />
                             </div>
-                            <div>
-                                <button className='bg-blue-600 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full' onClick={() => navigate("/incident-report/add-report")}>
+                            <div className="flex gap-5">
+                                <button className='border-2 border-blue-600 text-blue-600 px-5 py-3 text-sm flex items-center gap-2 rounded-full' onClick={() => navigate("/blotter-report/add-complaint")}>
+                                    <IoDocumentText className='w-4 h-4 text-blue-600  font-bold' />
+                                    Add Incident
+                                </button>
+                                <button className='bg-blue-600 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full' onClick={() => navigate("/blotter-report/add-complaint")}>
                                     <IoPersonAddOutline className='w-4 h-4 text-white font-bold' />
-                                    Add Incident Report
+                                    Add Complaint
                                 </button>
                             </div>
                         </div>

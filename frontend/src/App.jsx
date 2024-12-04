@@ -6,7 +6,7 @@ import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ResidentManagement from "./pages/ResidentManagement";
 import ApplicationRequest from "./pages/ApplicationRequest";
-import IncidentReport from "./pages/IncidentReport";
+import BlotterReport from "./pages/BlotterReportPage";
 import IncidentReportViewPage from "./pages/IncidentRepotViewPage";
 import AddIncidentReportPage from "./pages/AddIncidentReportPage";
 import UserManagement from "./pages/UserManagement";
@@ -61,10 +61,10 @@ const App = () => {
                     }
                 />
                 <Route
-                    path="/incident-report"
+                    path="/blotter-report"
                     element={
                         <ProtectedRoute>
-                            <IncidentReport />
+                            <BlotterReport />
                         </ProtectedRoute>
                     }
                 />
@@ -77,7 +77,7 @@ const App = () => {
                     }
                 />
                 <Route
-                    path="/incident-report/add-report"
+                    path="/blotter-report/add-complaint"
                     element={
                         <ProtectedRoute>
                             <AddIncidentReportPage />
