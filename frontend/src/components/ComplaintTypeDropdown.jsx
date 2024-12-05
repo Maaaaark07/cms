@@ -55,7 +55,7 @@ const ComplaintTypeDropdown = ({
         onSelect(null);
     }
 
-    const filteredOptions = options.filter((option) =>
+    const filteredOptions = options?.filter((option) =>
         option.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
