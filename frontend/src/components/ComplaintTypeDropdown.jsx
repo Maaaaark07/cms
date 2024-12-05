@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { IoCloseCircleOutline } from "react-icons/io5";
 
 const ComplaintTypes = [
     { title: "Noise Complaints" },
@@ -40,10 +41,19 @@ const ComplaintTypeDropdown = ({
     const handleOptionClick = (option) => {
         setSelectedType(option.title);
         setIsOpen(false);
+        setSearchTerm("");
         if (onSelect) {
             onSelect(option.title);
         }
     };
+
+    const handleOptionRemove = (e) => {
+        e.stopPropagation()
+        setSelectedType("");
+        setIsOpen(false);
+        setSearchTerm("");
+        onSelect(null);
+    }
 
     const filteredOptions = options.filter((option) =>
         option.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -69,10 +79,11 @@ const ComplaintTypeDropdown = ({
     return (
         <div className="relative" ref={dropdownRef}>
             <div
-                className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="relative border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onClick={toggleDropdown}
             >
                 {selectedType || <span className="text-gray-400">Select complaint type</span>}
+                {selectedType && <IoCloseCircleOutline onClick={handleOptionRemove} className="w-5 h-5 absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500" />}
             </div>
             {isOpen && (
                 <div className="absolute bg-white border border-gray-300 px-4 py-6 rounded-md shadow-lg mt-1 w-full z-10">
