@@ -15,7 +15,6 @@ export const getAllResidents = async (req, res) => {
             });
         });
         res.json(results[0]);
-        console.log(results[0]);
     } catch (error) {
         console.error("Database error:", error);
         res.status(500).json({
@@ -39,7 +38,6 @@ export const addResident = async (req, res) => {
             IsJuanBataanMember, JuanBataanID,
         } = req.body;
 
-        console.log('Received Resident Data:', req.body);
 
         const sql = `CALL AddResident(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
@@ -100,9 +98,8 @@ export const addResident = async (req, res) => {
 };
 
 export const updateResident = async (req, res) => {
-    const { id: ResidentID } = req.params;
     const {
-            first_name, last_name, middle_name, suffix,
+            resident_id, first_name, last_name, middle_name, suffix,
             birthday, birth_place, occupation,
             civil_status, gender, address,
             region_id, province_id, city_id,
@@ -113,13 +110,14 @@ export const updateResident = async (req, res) => {
             is_juan_bataan_member, juan_bataan_id,
     } = req.body;
 
-    if (!ResidentID || !first_name || !last_name || !gender || !address || !contact_number) {
+    if ( !first_name || !last_name || !address || !contact_number) {
         return res.status(400).json({ message: 'Please fill in all required fields.' });
     }
 
     try {
-        const sql = `CALL UpdateResident(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        const sql = `CALL UpdateResident(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         const values = [
+            resident_id,
             first_name,
             last_name,
             middle_name || null,
@@ -148,6 +146,7 @@ export const updateResident = async (req, res) => {
         ];
 
         const result = await db.query(sql, values);
+        console.log(values);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Resident not found or no changes made' });
@@ -156,7 +155,7 @@ export const updateResident = async (req, res) => {
         res.status(200).json({ message: 'Resident updated successfully' });
     } catch (error) {
         console.error("Error updating resident:", error);
-        res.status(500).json({ message: 'Failed to update resident' });
+        res.status(500).json({ message: 'Failed to update resident', error: error.message });
     }
 };
 

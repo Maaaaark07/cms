@@ -93,13 +93,14 @@ const EditResidentPage = ({ }) => {
             const response = await axios.get(`http://localhost:8080/location/provinces/${selectedRegion}`, { withCredentials: true });
             const provinces = response.data;
             setAllProvinces(provinces);
+            console.log(response.data)
 
             if (provinces.length > 0) {
-                const defaultProvince = provinces[0].iid;
-                setSelectedProvince(defaultProvince);
+                const currentProvince = provinces.find(province => province.iid === residentData.province_id);
+                setSelectedProvince(currentProvince.iid);
                 setFormData((prevState) => ({
                     ...prevState,
-                    province_id: defaultProvince,
+                    province_id: currentProvince.iid,
                 }));
             } else {
                 setSelectedProvince('');
@@ -124,11 +125,11 @@ const EditResidentPage = ({ }) => {
             setAllCities(cities);
 
             if (cities.length > 0) {
-                const defaultCity = cities[0].iid;
-                setSelectedCity(defaultCity);
+                const currentCity = cities.find(city => city.iid === residentData.city_id);
+                setSelectedCity(currentCity.iid);
                 setFormData((prevState) => ({
                     ...prevState,
-                    city_id: defaultCity,
+                    city_id: currentCity.iid,
                 }));
             } else {
                 setSelectedCity('');
@@ -152,11 +153,11 @@ const EditResidentPage = ({ }) => {
             setAllBarangay(barangays);
 
             if (barangays.length > 0) {
-                const defaultBarangay = barangays[0].iid;
-                setSelectedBarangay(defaultBarangay);
+                const currentBarangay = barangays.find(barangay => barangay.iid === residentData.barangay_id);
+                setSelectedBarangay(currentBarangay.iid);
                 setFormData((prevState) => ({
                     ...prevState,
-                    barangay_id: defaultBarangay,
+                    barangay_id: currentBarangay.iid,
                 }));
             } else {
                 setSelectedBarangay('');
@@ -172,7 +173,6 @@ const EditResidentPage = ({ }) => {
 
     const fetchAllPurok = async () => {
         try {
-            // Ensure selectedBarangay is not empty
             if (!selectedBarangay) {
                 setAllPuroks([]);
                 return;
@@ -183,11 +183,11 @@ const EditResidentPage = ({ }) => {
             setAllPuroks(puroks);
 
             if (puroks.length > 0) {
-                const defaultPurok = puroks[0].iid;
-                setSelectedPurok(defaultPurok);
+                const currentPurok = puroks.find(purok => purok.iid === residentData.purok_id);
+                setSelectedPurok(currentPurok.iid);
                 setFormData((prevState) => ({
                     ...prevState,
-                    purok_id: defaultPurok,
+                    purok_id: currentPurok.iid,
                 }));
             } else {
                 setSelectedPurok('');
@@ -709,7 +709,7 @@ const EditResidentPage = ({ }) => {
 
                                 <div className="col-span-1 md:col-span-3 flex justify-end mt-4 space-x-4">
                                     <button type="button" onClick={handleCancel} className="bg-gray-300 text-gray-700 py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400">Cancel</button>
-                                    <button type="submit" disabled={loading} className="bg-blue-500 text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300">{loading ? 'Saving...' : 'Add Resident'}</button>
+                                    <button type="submit" disabled={loading} className="bg-blue-500 text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300">{loading ? 'Saving...' : 'Update Resident'}</button>
                                 </div>
                             </form>
                         </div>
