@@ -1,6 +1,7 @@
 import React from 'react'
-import Header from '../components/Header'
-import Sidebar from '../components/Sidebar'
+import Header from "../components/Header";
+import Sidebar from "../components/Sidebar";
+import Breadcrumbs from "../components/Breadcrumbs";
 
 const UserManagement = () => {
     return (

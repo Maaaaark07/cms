@@ -1,7 +1,8 @@
 import React from 'react'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../components/AuthContext";
+import axios from 'axios';
 
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
@@ -24,31 +25,77 @@ const ApplicationRequest = () => {
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(false);
+    const [requests, setRequests] = useState(null);
     const [error, setError] = useState(null);
 
-    // const filteredBlotters = blotters?.filter(blotter => {
-    //     const complainantName = `${blotter.complainant || ''}`.toLowerCase();
-    //     const blotterId = blotter.blotter_id != null
-    //         ? blotter.blotter_id.toString()
-    //         : '';
-    //     return complainantName.includes(searchQuery.toLowerCase()) ||
-    //         blotterId.includes(searchQuery.toLowerCase())
-    // });
-    // const totalFilteredPages = Math.ceil((filteredBlotters?.length) / itemsPerPage);
-    // const startIndex = (currentPage - 1) * itemsPerPage;
-    // const displayedBlotters = filteredBlotters?.slice(startIndex, startIndex + itemsPerPage);
+    useEffect(() => {
+        fetchCertificateRequest();
+    }, [barangayId]);
 
-    // const handlePageChange = (page) => setCurrentPage(page);
+    async function fetchCertificateRequest() {
+        setLoading(true);
+        try {
+            const response = await axios.get("http://localhost:8080/certificate/" + barangayId, {
+                withCredentials: true,
+            });
+            setRequests(response.data);
+            console.log(response.data)
+        } catch (error) {
+            console.error("Error fetching blotters data:", error);
+            setError("Failed to fetch blotters. Please try again later.");
+        }
+        finally {
+            setLoading(false);
+        }
+    }
 
-    // const handleItemsPerPageChange = (newItemsPerPage) => {
-    //     setItemsPerPage(newItemsPerPage);
-    //     setCurrentPage(1);
-    // };
 
-    // const handleSearchChange = (e) => {
-    //     setSearchQuery(e.target.value);
-    //     setCurrentPage(1);
-    // };
+    const filteredRequest = requests?.filter(request => {
+        const applicantName = `${request.applicant || ''}`.toLowerCase();
+        const certificationId = request.certification_id != null
+            ? request.certification_id.toString()
+            : '';
+        return applicantName.includes(searchQuery.toLowerCase()) ||
+            certificationId.includes(searchQuery.toLowerCase())
+    });
+
+    const totalFilteredPages = Math.ceil((filteredRequest?.length) / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const displayedRequest = filteredRequest?.slice(startIndex, startIndex + itemsPerPage);
+
+    const handlePageChange = (page) => setCurrentPage(page);
+
+    const handleItemsPerPageChange = (newItemsPerPage) => {
+        setItemsPerPage(newItemsPerPage);
+        setCurrentPage(1);
+    };
+
+    const handleSearchChange = (e) => {
+        setSearchQuery(e.target.value);
+        setCurrentPage(1);
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return 'N/A';
+
+        try {
+            const date = new Date(dateString);
+
+            if (isNaN(date.getTime())) {
+                console.error('Invalid date:', dateString);
+                return 'Invalid Date';
+            }
+
+            return date.toLocaleDateString('en-US', {
+                month: '2-digit',
+                day: '2-digit',
+                year: 'numeric'
+            });
+        } catch (error) {
+            console.error('Error formatting date:', error);
+            return 'N/A';
+        }
+    };
 
 
     return (
@@ -59,16 +106,16 @@ const ApplicationRequest = () => {
                 <main className="flex-grow p-4 bg-gray-100">
                     <div className="flex-grow p-6 bg-gray-100">
                         <Breadcrumbs />
-                        <h1 className='text-2xl font-bold text-gray-500 mb-6'>Certification Request</h1>
+                        <h1 className='text-2xl font-bold text-gray-500 mb-6'>Application Request</h1>
                         <div className='flex items-center justify-between mb-6'>
                             <div className='relative max-w-96 w-full'>
-                                {/* <Search
+                                <Search
                                     searchQuery={searchQuery}
                                     onSearchChange={handleSearchChange}
-                                /> */}
+                                />
                             </div>
                             <div className="flex gap-5">
-                                <button className='bg-blue-600 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full' onClick={() => navigate("/blotter-report/add-complaint")}>
+                                <button className='bg-blue-600 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full' onClick={() => navigate("/application-request/add-certification")}>
                                     <PiCertificateBold className='w-4 h-4 text-white font-bold' />
                                     Request Certification
                                 </button>
@@ -91,29 +138,28 @@ const ApplicationRequest = () => {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {/* {
-                                                    filteredBlotters.length > 0 ? displayedBlotters.map((blotter) => (
-                                                        <tr key={blotter.blotter_id} className="border-b hover:bg-gray-100 even:bg-gray-50">
+                                                {
+                                                    filteredRequest?.length > 0 ? displayedRequest.map((request) => (
+                                                        <tr key={request.certification_id} className="border-b hover:bg-gray-100 even:bg-gray-50">
                                                             <td className="p-3 flex items-center gap-2">
                                                                 <div className='bg-gray-200 rounded-full'>
                                                                     <RxAvatar className='w-8 h-8 text-gray-400' />
                                                                 </div>
                                                                 <div className='flex flex-col leading-4 text-gray-500'>
-                                                                    <span className='text-sm text-gray-500'>{`${blotter.complainant}`}</span>
-                                                                    <span className='text-xs text-gray-400'>{blotter?.occupation || 'N/A'}</span>
+                                                                    <span className='text-sm text-gray-500'>{`${request.applicant}`}</span>
+                                                                    <span className='text-xs text-gray-400'>{request?.occupation || 'N/A'}</span>
                                                                 </div>
                                                             </td>
-                                                            <td className="p-3 text-gray-500">{blotter.blotter_id}</td>
-                                                            <td className="p-3 text-gray-500">{blotter.incident_type}</td>
-                                                            <td className="p-3 text-gray-500">{formatIncidentDate(blotter.incident_date)}</td>
-                                                            <td className="p-3 text-gray-500">{formattedStatus(blotter.status)}</td>
+                                                            <td className="p-3 text-gray-500">{request.certification_id}</td>
+                                                            <td className="p-3 text-gray-500">{request.certification_type}</td>
+                                                            <td className="p-3 text-gray-500">{formatDate(request.date_issued)}</td>
                                                             <td className="p-3 text-gray-500 flex items-center justify-center gap-2">
                                                                 <div
                                                                     className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'>
                                                                     <GrEdit className='w-5 h-5 text-gray-500' />
                                                                 </div>
                                                                 <div className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'>
-                                                                    <Link to={`/Incident-Report-View/` + blotter.blotter_id}>
+                                                                    <Link>
                                                                         <FaRegEye className='w-5 h-5 text-gray-500' />
                                                                     </Link>
                                                                 </div>
@@ -130,19 +176,19 @@ const ApplicationRequest = () => {
                                                             </td>
                                                         </tr>
                                                     )
-                                                } */}
+                                                }
                                             </tbody>
                                         </table>
                                     </div>
                                 )
                         }
 
-                        {/* <Pagination
+                        <Pagination
                             currentPage={currentPage}
                             totalPages={totalFilteredPages}
                             onPageChange={handlePageChange}
                             itemsPerPage={itemsPerPage}
-                            onItemsPerPageChange={handleItemsPerPageChange} /> */}
+                            onItemsPerPageChange={handleItemsPerPageChange} />
                     </div>
                 </main>
             </div >

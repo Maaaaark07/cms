@@ -198,7 +198,7 @@ const ResidentManagement = () => {
                                                     <RxAvatar className='w-8 h-8 text-gray-400' />
                                                 </div>
                                                 <div className='flex flex-col leading-4 text-gray-500'>
-                                                    <span className='text-sm text-gray-500'>{`${resident.first_name} ${resident.last_name} ${resident.suffix}`}</span>
+                                                    <span className='text-sm text-gray-500'>{`${resident.first_name} ${resident.last_name} ${resident.suffix ?? ''}`}</span>
                                                     <span className='text-xs text-gray-400'>{resident.occupation}</span>
                                                 </div>
                                             </td>

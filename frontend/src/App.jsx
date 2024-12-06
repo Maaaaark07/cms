@@ -13,6 +13,7 @@ import UserManagement from "./pages/UserManagement";
 import Reports from "./pages/Reports";
 import EditResidentPage from "./pages/EditResidentPage ";
 import AddResidentPage from "./pages/AddResidentPage";
+import AddCertificationPage from "./pages/AddCertificationPage";
 
 const App = () => {
     return (
@@ -57,6 +58,14 @@ const App = () => {
                     element={
                         <ProtectedRoute>
                             <ApplicationRequest />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/application-request/add-certification"
+                    element={
+                        <ProtectedRoute>
+                            <AddCertificationPage />
                         </ProtectedRoute>
                     }
                 />
