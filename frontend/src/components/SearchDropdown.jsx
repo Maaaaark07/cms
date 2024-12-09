@@ -24,26 +24,27 @@ const ComplaintTypes = [
     { title: "Noise from Religious or Public Gatherings" },
 ];
 
-const ComplaintTypeDropdown = ({
+const SearchDropdown = ({
     options = ComplaintTypes,
     placeholder = "Search complaint type...",
     onSelect,
+    uniqueKey,
+    onSelectOption
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedType, setSelectedType] = useState("");
     const dropdownRef = useRef(null);
-
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);
     };
 
     const handleOptionClick = (option) => {
-        setSelectedType(option.title);
+        setSelectedType(uniqueKey && option[uniqueKey] ? option[uniqueKey] : option.title);
         setIsOpen(false);
         setSearchTerm("");
         if (onSelect) {
-            onSelect(option.title);
+            onSelect(option);
         }
     };
 
@@ -55,9 +56,10 @@ const ComplaintTypeDropdown = ({
         onSelect(null);
     }
 
-    const filteredOptions = options?.filter((option) =>
-        option.title.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredOptions = options?.filter((option) => {
+        const keyToUse = uniqueKey && option[uniqueKey] ? option[uniqueKey] : option.title;
+        return keyToUse.toLowerCase().includes(searchTerm.toLowerCase())
+    });
 
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
@@ -95,18 +97,15 @@ const ComplaintTypeDropdown = ({
                         className="text-sm border rounded border-gray-300 p-2 mb-4 w-full text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <ul className="max-h-40 overflow-y-auto">
-                        {filteredOptions.map((option) => (
+                        {filteredOptions?.map((option) => (
                             <li
-                                key={option.title}
+                                key={option[uniqueKey] || option.title}
                                 onClick={() => handleOptionClick(option)}
-                                className={`p-2 text-sm hover:bg-blue-100 cursor-pointer ${option.title === selectedType ? "bg-blue-100" : ""}`}
+                                className={`p-2 text-sm hover:bg-blue-100 cursor-pointer ${(option[uniqueKey] || option.title) === selectedType ? "bg-blue-100" : ""}`}
                             >
-                                {option.title}
+                                {option[uniqueKey] || option.title}
                             </li>
                         ))}
-                        {filteredOptions.length === 0 && (
-                            <li className="p-2 text-sm text-gray-500">No options found.</li>
-                        )}
                     </ul>
                 </div>
             )}
@@ -114,4 +113,4 @@ const ComplaintTypeDropdown = ({
     );
 };
 
-export default ComplaintTypeDropdown;
+export default SearchDropdown;

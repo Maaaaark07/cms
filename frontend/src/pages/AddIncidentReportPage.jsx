@@ -8,7 +8,7 @@ import Sidebar from "../components/Sidebar";
 import Breadcrumbs from "../components/Breadcrumbs";
 import Pagination from '../components/Pagination';
 import Search from '../components/Search';
-import ComplaintTypeSelect from "../components/ComplaintTypeDropdown";
+import SearchDropdown from "../components/SearchDropdown";
 import SearchModal from "../components/SearchModal";
 
 import { IoSearch } from "react-icons/io5";
@@ -51,7 +51,7 @@ const AddIncidentReportPage = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6  mb-8">
                                     <div className='flex-1'>
                                         <label className="block mb-2 text-sm font-medium text-gray-500">Nature of Complain<span className="text-red-600">*</span></label>
-                                        <ComplaintTypeSelect onSelect={handleComplaintTypeChange} />
+                                        <SearchDropdown onSelect={handleComplaintTypeChange} />
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
