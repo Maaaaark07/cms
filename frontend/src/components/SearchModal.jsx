@@ -1,9 +1,8 @@
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import React, { useEffect, useState } from 'react'
-
 import { useAuth } from './AuthContext';
-
 import { IoClose } from "react-icons/io5";
+import { IoIosArrowBack } from "react-icons/io";
 import { RxAvatar } from "react-icons/rx";
 
 export default function SearchModal({
@@ -12,40 +11,45 @@ export default function SearchModal({
     onClose,
     onSelect,
     options,
-    setComplainantName,
-    setComplainantAddress,
-    setComplainantContact,
 }) {
     const { barangayId } = useAuth();
-    const [residents, setResidents] = useState();
+    const [residents, setResidents] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
+    const [currentPage, setCurrentPage] = useState(0);
+
+    const itemsPerPage = 4;
 
     useEffect(() => {
         if (isOpen && barangayId) {
             fetchResidents();
         }
-    }, [isOpen, barangayId])
+    }, [isOpen, barangayId]);
 
     const fetchResidents = async () => {
         try {
             const response = await axios.get('http://localhost:8080/residents/' + barangayId, { withCredentials: true });
             setResidents(response.data);
-            console.log(response.data);
         } catch (error) {
             console.error("Error fetching residents data:", error);
         }
-    }
+    };
 
     const filteredResidents = residents?.filter((resident) => {
-        const residentFullName = `${resident?.first_name || resident?.last_name}`.toLowerCase();
+        const residentFullName = `${resident?.first_name} ${resident?.last_name}`.toLowerCase();
         const residentAddress = `${resident?.purok}`.toLowerCase();
         return residentFullName.includes(searchTerm.toLowerCase())
             || residentAddress.includes(searchTerm.toLowerCase())
             || resident?.barangay.toLowerCase().includes(searchTerm.toLowerCase());
     });
 
+    const paginatedResidents = filteredResidents?.slice(
+        currentPage * itemsPerPage,
+        (currentPage + 1) * itemsPerPage
+    );
+
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);
+        setCurrentPage(0);
     };
 
     const handleSelect = (resident) => {
@@ -56,7 +60,21 @@ export default function SearchModal({
     const handleOnClose = () => {
         onClose();
         setSearchTerm("");
-    }
+        setCurrentPage(0);
+    };
+
+    const handleNextPage = () => {
+        if ((currentPage + 1) * itemsPerPage < filteredResidents.length) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const handlePreviousPage = () => {
+        if (currentPage > 0) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -79,26 +97,29 @@ export default function SearchModal({
                     />
                     <CardList>
                         {
-                            filteredResidents?.length > 0 ? filteredResidents?.map((resident) => (
+                            paginatedResidents?.length > 0 ? paginatedResidents?.map((resident) => (
                                 <Card key={resident.resident_id} resident={resident} onClick={() => handleSelect(resident)} />
-                            )) : <div className='my-auto text-center'>No employees found.</div>
+                            )) : <div className='my-auto text-center'>No residents found.</div>
                         }
                     </CardList>
                 </div>
-                <div className="flex justify-end gap-2">
-                    <button
-                        className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
-                        onClick={() => handleOnClose()}
-                    >
-                        Cancel
-                    </button>
-                    <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                        Confirm
-                    </button>
+                <div className="flex justify-end items-center mt-4 gap-2">
+                    <IoIosArrowBack
+                        className={`w-9 h-9 text-gray-500 p-2 border border-gray-300 rounded-lg cursor-pointer ${currentPage === 0 ? 'bg-gray-200 cursor-not-allowed' : 'hover:bg-gray-200'
+                            }`}
+                        onClick={handlePreviousPage}
+                        disabled={currentPage === 0}
+                    />
+                    <IoIosArrowBack
+                        className={`w-9 h-9 text-gray-500 p-2 border border-gray-300 rounded-lg cursor-pointer transform rotate-180 ${(currentPage + 1) * itemsPerPage >= filteredResidents.length ? 'bg-gray-200 cursor-not-allowed' : 'hover:bg-gray-200'
+                            }`}
+                        onClick={handleNextPage}
+                        disabled={(currentPage + 1) * itemsPerPage >= filteredResidents.length}
+                    />
                 </div>
             </div>
         </div>
-    )
+    );
 }
 
 function CardList({ children }) {
@@ -106,25 +127,17 @@ function CardList({ children }) {
         <ul className='flex flex-col gap-2 min-h-[350px]'>
             {children}
         </ul>
-    )
+    );
 }
 
 function Card({ resident, onClick }) {
     return (
         <li className="flex items-center gap p-4 border rounded-md hover:bg-blue-50 border-gray-300 hover:border-blue-500 shadow-sm transition-colors cursor-pointer" onClick={onClick}>
-            {
-                true ? <RxAvatar className='w-12 h-12 text-gray-400' />
-                    : <img
-                        src="/path/to/image.jpg"
-                        alt="Profile"
-                        className="w-12 h-12 rounded-full border border-gray-300"
-                    />
-            }
-
+            <RxAvatar className='w-12 h-12 text-gray-400' />
             <div className="ml-4">
                 <h3 className="font-bold text-gray-800">{`${resident.first_name} ${resident.last_name}`}</h3>
                 <p className="text-sm text-gray-600">{`${resident.address}${resident.address ? "," : ""} ${resident.purok}, ${resident.barangay}`}</p>
             </div>
         </li>
-    )
+    );
 }
