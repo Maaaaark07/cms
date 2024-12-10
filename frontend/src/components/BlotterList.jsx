@@ -4,10 +4,17 @@ import { FaRegFileLines } from "react-icons/fa6";
 import { FaArrowRightLong } from "react-icons/fa6";
 
 const BlotterList = ({ blotterData }) => {
+    const navigate = useNavigate();
+
     const capitalizeFirstLetter = (string) => {
         if (!string) return "";
         return string.charAt(0).toUpperCase() + string.slice(1);
     };
+
+    const handleViewBlotter = (id) => {
+        navigate("/Blotter-Report/Blotter-Report-View", { state: { blotter_id: id } });
+    };
+
     return (
         <div className="p-4 bg-white rounded-md">
             <h3 className="text-gray-500 text-xl font-bold mb-4">Incident Report</h3>
@@ -37,13 +44,10 @@ const BlotterList = ({ blotterData }) => {
                                 </span>
                             </div>
                         </div>
-                        <Link
-                            to={`/Incident-Report-View/` + incident.blotter_id}
-                            className="flex items-center gap-2"
-                        >
+                        <div onClick={() => handleViewBlotter()} className="flex items-center gap-2 cursor-pointer">
                             <span className="text-sm text-blue-500">View</span>
                             <FaArrowRightLong className="w-3 h-3 text-blue-600" />
-                        </Link>
+                        </div>
                     </div>
                 ))}
             <Link

@@ -17,6 +17,7 @@ import { Link } from "react-router-dom";
 
 const IncidentReport = () => {
     const { barangayId } = useAuth();
+    const navigate = useNavigate();
 
     const [blotters, setBlotters] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -25,7 +26,6 @@ const IncidentReport = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const navigate = useNavigate();
 
     useEffect(() => {
         fetchBlotters();
@@ -138,6 +138,10 @@ const IncidentReport = () => {
         setCurrentPage(1);
     };
 
+    const handleViewBlotter = (id) => {
+        navigate("/Blotter-Report/Blotter-Report-View", { state: { blotter_id: id } });
+    };
+
     return (
         <div className="flex flex-col h-screen">
             <Header />
@@ -155,7 +159,7 @@ const IncidentReport = () => {
                                 />
                             </div>
                             <div className="flex gap-5">
-                                <button className='border-2 border-blue-600 text-blue-600 px-5 py-3 text-sm flex items-center gap-2 rounded-full' onClick={() => navigate("/blotter-report/add-complaint")}>
+                                <button className='border-2 border-blue-600 text-blue-600 px-5 py-3 text-sm flex items-center gap-2 rounded-full'>
                                     <IoDocumentText className='w-4 h-4 text-blue-600  font-bold' />
                                     Add Incident
                                 </button>
@@ -204,10 +208,8 @@ const IncidentReport = () => {
                                                                     className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'>
                                                                     <GrEdit className='w-5 h-5 text-gray-500' />
                                                                 </div>
-                                                                <div className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'>
-                                                                    <Link to={`/Incident-Report-View/` + blotter.blotter_id}>
-                                                                        <FaRegEye className='w-5 h-5 text-gray-500' />
-                                                                    </Link>
+                                                                <div className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer' onClick={() => handleViewBlotter(blotter?.blotter_id)}>
+                                                                    <FaRegEye className='w-5 h-5 text-gray-500' />
                                                                 </div>
                                                                 <div
                                                                     className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'>
