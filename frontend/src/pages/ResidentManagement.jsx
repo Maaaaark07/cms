@@ -61,8 +61,6 @@ const ResidentManagement = () => {
         try {
             const response = await axios.get('http://localhost:8080/residents/' + barangayId, { withCredentials: true });
             setResidents(response.data);
-            console.log(barangayId);
-            console.log(response.data);
         } catch (error) {
             console.error("Error fetching residents data:", error);
         }

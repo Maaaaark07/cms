@@ -7,6 +7,7 @@ import statsRoutes from './routes/stats.js';
 import blotterRoutes from './routes/blotter.js';
 import locationRoutes from './routes/location.js'
 import certificateRoutes from './routes/certificate.js'
+import brgyOfficialsRoutes  from './routes/officials.js';
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use('/stats', statsRoutes);
 app.use('/blotter', blotterRoutes);
 app.use('/location', locationRoutes)
 app.use('/certificate', certificateRoutes)
+app.use('/official', brgyOfficialsRoutes)
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {

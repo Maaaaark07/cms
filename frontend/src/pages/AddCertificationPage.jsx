@@ -4,6 +4,7 @@ import Sidebar from "../components/Sidebar";
 import Breadcrumbs from "../components/Breadcrumbs";
 import SearchDropdown from '../components/SearchDropdown';
 import SearchModal from '../components/SearchModal';
+import { useAuth } from '../components/AuthContext';
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
@@ -16,27 +17,36 @@ const AddCertificationPage = () => {
 
     const [errorMessage, setErrorMessage] = useState(null);
     const [certificateTypes, setCertificateTypes] = useState([]);
+    const [brgyOfficials, setBrgyOfficials] = useState([]);
     const [selectedCertificateType, setSelectedCertificateType] = useState();
     const [isComplainantModalOpen, setIsComplainantModalOpen] = useState(false);
     const [complainantName, setComplainantName] = useState("");
     const [complainantAddress, setComplainantAddress] = useState("");
     const [applicantMiddleName, setApplicantMiddleName] = useState("");
+    const [certificateTitle, setCertificateTitle] = useState("");
     const [ApplicantAge, setApplicantAge] = useState("");
+    const [civilStatus, setCivilStatus] = useState("")
     const [message, setMessage] = useState("")
     const [complainantContact, setComplainantContact] = useState("");
 
     const [certificateDetails, setCertificateDetails] = useState({
-        barangayCaptain: '', // From user's login or system settings
+        barangayCaptain: '',
         businessName: '',
         address: '',
         closureDate: '',
         issuedDate: ''
     });
 
+    const now = new Date();
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+
     const [loading, setLoading] = useState(false);
+    const { barangayId } = useAuth();
+    console.log(barangayId)
 
     useEffect(() => {
-        fetchCertificateType();
+        fetchCertificateType()
+        fetchBarangayOfficials()
     }, []);
 
     async function fetchCertificateType() {
@@ -46,7 +56,7 @@ const AddCertificationPage = () => {
                 withCredentials: true,
             });
             setCertificateTypes(response.data);
-            console.log("Certificate Types:", response.data);
+
         } catch (error) {
             console.error("Error fetching certificate types:", error);
             setError("Failed to fetch certificate types. Please try again later.");
@@ -55,11 +65,28 @@ const AddCertificationPage = () => {
         }
     }
 
+    async function fetchBarangayOfficials() {
+        setLoading(true);
+        try {
+            const response = await axios.get('http://localhost:8080/official/' + barangayId, {
+                withCredentials: true,
+            });
+            setBrgyOfficials(response.data);
+            console.log(response.data);
+        } catch (error) {
+            console.error('Error fetching barangay officials:', error);
+            setError('Failed to fetch barangay officials. Please try again later.');
+        } finally {
+            setLoading(false);
+        }
+    }
+
+
     const handleCertifacteType = (selectedValue) => {
         const selectedCertificate = certificateTypes.find(cert => cert.iid === selectedValue.iid);
         setSelectedCertificateType(selectedCertificate);
+        setCertificateTitle(selectedCertificate.iname)
 
-        // Optionally, you can set a default template for each certificate type
         if (selectedCertificate) {
             setCertificateDetails(prev => ({
                 ...prev,
@@ -68,22 +95,24 @@ const AddCertificationPage = () => {
         }
     };
 
-    const renderCertificateMessage = () => {
+    const renderCertificateMessage = (resident) => {
         if (!selectedCertificateType) {
             return "Please select a certificate type first";
         }
 
-        // Replace placeholders with actual values
         let message = selectedCertificateType.body_text || '';
 
-        // Dynamically replace placeholders
-        message = message.replace('[BARANGAY_CAPTAIN]', certificateDetails.barangayCaptain || complainantName)
+        message = message.replace('[BARANGAY_CAPTAIN]', brgyOfficials[0].full_name)
             .replace('[BUSINESS_NAME]', certificateDetails.businessName || 'MilkTeahanNgInaMo')
             .replace('[ADDRESS]', complainantAddress || '[Address]')
+            .replace('[APPLICANT_NAME]', complainantName)
             .replace('[CLOSURE_DATE]', certificateDetails.closureDate || 'Mamayang Gabi')
             .replace('[DATE]', new Date().getDate().toString())
             .replace('[MONTH]', new Date().toLocaleString('default', { month: 'long' }))
-            .replace('[YEAR]', new Date().getFullYear().toString());
+            .replace('[YEAR]', new Date().getFullYear().toString())
+            .replace('[RESIDENT_NAME]', complainantName)
+            .replace('[CIVIL_STATUS]', civilStatus)
+            .replace('[AGE]', ApplicantAge)
 
         return message;
     };
@@ -93,7 +122,9 @@ const AddCertificationPage = () => {
         setComplainantAddress(`${resident.address || ""} ${resident.purok}, ${resident.barangay}`);
         setApplicantMiddleName(`${resident.middle_name}`)
         setComplainantContact(resident.contact_number || "");
+        setCivilStatus(resident.civil_status)
         setApplicantAge(resident.age || "")
+
         setIsComplainantModalOpen(false);
     }
 
@@ -172,7 +203,12 @@ const AddCertificationPage = () => {
                                     )}
 
                                     <PDFViewer style={{ width: '100%', height: '100vh' }}>
-                                        <CertificatePreview message={renderCertificateMessage()} />
+                                        <CertificatePreview
+                                            message={renderCertificateMessage()}
+                                            brgyOfficials={brgyOfficials}
+                                            certificateTitle={certificateTitle}
+                                            date={new Intl.DateTimeFormat('en-US', options).format(now)}
+                                        />
                                     </PDFViewer>
 
                                 </div>
