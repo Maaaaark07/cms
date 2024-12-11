@@ -7,7 +7,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ResidentManagement from "./pages/ResidentManagement";
 import ApplicationRequest from "./pages/ApplicationRequest";
 import BlotterReport from "./pages/BlotterReportPage";
-import IncidentReportViewPage from "./pages/IncidentRepotViewPage";
+import IncidentReportViewPage from "./pages/BlotterReportViewPage";
 import AddIncidentReportPage from "./pages/AddIncidentReportPage";
 import UserManagement from "./pages/UserManagement";
 import Reports from "./pages/Reports";
@@ -78,7 +78,7 @@ const App = () => {
                     }
                 />
                 <Route
-                    path="/incident-report-view/:blotter_id"
+                    path="/Blotter-Report/Blotter-Report-View"
                     element={
                         <ProtectedRoute>
                             <IncidentReportViewPage />
