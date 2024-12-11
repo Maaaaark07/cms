@@ -1,8 +1,33 @@
 import React from 'react';
-import { Document, Page, View, Text, Image, StyleSheet } from '@react-pdf/renderer';
+import { Document, Page, View, Text, Image, StyleSheet, Font } from '@react-pdf/renderer';
 import certificateTemplate from '../assets/CertificateTemplate.jpg';
 
 const CertificatePreview = ({ message, brgyOfficials, certificateTitle, date }) => {
+
+    Font.register({
+        family: 'Arimo',
+        fonts: [
+            {
+                src: 'https://fonts.gstatic.com/s/lato/v24/S6u9w4BMUTPHh50Xew-FGC_p9dw.ttf',
+                fontWeight: 'bold'
+            },
+            {
+                src: 'https://fonts.gstatic.com/s/lato/v24/S6u8w4BMUTPHjxswWyWrFCbw7A.ttf',
+                fontWeight: 'normal'
+            }
+        ]
+    });
+
+    Font.register({
+        family: 'Open Sans',
+        fonts: [
+            {
+                src: 'https://fonts.gstatic.com/s/opensans/v40/memSYaGs126MiZpBA-UvWbX2vVnXBbObjwSVZyOOSr4dVJWUgshZ1y4nY1M2xLER.ttf',
+                fontWeight: 'bold'
+            }
+        ]
+    });
+
     const styles = StyleSheet.create({
         page: {
             backgroundColor: '#fff',
@@ -37,11 +62,12 @@ const CertificatePreview = ({ message, brgyOfficials, certificateTitle, date }) 
             flexDirection: 'column',
             alignItems: 'center',
             marginTop: '30px',
-            width: '30%',
+            width: '40%',
         },
         sangguniangBarangayText: {
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: 'bold',
+            fontFamily: 'Arimo',
             color: '#7b0d16',
             marginBottom: 10,
         },
@@ -50,9 +76,17 @@ const CertificatePreview = ({ message, brgyOfficials, certificateTitle, date }) 
             flexDirection: 'column',
             alignItems: 'center',
         },
-        officialName: {
+        firstOfficialName: {
+            fontSize: 20,
+            fontWeight: 'bold',
+            fontFamily: 'Open Sans',
+            color: '#2d597d',
+        },
+        additionalOfficialName: {
             fontSize: 14,
             fontWeight: 'bold',
+            fontFamily: 'Open Sans',
+            color: '#000000',
         },
         officialPosition: {
             fontSize: 10,
@@ -60,16 +94,18 @@ const CertificatePreview = ({ message, brgyOfficials, certificateTitle, date }) 
             flexDirection: 'column',
             alignItems: 'center',
             textAlign: 'center',
+            fontFamily: 'Arimo',
+            fontWeight: 'normal'
         },
         mgaKagawadText: {
-            fontSize: 14,
-            marginTop: 5,
-            marginBottom: 5,
+            fontSize: 12,
+            marginTop: 7,
             fontWeight: 'bold',
             color: '#7b0d16',
+            fontFamily: 'Arimo',
         },
         messageSection: {
-            width: '60%',
+            width: '55%',
             fontSize: 14,
             textAlign: 'justify',
             lineHeight: 1.5,
@@ -79,7 +115,7 @@ const CertificatePreview = ({ message, brgyOfficials, certificateTitle, date }) 
             alignItems: 'flex-end',
         },
         dateText: {
-            fontSize: 14,
+            fontSize: 12,
             textAlign: 'right',
             marginBottom: 10,
         },
@@ -96,15 +132,20 @@ const CertificatePreview = ({ message, brgyOfficials, certificateTitle, date }) 
                 <Text style={styles.title}>{certificateTitle}</Text>
 
                 <View style={styles.content}>
-
                     <View style={styles.officialsSection}>
-                        <Text style={styles.sangguniangBarangayText}>Sangguniang Barangay</Text>
+                        <Text style={styles.sangguniangBarangayText}>SANGGUNIANG BARANGAY</Text>
                         {brgyOfficials?.map((official, index) => (
                             <View key={index} style={styles.officialItem}>
-                                <Text style={styles.officialName}>{official.full_name}</Text>
+                                <Text
+                                    style={index === 0
+                                        ? styles.firstOfficialName
+                                        : styles.additionalOfficialName}
+                                >
+                                    {official.full_name}
+                                </Text>
                                 <Text style={styles.officialPosition}>{official.committee}</Text>
                                 {index === 0 && (
-                                    <Text style={styles.mgaKagawadText}>Mga Kagawad:</Text>
+                                    <Text style={styles.mgaKagawadText}>MGA KAGAWAD:</Text>
                                 )}
                             </View>
                         ))}
