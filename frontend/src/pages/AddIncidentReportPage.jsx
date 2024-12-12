@@ -15,24 +15,24 @@ import { IoSearch } from "react-icons/io5";
 import { IoCloseCircleOutline } from "react-icons/io5";
 
 const AddIncidentReportPage = () => {
+
+    const { barangayId } = useAuth();
+
+    const [successMessage, setSuccessMessage] = useState(null);
     const [errorMessage, setErrorMessage] = useState(null);
-    const [selectedComlaintType, setSelectedComplaintType] = useState(null);
+    const [selectedComplaintType, setSelectedComplaintType] = useState(null);
     const [isComplainantModalOpen, setIsComplainantModalOpen] = useState(false);
     const [isDefendantModalOpen, setIsDefendantModalOpen] = useState(false);
 
-    //Complainant Details
+    //Complainant Details and Form Data
+    const [complainantId, setComplainantId] = useState(null);
     const [complainantName, setComplainantName] = useState("");
     const [complainantAddress, setComplainantAddress] = useState("");
     const [complainantContact, setComplainantContact] = useState("");
-
-    //Defendant Details
-    // const [defendantName, setDefendantName] = useState("");
-    // const [defendantAddress, setDefendantAddress] = useState("");
-    // const [defendantContact, setDefendantContact] = useState("");
-
     const [defendants, setDefendants] = useState([
         { name: "", address: "", contact: "" }
     ]);
+    const [statement, setStatement] = useState("");
 
     const addDefendant = () => {
         if (defendants[0].name === "" || defendants[0].address === "" || defendants[0].contact === "") {
@@ -40,6 +40,7 @@ const AddIncidentReportPage = () => {
         }
         setDefendants([...defendants, { name: "", address: "", contact: "" }]);
     };
+
     const handleDefendantChange = (index, fieldData) => {
         setDefendants((prevDefendants) =>
             prevDefendants.map((defendant, i) =>
@@ -47,6 +48,7 @@ const AddIncidentReportPage = () => {
             )
         );
     };
+
     const removeDefendant = (index) => {
         if (defendants.length > 1) {
             setDefendants((prevDefendants) =>
@@ -62,18 +64,54 @@ const AddIncidentReportPage = () => {
     };
 
     const handleSelectComplainant = (resident) => {
+        setComplainantId(resident.resident_id);
         setComplainantName(`${resident.first_name} ${resident.last_name}`);
         setComplainantAddress(`${resident.address || ""} ${resident.purok}, ${resident.barangay}`);
         setComplainantContact(resident.contact_number || "");
         setIsComplainantModalOpen(false);
     }
 
-    // const handleSelectDefendant = (resident) => {
-    //     setDefendantName(`${resident.first_name} ${resident.last_name}`);
-    //     setDefendantAddress(`${resident.address || ""} ${resident.purok}, ${resident.barangay}`);
-    //     setDefendantContact(resident.contact_number || "");
-    //     setIsDefendantModalOpen(false);
-    // }
+    const validateForm = () => {
+        if (!selectedComplaintType) return "Complaint type is required.";
+        if (!complainantName || !complainantAddress) return "Complainant details are incomplete.";
+        if (defendants.some((defendant) => !defendant.name || !defendant.address)) return "Defendant details are incomplete.";
+        if (!statement.trim()) return "Statement is required.";
+        return null;
+    };
+
+    const handleSubmit = async () => {
+        const error = validateForm();
+        if (error) {
+            setErrorMessage(error);
+            return;
+        }
+
+        const payload = {
+            incident_type: selectedComplaintType.title,
+            complainant_id: complainantId,
+            defendants,
+            notes: statement,
+            barangay_id: barangayId
+        };
+
+        try {
+            const response = await axios.post('http://localhost:8080/blotter/add', payload, { withCredentials: true });
+            console.log(response.status);
+            if (response.status === 201) {
+                setSuccessMessage("Blotter added successfully!");
+                setErrorMessage(null);
+                // Reset form
+                setSelectedComplaintType(null);
+                setComplainantName("");
+                setComplainantAddress("");
+                setComplainantContact("");
+                setDefendants([{ name: "", address: "", contact: "" }]);
+                setStatement("");
+            }
+        } catch (error) {
+            setErrorMessage(error.response?.data?.message || "An error occurred.");
+        }
+    }
 
     return (
         <div className="flex flex-col h-screen">
@@ -88,6 +126,7 @@ const AddIncidentReportPage = () => {
                                 <h1 className="text-xl font-semibold text-gray-500">Add Complaint</h1>
                                 <p className="text-sm text-gray-400 mt-2">Fill out the form below to add a new complaint to the system.</p>
                             </div>
+                            {successMessage && <p className="text-green-500 text-sm mb-4">{successMessage}</p>}
                             {errorMessage && <p className="text-red-500 text-sm mb-4">{errorMessage}</p>}
                             <div className="col-span-1 md:col-span-3 mb-4">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -200,11 +239,13 @@ const AddIncidentReportPage = () => {
                                         className="border text-sm border-gray-300 p-2 h-48 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                                         name="certificateDetails"
                                         placeholder="Type complainant statement"
+                                        value={statement}
+                                        onChange={(e) => setStatement(e.target.value)}
                                     ></textarea>
                                 </div>
 
                                 <div className="col-span-1 md:col-span-3 flex justify-end mt-4 space-x-4">
-                                    <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300">Submit</button>
+                                    <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300" onClick={handleSubmit}>Submit</button>
                                 </div>
                             </div>
                         </div>
