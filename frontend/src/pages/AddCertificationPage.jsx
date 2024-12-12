@@ -11,6 +11,7 @@ import SearchDropdown from '../components/SearchDropdown';
 import SearchModal from '../components/SearchModal';
 import CertificatePreview from '../components/CertificatePreview';
 import { useAuth } from '../components/AuthContext';
+import Loader from '../components/Loader';
 
 const AddCertificationPage = () => {
     // State Management
@@ -22,7 +23,9 @@ const AddCertificationPage = () => {
     // Form State
     const [selectedCertificateType, setSelectedCertificateType] = useState(null);
     const [isComplainantModalOpen, setIsComplainantModalOpen] = useState(false);
+    const [isApplicantModalOpen, setIsApplicantModalOpen] = useState(false);
     const [formData, setFormData] = useState({
+
         // Common fields
         certificateType: null,
         issuanceDate: '',
@@ -33,14 +36,22 @@ const AddCertificationPage = () => {
         complainantAge: '',
         civilStatus: '',
 
-        // Certificate-specific fields
+        // Business Permit Certification Fields
         businessName: '',
         businessAddress: '',
         closureDate: '',
-        purpose: '',
-        deceasedName: '',
+
+        // Calamity fields
+        startDate: '',
+        endDate: '',
+        calamityName: '',
+
+        // Death fields
         dateOfDeath: '',
         placeOfDeath: '',
+        deceasedName: '',
+
+        purpose: '',
         relationship: '',
         lotLocation: '',
         permitType: '',
@@ -98,6 +109,8 @@ const AddCertificationPage = () => {
 
         // Reset form data when certificate type changes
         setFormData(prev => ({
+
+            // Common Fields
             certificateType: selectedCertificate,
             issuanceDate: '',
             complainantName: '',
@@ -106,13 +119,23 @@ const AddCertificationPage = () => {
             complainantContact: '',
             complainantAge: '',
             civilStatus: '',
+
+            // Business fields
             businessName: '',
             businessAddress: '',
             closureDate: '',
-            purpose: '',
-            deceasedName: '',
+
+            // Calamity fields
+            startDate: '',
+            endDate: '',
+            calamityName: '',
+
+            // Death fields
             dateOfDeath: '',
             placeOfDeath: '',
+            deceasedName: '',
+
+            purpose: '',
             relationship: '',
             lotLocation: '',
             permitType: '',
@@ -137,6 +160,7 @@ const AddCertificationPage = () => {
             complainantName: `${resident.first_name} ${resident.last_name}`,
             complainantMiddleName: resident.middle_name || '',
             complainantAddress: `${resident.address || ""} ${resident.purok}, ${resident.barangay}`,
+            completeAdress: `${resident.address || ""} ${resident.purok}, ${resident.barangay} ${resident.city} ${resident.province}`,
             complainantContact: resident.contact_number || "",
             complainantAge: resident.age || "",
             civilStatus: resident.civil_status
@@ -144,6 +168,14 @@ const AddCertificationPage = () => {
 
         setIsComplainantModalOpen(false);
     };
+
+    const handleSelectApplicant = (resident) => {
+        setFormData(prev => ({
+            ...prev,
+            applicantName: `${resident.first_name} ${resident.last_name} ${resident.middle_name}`,
+        }));
+        setIsApplicantModalOpen(false);
+    }
 
     const renderAdditionalFields = () => {
         if (!selectedCertificateType) return null;
@@ -154,7 +186,7 @@ const AddCertificationPage = () => {
             case 'business closure certification':
             case 'business permit certification':
                 return (
-                    <>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                         <div className='flex-1'>
                             <label className="block mb-2 text-sm font-medium text-gray-500">
                                 Business Name<span className="text-red-600">*</span>
@@ -170,7 +202,7 @@ const AddCertificationPage = () => {
                         </div>
                         <div className='flex-1'>
                             <label className="block mb-2 text-sm font-medium text-gray-500">
-                                Business Address
+                                Business Address<span className="text-red-600">*</span>
                             </label>
                             <input
                                 type="text"
@@ -184,7 +216,7 @@ const AddCertificationPage = () => {
                         {certificateName === 'business closure certification' && (
                             <div className='flex-1'>
                                 <label className="block mb-2 text-sm font-medium text-gray-500">
-                                    Closure Date
+                                    Effectivity Date<span className="text-red-600">*</span>
                                 </label>
                                 <input
                                     type="date"
@@ -195,50 +227,119 @@ const AddCertificationPage = () => {
                                 />
                             </div>
                         )}
-                    </>
+                    </div>
                 );
             case 'death certification':
-                return (
-                    <>
-                        <div className='flex-1'>
-                            <label className="block mb-2 text-sm font-medium text-gray-500">
-                                Deceased Name<span className="text-red-600">*</span>
-                            </label>
+                return (<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className='flex-1'>
+                        <label className="block mb-2 text-sm font-medium text-gray-500">
+                            Name<span className="text-red-600">*</span>
+                        </label>
+                        <div className="relative rounded-md">
                             <input
                                 type="text"
-                                name="deceasedName"
-                                placeholder="Enter Deceased Name"
+                                name="complainantName"
+                                placeholder="Type or Search Complainant Name"
                                 className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
-                                value={formData.deceasedName}
+                                value={formData.complainantName}
                                 onChange={handleInputChange}
                             />
-                        </div>
-                        <div className='flex-1'>
-                            <label className="block mb-2 text-sm font-medium text-gray-500">
-                                Date of Death
-                            </label>
-                            <input
-                                type="date"
-                                name="dateOfDeath"
-                                className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
-                                value={formData.dateOfDeath}
-                                onChange={handleInputChange}
+                            <div
+                                className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md"
+                                onClick={() => setIsComplainantModalOpen((prev) => !prev)}
+                            >
+                                <IoSearch className="w-5 h-5 text-white" />
+                            </div>
+                            <SearchModal
+                                title="Select Complainant"
+                                isOpen={isComplainantModalOpen}
+                                onClose={() => setIsComplainantModalOpen(false)}
+                                onSelect={handleSelectComplainant}
                             />
                         </div>
-                        <div className='flex-1'>
-                            <label className="block mb-2 text-sm font-medium text-gray-500">
-                                Place of Death
-                            </label>
+                    </div>
+                    <div className='flex-1'>
+                        <label className="block mb-2 text-sm font-medium text-gray-500">
+                            Middle Name<span className="text-red-600">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="complainantMiddleName"
+                            placeholder="Type Middle Name"
+                            className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value={formData.complainantMiddleName}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                    <div className='flex-1'>
+                        <label className="block mb-2 text-sm font-medium text-gray-500">
+                            Age<span className="text-red-600">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="complainantAge"
+                            placeholder="Type Age"
+                            className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value={formData.complainantAge}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                    <div className='flex-1'>
+                        <label className="block mb-2 text-sm font-medium text-gray-500">
+                            Date of Death<span className="text-red-600">*</span>
+                        </label>
+                        <input
+                            type="date"
+                            name="dateOfDeath"
+                            className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                            value={formData.dateOfDeath}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                    <div className='flex-1'>
+                        <label className="block mb-2 text-sm font-medium text-gray-500">
+                            Place of Death<span className="text-red-600">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="placeOfDeath"
+                            placeholder="Enter Place of Death"
+                            className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                            value={formData.placeOfDeath}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                    <div className='flex-1'>
+                        <label className="block mb-2 text-sm font-medium text-gray-500">
+                            Applicant Name<span className="text-red-600">*</span>
+                        </label>
+                        <div className="relative rounded-md">
                             <input
                                 type="text"
-                                name="placeOfDeath"
-                                placeholder="Enter Place of Death"
+                                name="applicantName"
+                                placeholder="Type or Search Complainant Name"
                                 className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
-                                value={formData.placeOfDeath}
+                                value={formData.applicantName}
                                 onChange={handleInputChange}
                             />
+                            <div
+                                className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md"
+                                onClick={() => setIsApplicantModalOpen((prev) => !prev)}
+                            >
+                                <IoSearch className="w-5 h-5 text-white" />
+                            </div>
+                            <SearchModal
+                                title="Select Complainant"
+                                isOpen={isApplicantModalOpen}
+                                onClose={() => setIsApplicantModalOpen(false)}
+                                onSelect={(resident) => setFormData(prev => ({
+                                    ...prev,
+                                    applicantName: `${resident.first_name} ${resident.last_name} ${resident.middle_name}`,
+                                }))}
+                            />
                         </div>
-                    </>
+                    </div>
+                </div>
                 );
             case 'relationship certification':
                 return (
@@ -313,23 +414,97 @@ const AddCertificationPage = () => {
                 );
             case 'calamity certification':
                 return (
-                    <div className='flex-1'>
-                        <label className="block mb-2 text-sm font-medium text-gray-500">
-                            Calamity Type<span className="text-red-600">*</span>
-                        </label>
-                        <select
-                            name="calamity_type"
-                            className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
-                            value={formData.calamity_type}
-                            onChange={handleInputChange}
-                        >
-                            <option value="">Select Calamity Type</option>
-                            <option value="flood">Flood</option>
-                            <option value="fire">Fire</option>
-                            <option value="earthquake">Earthquake</option>
-                            <option value="typhoon">Typhoon</option>
-                            <option value="landslide">Landslide</option>
-                        </select>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div className='flex-1'>
+                            <label className="block mb-2 text-sm font-medium text-gray-500">
+                                Name<span className="text-red-600">*</span>
+                            </label>
+                            <div className="relative rounded-md">
+                                <input
+                                    type="text"
+                                    name="complainantName"
+                                    placeholder="Type or Search Complainant Name"
+                                    className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                                    value={formData.complainantName}
+                                    onChange={handleInputChange}
+                                />
+                                <div
+                                    className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md"
+                                    onClick={() => setIsComplainantModalOpen((prev) => !prev)}
+                                >
+                                    <IoSearch className="w-5 h-5 text-white" />
+                                </div>
+                                <SearchModal
+                                    title="Select Complainant"
+                                    isOpen={isComplainantModalOpen}
+                                    onClose={() => setIsComplainantModalOpen(false)}
+                                    onSelect={handleSelectComplainant}
+                                />
+                            </div>
+                        </div>
+                        <div className='flex-1'>
+                            <label className="block mb-2 text-sm font-medium text-gray-500">
+                                Middle Name<span className="text-red-600">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="complainantMiddleName"
+                                placeholder="Type Middle Name"
+                                className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value={formData.complainantMiddleName}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                        <div className='flex-1'>
+                            <label className="block mb-2 text-sm font-medium text-gray-500">
+                                Address<span className="text-red-600">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="complainantAddress"
+                                placeholder="Type Address"
+                                className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value={formData.complainantAddress}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                        <div className='flex-1'>
+                            <label className="block mb-2 text-sm font-medium text-gray-500">
+                                Calamity Name<span className="text-red-600">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="calamityName"
+                                placeholder="Type Age"
+                                className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value={formData.calamityName}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                        <div className='flex-1'>
+                            <label className="block mb-2 text-sm font-medium text-gray-500">
+                                Start Date<span className="text-red-600">*</span>
+                            </label>
+                            <input
+                                type='date'
+                                name="startDate"
+                                value={formData.startDate}
+                                onChange={handleInputChange}
+                                className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                        <div className='flex-1'>
+                            <label className="block mb-2 text-sm font-medium text-gray-500">
+                                End Date<span className="text-red-600">*</span>
+                            </label>
+                            <input
+                                type='date'
+                                name="endDate"
+                                value={formData.endDate}
+                                onChange={handleInputChange}
+                                className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
                     </div>
                 );
             case 'indigency certification':
@@ -363,21 +538,27 @@ const AddCertificationPage = () => {
 
         // Dynamic replacements based on certificate type
         return message
-            .replace('[BARANGAY_CAPTAIN]', brgyOfficials[0].full_name)
-            .replace('[APPLICANT_NAME]', formData.complainantName)
-            .replace('[BUSINESS_NAME]', formData.businessName || '')
-            .replace('[ADDRESS]', formData.complainantAddress || '')
-            .replace('[DATE]', new Date().getDate() + ['th', 'st', 'nd', 'rd'][((new Date().getDate() % 10) - 1 + 10) % 10] || 'th')
+            .replace('[BARANGAY_CAPTAIN]', brgyOfficials[0].full_name || '[BARANGAY_CAPTAIN]')
+            .replace('[APPLICANT_NAME]', formData.applicantName || '[APPLICANT_NAME]')
+            .replace('[BUSINESS_NAME]', formData.businessName || '[BUSINESS_NAME]')
+            .replace('[ADDRESS]', formData.complainantAddress || formData.businessAddress || '[ADDRESS]')
+            .replace('[CIVIL_STATUS]', formData.civilStatus || '[CIVIL_STATUS]')
+            .replace('[AGE]', formData.complainantAge || '[AGE]')
+            .replace('[PURPOSE]', formData.purpose || '[PURPOSE]')
+            .replace(/\[DECEASED_NAME\]/g, formData.complainantName || '[DECEASED_NAME]')
+            .replace('[PLACE_OF_DEATH]', formData.placeOfDeath || '[PLACE_OF_DEATH]')
+            .replace('[LOT_LOCATION]', formData.lotLocation || '[LOT_LOCATION]')
+            .replace('[RELATIONSHIP]', formData.relationship || '[RELATIONSHIP]')
+            .replace(/\[CALAMITY_NAME\]/g, formData.calamityName || '[CALAMITY_NAME]')
+
+            // Dates
+            .replace('[DATE]', new Date().getDate() + ['st', 'th', 'nd', 'rd'][((new Date().getDate() % 10) - 1 + 10) % 10] || 'th')
             .replace('[MONTH]', new Date().toLocaleString('default', { month: 'long' }))
             .replace('[YEAR]', new Date().getFullYear().toString())
-            .replace('[CIVIL_STATUS]', formData.civilStatus)
-            .replace('[AGE]', formData.complainantAge)
-            .replace('[PURPOSE]', formData.purpose || '')
-            .replace('[DECEASED_NAME]', formData.deceasedName || '')
-            .replace('[PLACE_OF_DEATH]', formData.placeOfDeath || '')
-            .replace('[LOT_LOCATION]', formData.lotLocation || '')
-            .replace('[RELATIONSHIP]', formData.relationship || '')
-            .replace('[CLOSURE_DATE]', new Date(formData.closureDate).toLocaleString('en-US', { month: 'long', year: 'numeric' }));
+            .replace('[CLOSURE_DATE]', new Date(formData.closureDate).toLocaleString('en-US', { month: 'long', year: 'numeric' }))
+            .replace('[START_DATE]', new Date(formData.startDate).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }))
+            .replace('[END_DATE]', new Date(formData.endDate).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }))
+            .replace('[DATE_OF_DEATH]', new Date(formData.dateOfDeath).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }))
 
     }, [selectedCertificateType, brgyOfficials, formData]);
 
@@ -391,6 +572,7 @@ const AddCertificationPage = () => {
                     <div className="flex-grow p-6 bg-gray-100">
                         <Breadcrumbs />
                         <div className="mx-auto bg-white p-10 rounded-lg">
+                            {loading && (<Loader />)}
                             <div className="mb-6 leading-3">
                                 <h1 className="text-xl font-semibold text-gray-500">Add Certification</h1>
                                 <p className="text-sm text-gray-400 mt-2">
@@ -428,7 +610,7 @@ const AddCertificationPage = () => {
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                                     <div className='flex-1'>
                                         <label className="block mb-2 text-sm font-medium text-gray-500">
                                             Name<span className="text-red-600">*</span>
@@ -495,9 +677,9 @@ const AddCertificationPage = () => {
                                             onChange={handleInputChange}
                                         />
                                     </div>
-                                </div>
+                                </div> */}
 
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                <div className="">
                                     {renderAdditionalFields()}
                                 </div>
 

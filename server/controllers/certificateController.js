@@ -14,7 +14,7 @@ export const getAllCertifcateRequest = async (req, res) => {
                 }
             });
         });
-        console.log("Word", results[0]);
+
         res.json(results[0]);
     } catch (error) {
         console.error("Database error:", error);
@@ -34,14 +34,11 @@ export const getAllCertificateTypes = async (req, res) => {
                 if (err) {
                     reject(err);
                 } else {
-                    console.log("Raw query results:", results);
-                    console.log("Number of rows:", results[0]?.length);
                     resolve(results);
                 }
             });
         });
         res.json(results[0]);
-        console.log("Detailed types data:", results);
     } catch (error) {
         console.error("Detailed Database error:", error);
         res.status(500).json({
