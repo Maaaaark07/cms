@@ -14,6 +14,10 @@ const CertificatePreview = ({ message, brgyOfficials, certificateTitle, date }) 
             {
                 src: 'https://fonts.gstatic.com/s/lato/v24/S6u8w4BMUTPHjxswWyWrFCbw7A.ttf',
                 fontWeight: 'normal'
+            },
+            {
+                src: 'https://fonts.gstatic.com/s/opensans/v40/memQYaGs126MiZpBA-UFUIcVXSCEkx2cmqvXlWq8tWZ0Pw86hd0RkyFjaVcUwaERZjA.ttf',
+                fontWeight: 'thin'
             }
         ]
     });
@@ -153,7 +157,16 @@ const CertificatePreview = ({ message, brgyOfficials, certificateTitle, date }) 
 
                     <View style={styles.messageSection}>
                         <Text style={styles.dateText}>{date}</Text>
-                        <Text style={styles.messageText}>{message}</Text>
+                        <Text style={styles.messageText}>
+                            {message.map((part, index) => (
+                                <Text
+                                    key={index}
+                                    style={part.isBold ? { fontWeight: 'thin', fontFamily: 'Arimo', fontSize: 11 } : {}}
+                                >
+                                    {part.text}
+                                </Text>
+                            ))}
+                        </Text>
                     </View>
                 </View>
             </Page>

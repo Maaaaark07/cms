@@ -230,116 +230,117 @@ const AddCertificationPage = () => {
                     </div>
                 );
             case 'death certification':
-                return (<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div className='flex-1'>
-                        <label className="block mb-2 text-sm font-medium text-gray-500">
-                            Name<span className="text-red-600">*</span>
-                        </label>
-                        <div className="relative rounded-md">
+                return (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div className='flex-1'>
+                            <label className="block mb-2 text-sm font-medium text-gray-500">
+                                Name<span className="text-red-600">*</span>
+                            </label>
+                            <div className="relative rounded-md">
+                                <input
+                                    type="text"
+                                    name="complainantName"
+                                    placeholder="Type or Search Complainant Name"
+                                    className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                                    value={formData.complainantName}
+                                    onChange={handleInputChange}
+                                />
+                                <div
+                                    className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md"
+                                    onClick={() => setIsComplainantModalOpen((prev) => !prev)}
+                                >
+                                    <IoSearch className="w-5 h-5 text-white" />
+                                </div>
+                                <SearchModal
+                                    title="Select Complainant"
+                                    isOpen={isComplainantModalOpen}
+                                    onClose={() => setIsComplainantModalOpen(false)}
+                                    onSelect={handleSelectComplainant}
+                                />
+                            </div>
+                        </div>
+                        <div className='flex-1'>
+                            <label className="block mb-2 text-sm font-medium text-gray-500">
+                                Middle Name<span className="text-red-600">*</span>
+                            </label>
                             <input
                                 type="text"
-                                name="complainantName"
-                                placeholder="Type or Search Complainant Name"
-                                className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
-                                value={formData.complainantName}
+                                name="complainantMiddleName"
+                                placeholder="Type Middle Name"
+                                className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value={formData.complainantMiddleName}
                                 onChange={handleInputChange}
                             />
-                            <div
-                                className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md"
-                                onClick={() => setIsComplainantModalOpen((prev) => !prev)}
-                            >
-                                <IoSearch className="w-5 h-5 text-white" />
-                            </div>
-                            <SearchModal
-                                title="Select Complainant"
-                                isOpen={isComplainantModalOpen}
-                                onClose={() => setIsComplainantModalOpen(false)}
-                                onSelect={handleSelectComplainant}
-                            />
                         </div>
-                    </div>
-                    <div className='flex-1'>
-                        <label className="block mb-2 text-sm font-medium text-gray-500">
-                            Middle Name<span className="text-red-600">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            name="complainantMiddleName"
-                            placeholder="Type Middle Name"
-                            className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            value={formData.complainantMiddleName}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className='flex-1'>
-                        <label className="block mb-2 text-sm font-medium text-gray-500">
-                            Age<span className="text-red-600">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            name="complainantAge"
-                            placeholder="Type Age"
-                            className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            value={formData.complainantAge}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className='flex-1'>
-                        <label className="block mb-2 text-sm font-medium text-gray-500">
-                            Date of Death<span className="text-red-600">*</span>
-                        </label>
-                        <input
-                            type="date"
-                            name="dateOfDeath"
-                            className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
-                            value={formData.dateOfDeath}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className='flex-1'>
-                        <label className="block mb-2 text-sm font-medium text-gray-500">
-                            Place of Death<span className="text-red-600">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            name="placeOfDeath"
-                            placeholder="Enter Place of Death"
-                            className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
-                            value={formData.placeOfDeath}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className='flex-1'>
-                        <label className="block mb-2 text-sm font-medium text-gray-500">
-                            Applicant Name<span className="text-red-600">*</span>
-                        </label>
-                        <div className="relative rounded-md">
+                        <div className='flex-1'>
+                            <label className="block mb-2 text-sm font-medium text-gray-500">
+                                Age<span className="text-red-600">*</span>
+                            </label>
                             <input
                                 type="text"
-                                name="applicantName"
-                                placeholder="Type or Search Complainant Name"
-                                className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
-                                value={formData.applicantName}
+                                name="complainantAge"
+                                placeholder="Type Age"
+                                className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value={formData.complainantAge}
                                 onChange={handleInputChange}
                             />
-                            <div
-                                className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md"
-                                onClick={() => setIsApplicantModalOpen((prev) => !prev)}
-                            >
-                                <IoSearch className="w-5 h-5 text-white" />
-                            </div>
-                            <SearchModal
-                                title="Select Complainant"
-                                isOpen={isApplicantModalOpen}
-                                onClose={() => setIsApplicantModalOpen(false)}
-                                onSelect={(resident) => setFormData(prev => ({
-                                    ...prev,
-                                    applicantName: `${resident.first_name} ${resident.last_name} ${resident.middle_name}`,
-                                }))}
+                        </div>
+                        <div className='flex-1'>
+                            <label className="block mb-2 text-sm font-medium text-gray-500">
+                                Date of Death<span className="text-red-600">*</span>
+                            </label>
+                            <input
+                                type="date"
+                                name="dateOfDeath"
+                                className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                                value={formData.dateOfDeath}
+                                onChange={handleInputChange}
                             />
                         </div>
+                        <div className='flex-1'>
+                            <label className="block mb-2 text-sm font-medium text-gray-500">
+                                Place of Death<span className="text-red-600">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="placeOfDeath"
+                                placeholder="Enter Place of Death"
+                                className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                                value={formData.placeOfDeath}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                        <div className='flex-1'>
+                            <label className="block mb-2 text-sm font-medium text-gray-500">
+                                Applicant Name<span className="text-red-600">*</span>
+                            </label>
+                            <div className="relative rounded-md">
+                                <input
+                                    type="text"
+                                    name="applicantName"
+                                    placeholder="Type or Search Complainant Name"
+                                    className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                                    value={formData.applicantName}
+                                    onChange={handleInputChange}
+                                />
+                                <div
+                                    className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md"
+                                    onClick={() => setIsApplicantModalOpen((prev) => !prev)}
+                                >
+                                    <IoSearch className="w-5 h-5 text-white" />
+                                </div>
+                                <SearchModal
+                                    title="Select Complainant"
+                                    isOpen={isApplicantModalOpen}
+                                    onClose={() => setIsApplicantModalOpen(false)}
+                                    onSelect={(resident) => setFormData(prev => ({
+                                        ...prev,
+                                        applicantName: `${resident.first_name} ${resident.last_name} ${resident.middle_name}`,
+                                    }))}
+                                />
+                            </div>
+                        </div>
                     </div>
-                </div>
                 );
             case 'relationship certification':
                 return (
@@ -508,59 +509,150 @@ const AddCertificationPage = () => {
                     </div>
                 );
             case 'indigency certification':
-            case 'unemployment certification':
                 return (
-                    <div className='flex-1'>
-                        <label className="block mb-2 text-sm font-medium text-gray-500">
-                            Purpose<span className="text-red-600">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            name="purpose"
-                            placeholder="Enter Purpose"
-                            className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
-                            value={formData.purpose}
-                            onChange={handleInputChange}
-                        />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div className='flex-1'>
+                            <label className="block mb-2 text-sm font-medium text-gray-500">
+                                Name<span className="text-red-600">*</span>
+                            </label>
+                            <div className="relative rounded-md">
+                                <input
+                                    type="text"
+                                    name="complainantName"
+                                    placeholder="Type or Search Complainant Name"
+                                    className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                                    value={formData.complainantName}
+                                    onChange={handleInputChange}
+                                />
+                                <div
+                                    className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md"
+                                    onClick={() => setIsComplainantModalOpen((prev) => !prev)}
+                                >
+                                    <IoSearch className="w-5 h-5 text-white" />
+                                </div>
+                                <SearchModal
+                                    title="Select Complainant"
+                                    isOpen={isComplainantModalOpen}
+                                    onClose={() => setIsComplainantModalOpen(false)}
+                                    onSelect={handleSelectComplainant}
+                                />
+                            </div>
+                        </div>
+                        <div className='flex-1'>
+                            <label className="block mb-2 text-sm font-medium text-gray-500">
+                                Middle Name<span className="text-red-600">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="complainantMiddleName"
+                                placeholder="Type Middle Name"
+                                className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value={formData.complainantMiddleName}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                        <div className='flex-1'>
+                            <label className="block mb-2 text-sm font-medium text-gray-500">
+                                Civil Status<span className="text-red-600">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="complainantAge"
+                                placeholder="Type Age"
+                                className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value={formData.civilStatus}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                        <div className='flex-1'>
+                            <label className="block mb-2 text-sm font-medium text-gray-500">
+                                Issued For<span className="text-red-600">*</span>
+                            </label>
+                            <div className="relative rounded-md">
+                                <input
+                                    type="text"
+                                    name="applicantName"
+                                    placeholder="Type or Search Complainant Name"
+                                    className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                                    value={formData.applicantName}
+                                    onChange={handleInputChange}
+                                />
+                                <div
+                                    className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md"
+                                    onClick={() => setIsApplicantModalOpen((prev) => !prev)}
+                                >
+                                    <IoSearch className="w-5 h-5 text-white" />
+                                </div>
+                                <SearchModal
+                                    title="Select Complainant"
+                                    isOpen={isApplicantModalOpen}
+                                    onClose={() => setIsApplicantModalOpen(false)}
+                                    onSelect={(resident) => setFormData(prev => ({
+                                        ...prev,
+                                        applicantName: `${resident.first_name} ${resident.last_name} ${resident.middle_name}`,
+                                    }))}
+                                />
+                            </div>
+                        </div>
                     </div>
                 );
             default:
                 return null;
         }
     };
-
     const renderCertificateMessage = useMemo(() => {
         if (!selectedCertificateType || !brgyOfficials.length) {
-            return "Please select a certificate type first";
+            return [{ text: "Please select a certificate type first", isBold: false }];
         }
 
         let message = selectedCertificateType.body_text || '';
 
-        // Dynamic replacements based on certificate type
-        return message
-            .replace('[BARANGAY_CAPTAIN]', brgyOfficials[0].full_name || '[BARANGAY_CAPTAIN]')
-            .replace('[APPLICANT_NAME]', formData.applicantName || '[APPLICANT_NAME]')
-            .replace('[BUSINESS_NAME]', formData.businessName || '[BUSINESS_NAME]')
-            .replace('[ADDRESS]', formData.complainantAddress || formData.businessAddress || '[ADDRESS]')
-            .replace('[CIVIL_STATUS]', formData.civilStatus || '[CIVIL_STATUS]')
-            .replace('[AGE]', formData.complainantAge || '[AGE]')
-            .replace('[PURPOSE]', formData.purpose || '[PURPOSE]')
-            .replace(/\[DECEASED_NAME\]/g, formData.complainantName || '[DECEASED_NAME]')
-            .replace('[PLACE_OF_DEATH]', formData.placeOfDeath || '[PLACE_OF_DEATH]')
-            .replace('[LOT_LOCATION]', formData.lotLocation || '[LOT_LOCATION]')
-            .replace('[RELATIONSHIP]', formData.relationship || '[RELATIONSHIP]')
-            .replace(/\[CALAMITY_NAME\]/g, formData.calamityName || '[CALAMITY_NAME]')
+        // Replacement map for dynamic values
+        const replacements = {
+            '[BARANGAY_CAPTAIN]': brgyOfficials[0]?.full_name || '[BARANGAY_CAPTAIN]',
+            '[APPLICANT_NAME]': formData.applicantName || formData.complainantName || '[APPLICANT_NAME]',
+            '[RESIDENT_NAME]': formData.complainantName || '[RESIDENT_NAME]',
+            '[BUSINESS_NAME]': formData.businessName || '[BUSINESS_NAME]',
+            '[ADDRESS]': formData.complainantAddress || formData.businessAddress || '[ADDRESS]',
+            '[CIVIL_STATUS]': formData.civilStatus || '[CIVIL_STATUS]',
+            '[AGE]': formData.complainantAge || '[AGE]',
+            '[PURPOSE]': formData.purpose || '[PURPOSE]',
+            '[DECEASED_NAME]': formData.complainantName || '[DECEASED_NAME]',
+            '[PLACE_OF_DEATH]': formData.placeOfDeath || '[PLACE_OF_DEATH]',
+            '[LOT_LOCATION]': formData.lotLocation || '[LOT_LOCATION]',
+            '[RELATIONSHIP]': formData.relationship || '[RELATIONSHIP]',
+            '[CALAMITY_NAME]': formData.calamityName || '[CALAMITY_NAME]',
+            '[DATE]': (() => {
+                const date = new Date().getDate();
+                const suffix = (date % 10 === 1 && date !== 11) ? 'st' :
+                    (date % 10 === 2 && date !== 12) ? 'nd' :
+                        (date % 10 === 3 && date !== 13) ? 'rd' : 'th';
+                return date + suffix;
+            })(),
+            '[MONTH]': new Date().toLocaleString('default', { month: 'long' }),
+            '[YEAR]': new Date().getFullYear().toString(),
+            '[CLOSURE_DATE]': formData.closureDate ? new Date(formData.closureDate).toLocaleString('en-US', { month: 'long', year: 'numeric' }) : '[CLOSURE_DATE]',
+            '[START_DATE]': formData.startDate ? new Date(formData.startDate).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '[START_DATE]',
+            '[END_DATE]': formData.endDate ? new Date(formData.endDate).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '[END_DATE]',
+            '[DATE_OF_DEATH]': formData.dateOfDeath ? new Date(formData.dateOfDeath).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '[DATE_OF_DEATH]',
+        };
 
-            // Dates
-            .replace('[DATE]', new Date().getDate() + ['st', 'th', 'nd', 'rd'][((new Date().getDate() % 10) - 1 + 10) % 10] || 'th')
-            .replace('[MONTH]', new Date().toLocaleString('default', { month: 'long' }))
-            .replace('[YEAR]', new Date().getFullYear().toString())
-            .replace('[CLOSURE_DATE]', new Date(formData.closureDate).toLocaleString('en-US', { month: 'long', year: 'numeric' }))
-            .replace('[START_DATE]', new Date(formData.startDate).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }))
-            .replace('[END_DATE]', new Date(formData.endDate).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }))
-            .replace('[DATE_OF_DEATH]', new Date(formData.dateOfDeath).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }))
+        const excludeBoldKeys = [
+            '[DATE]', '[MONTH]', '[YEAR]', '[CLOSURE_DATE]', '[START_DATE]', '[END_DATE]', '[DATE_OF_DEATH]'
+        ];
 
+        const parts = message.split(/(\[[A-Z_]+\])/g).map(part => {
+            if (replacements[part]) {
+                const isBold = !excludeBoldKeys.includes(part);
+                return { text: replacements[part], isBold };
+            }
+            return { text: part, isBold: false };
+        });
+
+        return parts;
     }, [selectedCertificateType, brgyOfficials, formData]);
+
+
 
     // Render
     return (
@@ -610,75 +702,6 @@ const AddCertificationPage = () => {
                                     </div>
                                 </div>
 
-                                {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                                    <div className='flex-1'>
-                                        <label className="block mb-2 text-sm font-medium text-gray-500">
-                                            Name<span className="text-red-600">*</span>
-                                        </label>
-                                        <div className="relative rounded-md">
-                                            <input
-                                                type="text"
-                                                name="complainantName"
-                                                placeholder="Type or Search Complainant Name"
-                                                className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
-                                                value={formData.complainantName}
-                                                onChange={handleInputChange}
-                                            />
-                                            <div
-                                                className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md"
-                                                onClick={() => setIsComplainantModalOpen((prev) => !prev)}
-                                            >
-                                                <IoSearch className="w-5 h-5 text-white" />
-                                            </div>
-                                            <SearchModal
-                                                title="Select Complainant"
-                                                isOpen={isComplainantModalOpen}
-                                                onClose={() => setIsComplainantModalOpen(false)}
-                                                onSelect={handleSelectComplainant}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className='flex-1'>
-                                        <label className="block mb-2 text-sm font-medium text-gray-500">
-                                            Middle Name<span className="text-red-600">*</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="complainantMiddleName"
-                                            placeholder="Type Middle Name"
-                                            className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            value={formData.complainantMiddleName}
-                                            onChange={handleInputChange}
-                                        />
-                                    </div>
-                                    <div className='flex-1'>
-                                        <label className="block mb-2 text-sm font-medium text-gray-500">
-                                            Age
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="complainantAge"
-                                            placeholder="Type Age"
-                                            className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            value={formData.complainantAge}
-                                            onChange={handleInputChange}
-                                        />
-                                    </div>
-                                    <div className='flex-1'>
-                                        <label className="block mb-2 text-sm font-medium text-gray-500">
-                                            Address<span className="text-red-600">*</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="complainantAddress"
-                                            placeholder="Type Address"
-                                            className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            value={formData.complainantAddress}
-                                            onChange={handleInputChange}
-                                        />
-                                    </div>
-                                </div> */}
-
                                 <div className="">
                                     {renderAdditionalFields()}
                                 </div>
@@ -690,9 +713,10 @@ const AddCertificationPage = () => {
                                     </label>
                                     <textarea
                                         className="border text-sm border-gray-300 p-2 h-32 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        value={renderCertificateMessage}
+                                        value={renderCertificateMessage[0].text}
                                         readOnly
                                     />
+                                    {console.log(renderCertificateMessage)}
 
                                     <PDFViewer style={{ width: '100%', height: '100vh' }}>
                                         <CertificatePreview
