@@ -182,9 +182,9 @@ export const addBlotter = async (req, res) => {
             incident_description || null,
             resolution || null,
             notes || null,
-            defendants || null,
-            defendantAddresses,
-            defendantContacts,
+            JSON.stringify(defendants),
+            JSON.stringify(defendantAddresses),
+            JSON.stringify(defendantContacts),
             barangay_id
         ];
 
