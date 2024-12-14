@@ -29,10 +29,9 @@ export const login = (req, res) => {
         if (data.length > 0) {
             bcrypt.compare(password.toString(), data[0].password, (err, result) => {
                 if (err) return res.status(500).json({ Error: "Password Compare Error" });
-
                 if (result) {
                     const token = jwt.sign(
-                        { user: data[0].user, role: data[0].role, barangay_id: data[0].barangay_id },
+                        { user: data[0].user, user_id: data[0].id, role: data[0].role, barangay_id: data[0].barangay_id },
                         "jwt-secret-key",
                         { expiresIn: '1d' }
                     );
@@ -62,6 +61,7 @@ export const getHome = (req, res) => {
     return res.json({
         Status: 'Success',
         user: req.user.user,
+        user_id: req.user.user_id,
         role: req.user.role,
         barangay_id: req.user.barangay_id
     });
