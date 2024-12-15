@@ -51,7 +51,7 @@ const BlotterList = ({ blotterData }) => {
                     </div>
                 ))}
             <Link
-                to="/Incident-Report"
+                to="/blotter-report"
                 className="flex items-center w-full justify-center gap-2 mt-4 text-center"
             >
                 <span className="text-sm text-blue-500">View All</span>

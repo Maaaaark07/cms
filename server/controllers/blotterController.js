@@ -49,108 +49,147 @@ export const getBlottersById = async (req, res) => {
     }
 };
 
+
 // export const addBlotter = async (req, res) => {
 //     const {
-//         incident_type,
-//         complainant,
-//         respondent,
 //         incident_date,
+//         reporter_id,
+//         complainant_id,
+//         respondent_id,
+//         witnesses,
+//         incident_type,
 //         incident_location,
 //         incident_description,
-//         status,
+//         resolution,
+//         notes,
+//         barangay_id,
+//         defendants, // array of defendants
 //     } = req.body;
 
+//     console.log(req.body);
 //     if (
-//         !incident_type ||
-//         !complainant ||
-//         !respondent ||
-//         !incident_date ||
-//         !incident_location
+//         !complainant_id ||
+//         !defendants?.length
 //     ) {
 //         return res
 //             .status(400)
 //             .json({ message: "Please fill in all required fields." });
 //     }
 
-//     const sql = `
+//     const blotterSql = `
 //         INSERT INTO cbs_blotters 
-//         (incident_type, complainant, respondent, incident_date, incident_location, incident_description, status)
-//         VALUES (?, ?, ?, ?, ?, ?, ?)
+//         (incident_date, reporter_id, complainant_id, respondent_id, witnesses, 
+//          incident_type, incident_location, incident_description, resolution, notes, barangay_id)
+//         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 //     `;
 
 //     try {
-//         const values = [
-//             incident_type,
-//             complainant,
-//             respondent,
-//             incident_date,
-//             incident_location,
-//             incident_description,
-//             status || "Pending",
+//         await db.beginTransaction();
+
+//         const blotterValues = [
+//             incident_date || null,
+//             reporter_id || 13,
+//             complainant_id || null,
+//             respondent_id || 9,
+//             witnesses || "Tambay",
+//             incident_type || null,
+//             incident_location || "Sa Kanto",
+//             incident_description || "Ninakaw ang aso",
+//             resolution || "Sample",
+//             notes || null,
+//             barangay_id,
 //         ];
 
-//         await db.query(sql, values);
-//         res.status(201).json({ message: "Blotter record added successfully" });
+//         // Insert into `cbs_blotters` and get `insertId`
+//         const result = await new Promise((resolve, reject) => {
+//             db.query(blotterSql, blotterValues, (error, result) => {
+//                 if (error) {
+//                     reject(error);
+//                 } else {
+//                     resolve(result);
+//                 }
+//             });
+//         });
+
+//         const blotterId = result.insertId;
+//         console.log("Blotter ID:", blotterId);
+
+//         // Insert defendants into `cbs_defendants`
+//         const defendantSql = `
+//             INSERT INTO cbs_defendants (blotter_id, name, address, contact)
+//             VALUES (?, ?, ?, ?)
+//         `;
+
+//         for (const defendant of defendants) {
+//             const { name, address, contact } = defendant;
+//             if (!name || !address || !contact) {
+//                 throw new Error("Each defendant must have a name, address, and contact.");
+//             }
+//             await new Promise((resolve, reject) => {
+//                 db.query(defendantSql, [blotterId, name, address, contact], (error) => {
+//                     if (error) {
+//                         reject(error);
+//                     } else {
+//                         resolve();
+//                     }
+//                 });
+//             });
+//         }
+
+//         await db.commit();
+//         res.status(201).json({ message: "Blotter record and defendants added successfully" });
 //     } catch (error) {
+//         await db.rollback();
 //         console.error("Error adding blotter record:", error);
 //         res.status(500).json({ message: "Failed to add blotter record" });
 //     }
 // };
 
-
 export const addBlotter = async (req, res) => {
-    const {
-        incident_date,
-        reporter_id,
-        complainant_id,
-        respondent_id,
-        witnesses,
-        incident_type,
-        incident_location,
-        incident_description,
-        resolution,
-        notes,
-        barangay_id,
-        defendants, // array of defendants
-    } = req.body;
-
-    console.log(req.body);
-    if (
-        !complainant_id ||
-        !defendants?.length
-    ) {
-        return res
-            .status(400)
-            .json({ message: "Please fill in all required fields." });
-    }
-
-    const blotterSql = `
-        INSERT INTO cbs_blotters 
-        (incident_date, reporter_id, complainant_id, respondent_id, witnesses, 
-         incident_type, incident_location, incident_description, resolution, notes, barangay_id)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-
     try {
-        await db.beginTransaction();
-
-        const blotterValues = [
-            incident_date || null,
-            reporter_id || 13,
-            complainant_id || null,
-            respondent_id || 9,
-            witnesses || "Tambay",
-            incident_type || null,
-            incident_location || "Sa Kanto",
-            incident_description || "Ninakaw ang aso",
-            resolution || "Sample",
-            notes || null,
+        const {
+            incident_date,
+            reporter_id,
+            complainant_id,
+            complainant_name,
+            complainant_address,
+            complainant_contact,
+            defendants,
+            defendantAddresses,
+            defendantContacts,
+            witnesses,
+            incident_type,
+            incident_location,
+            incident_description,
+            resolution,
+            notes,
             barangay_id,
+        } = req.body;
+
+        console.log("Blotter", req.body);
+
+        const sql = `CALL AddBlotter(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+        const values = [
+            incident_date || null,
+            reporter_id,
+            complainant_name || null,
+            complainant_address || null,
+            complainant_contact || null,
+            witnesses || null,
+            incident_type || null,
+            incident_location || null,
+            incident_description || null,
+            resolution || null,
+            notes || null,
+            JSON.stringify(defendants),
+            JSON.stringify(defendantAddresses),
+            JSON.stringify(defendantContacts),
+            barangay_id
         ];
 
-        // Insert into `cbs_blotters` and get `insertId`
         const result = await new Promise((resolve, reject) => {
-            db.query(blotterSql, blotterValues, (error, result) => {
+            db.query(sql, values, (error, result) => {
                 if (error) {
                     reject(error);
                 } else {
@@ -159,39 +198,14 @@ export const addBlotter = async (req, res) => {
             });
         });
 
-        const blotterId = result.insertId;
-        console.log("Blotter ID:", blotterId);
-
-        // Insert defendants into `cbs_defendants`
-        const defendantSql = `
-            INSERT INTO cbs_defendants (blotter_id, name, address, contact)
-            VALUES (?, ?, ?, ?)
-        `;
-
-        for (const defendant of defendants) {
-            const { name, address, contact } = defendant;
-            if (!name || !address || !contact) {
-                throw new Error("Each defendant must have a name, address, and contact.");
-            }
-            await new Promise((resolve, reject) => {
-                db.query(defendantSql, [blotterId, name, address, contact], (error) => {
-                    if (error) {
-                        reject(error);
-                    } else {
-                        resolve();
-                    }
-                });
-            });
-        }
-
-        await db.commit();
-        res.status(201).json({ message: "Blotter record and defendants added successfully" });
+        res.status(201).json({
+            message: 'Blotter added successfully',
+        });
     } catch (error) {
-        await db.rollback();
-        console.error("Error adding blotter record:", error);
-        res.status(500).json({ message: "Failed to add blotter record" });
+        console.error(error);
+        res.status(500).json({ message: 'Failed to add blotter', error });
     }
-};
+}
 
 export const updateBlotter = async (req, res) => {
     const { id } = req.params;

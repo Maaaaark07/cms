@@ -82,8 +82,8 @@ export const addResident = async (req, res) => {
         console.error("SQL Error Code:", error.code);
         console.error("SQL State:", error.sqlState);
 
-        if (error.code === 'ER_DUP_ENTRY' || 
-            error.sqlState === '45000' || 
+        if (error.code === 'ER_DUP_ENTRY' ||
+            error.sqlState === '45000' ||
             error.message.includes('already exists')) {
             return res.status(409).json({
                 message: 'A resident with similar details already exists',
@@ -99,18 +99,18 @@ export const addResident = async (req, res) => {
 
 export const updateResident = async (req, res) => {
     const {
-            resident_id, first_name, last_name, middle_name, suffix,
-            birthday, birth_place, occupation,
-            civil_status, gender, address,
-            region_id, province_id, city_id,
-            barangay_id, purok_id, is_local_resident, resident_type,
-            contact_number, email,
-            is_household_head, household_id,
-            is_registered_voter, voter_id_number,
-            is_juan_bataan_member, juan_bataan_id,
+        resident_id, first_name, last_name, middle_name, suffix,
+        birthday, birth_place, occupation,
+        civil_status, gender, address,
+        region_id, province_id, city_id,
+        barangay_id, purok_id, is_local_resident, resident_type,
+        contact_number, email,
+        is_household_head, household_id,
+        is_registered_voter, voter_id_number,
+        is_juan_bataan_member, juan_bataan_id,
     } = req.body;
 
-    if ( !first_name || !last_name || !address || !contact_number) {
+    if (!first_name || !last_name || !address || !contact_number) {
         return res.status(400).json({ message: 'Please fill in all required fields.' });
     }
 
@@ -181,7 +181,7 @@ export const getResidentCount = (req, res) => {
     const { id } = req.params;
     const sql = "CALL GetResidentsCount(?)";
 
-   db.query(sql, [id], (err, result) => {
+    db.query(sql, [id], (err, result) => {
         if (err) {
             console.error("Error fetching resident count:", err);
             return res.status(500).json({ message: 'Server error' });
@@ -190,6 +190,6 @@ export const getResidentCount = (req, res) => {
 
         res.status(200).json({ count });
     });
-    
+
 };
 
