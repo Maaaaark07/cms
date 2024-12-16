@@ -166,8 +166,6 @@ export const addBlotter = async (req, res) => {
             barangay_id,
         } = req.body;
 
-        console.log("Blotter", req.body);
-
         const sql = `CALL AddBlotter(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
         const values = [

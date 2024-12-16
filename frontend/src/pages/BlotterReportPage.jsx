@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../components/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useDateFormatter } from "../hooks/useDateFormatter";
 
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
@@ -16,7 +17,9 @@ import { FaRegEye, FaRegTrashAlt } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 const IncidentReport = () => {
+
     const { barangayId } = useAuth();
+    const { formatIncidentDate } = useDateFormatter();
     const navigate = useNavigate();
 
     const [blotters, setBlotters] = useState(null);
@@ -59,37 +62,24 @@ const IncidentReport = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const displayedBlotters = filteredBlotters?.slice(startIndex, startIndex + itemsPerPage);
 
-    const formatIncidentDate = (dateString) => {
-        if (!dateString) return 'N/A';
-
-        try {
-            const date = new Date(dateString);
-
-            if (isNaN(date.getTime())) {
-                console.error('Invalid date:', dateString);
-                return 'Invalid Date';
-            }
-
-            return date.toLocaleDateString('en-US', {
-                month: '2-digit',
-                day: '2-digit',
-                year: 'numeric'
-            });
-        } catch (error) {
-            console.error('Error formatting date:', error);
-            return 'N/A';
-        }
-    };
-
     const formattedStatus = (status) => {
         if (!status) return "N/A";
 
         switch (status) {
-            case "Hearing":
+            case "New":
                 return (
                     <div className="px-4 py-2 rounded-3xl text-center" style={{
                         backgroundColor: "#FFA80380",
-                        color: "#664301"
+                        color: "#664301",
+                    }}>
+                        {status}
+                    </div>
+                );
+            case "On going":
+                return (
+                    <div className="px-4 py-2 rounded-3xl text-center" style={{
+                        backgroundColor: "#3F83F880",
+                        color: "#1E429F"
                     }}>
                         {status}
                     </div>
