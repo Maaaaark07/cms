@@ -9,6 +9,7 @@ import Sidebar from "../components/Sidebar";
 import Breadcrumbs from "../components/Breadcrumbs";
 import Pagination from '../components/Pagination';
 import Search from '../components/Search';
+import StatusBadge from "../components/StatusBadge";
 
 import { IoPersonAddOutline, IoDocumentText } from "react-icons/io5";
 import { RxAvatar } from "react-icons/rx";
@@ -62,60 +63,6 @@ const IncidentReport = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const displayedBlotters = filteredBlotters?.slice(startIndex, startIndex + itemsPerPage);
 
-    const formattedStatus = (status) => {
-        if (!status) return "N/A";
-
-        switch (status) {
-            case "New":
-                return (
-                    <div className="px-4 py-2 rounded-3xl text-center" style={{
-                        backgroundColor: "#FFA80380",
-                        color: "#664301",
-                    }}>
-                        {status}
-                    </div>
-                );
-            case "On going":
-                return (
-                    <div className="px-4 py-2 rounded-3xl text-center" style={{
-                        backgroundColor: "#3F83F880",
-                        color: "#1E429F"
-                    }}>
-                        {status}
-                    </div>
-                );
-            case "Settled":
-                return (
-                    <div className="px-4 py-2 rounded-3xl text-center" style={{
-                        backgroundColor: "#00A6AE80",
-                        color: "#004246"
-                    }}>
-                        {status}
-                    </div>
-                );
-            case "Reconciled":
-                return (
-                    <div className="px-4 py-2 rounded-3xl text-center" style={{
-                        backgroundColor: "#00B83380",
-                        color: "#004a14"
-                    }}>
-                        {status}
-                    </div>
-                );
-            case "Move to higher court":
-                return (
-                    <div className="px-4 py-2 rounded-3xl text-center" style={{
-                        backgroundColor: "#E7003680",
-                        color: "#5c0016"
-                    }}>
-                        {status}
-                    </div>
-                );
-            default:
-                return status;
-        }
-    };
-
     const handlePageChange = (page) => setCurrentPage(page);
 
     const handleItemsPerPageChange = (newItemsPerPage) => {
@@ -164,8 +111,8 @@ const IncidentReport = () => {
                             loading ? (<div className="text-center">Loading...</div>
                             ) :
                                 (
-                                    <div className="overflow-x-auto mt-4">
-                                        <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden text-sm">
+                                    <div className="overflow-x-auto rounded-lg mt-4">
+                                        <table className="min-w-full bg-white shadow-md overflow-hidden text-sm">
                                             <thead className='bg-gray-200'>
                                                 <tr>
                                                     <th className="text-left p-3 font-semibold text-gray-700">Complainant Name</th>
@@ -192,7 +139,7 @@ const IncidentReport = () => {
                                                             <td className="p-3 text-gray-500">{blotter.blotter_id}</td>
                                                             <td className="p-3 text-gray-500">{blotter.incident_type}</td>
                                                             <td className="p-3 text-gray-500">{formatIncidentDate(blotter.incident_date)}</td>
-                                                            <td className="p-3 text-gray-500">{formattedStatus(blotter.status)}</td>
+                                                            <td className="p-3 text-gray-500">{<StatusBadge status={blotter.status} />}</td>
                                                             <td className="p-3 text-gray-500 flex items-center justify-center gap-2">
                                                                 <div
                                                                     className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'>
