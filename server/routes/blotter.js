@@ -5,6 +5,7 @@ import {
     addBlotter,
     updateBlotter,
     deleteBlotter,
+    getBlotterHearingById
 } from "../controllers/blotterController.js";
 import { verifyUser } from "../middleware/authMiddleware.js";
 
@@ -15,5 +16,6 @@ router.get("/get/:id", verifyUser, getBlottersById);
 router.post("/add", verifyUser, addBlotter);
 router.put("/update/:id", verifyUser, updateBlotter);
 router.delete("/:id", verifyUser, deleteBlotter);
+router.get("/get-hearing/:id", verifyUser, getBlotterHearingById);
 
 export default router;

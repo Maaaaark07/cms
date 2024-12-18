@@ -166,8 +166,6 @@ export const addBlotter = async (req, res) => {
             barangay_id,
         } = req.body;
 
-        console.log("Blotter", req.body);
-
         const sql = `CALL AddBlotter(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
         const values = [
@@ -281,3 +279,28 @@ export const deleteBlotter = async (req, res) => {
         res.status(500).json({ message: "Failed to delete blotter record" });
     }
 };
+
+//Hearings
+export const getBlotterHearingById = async (req, res) => {
+    const { id } = req.params;
+    const sql = "CALL GetBlotterHearings(?)";
+
+    try {
+        const result = await new Promise((resolve, reject) => {
+            db.query(sql, [id], (err, results) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(results);
+                }
+            })
+        });
+        res.json(result[0]);
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({
+            error: "Failed to retrieve blotter hearings data",
+            details: error.message,
+        });
+    }
+}

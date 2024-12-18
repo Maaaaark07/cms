@@ -44,7 +44,7 @@ const BlotterList = ({ blotterData }) => {
                                 </span>
                             </div>
                         </div>
-                        <div onClick={() => handleViewBlotter()} className="flex items-center gap-2 cursor-pointer">
+                        <div onClick={() => handleViewBlotter(incident.blotter_id)} className="flex items-center gap-2 cursor-pointer">
                             <span className="text-sm text-blue-500">View</span>
                             <FaArrowRightLong className="w-3 h-3 text-blue-600" />
                         </div>
