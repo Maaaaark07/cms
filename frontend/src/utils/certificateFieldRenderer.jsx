@@ -7,10 +7,16 @@ export default function renderAdditionalFields({
     handleInputChange,
     isComplainantModalOpen,
     isApplicantModalOpen,
+    isSelectMotherModalOpen,
+    isSelectFatherModalOpen,
     setIsComplainantModalOpen,
     setIsApplicantModalOpen,
+    setIsSelectMotherModalOpen,
+    setIsSelectFatherModalOpen,
     handleSelectComplainant,
-    handleSelectApplicant
+    handleSelectApplicant,
+    handleSelectMother,
+    handleSelectFather
 }) {
     if (!selectedCertificateType) return null;
 
@@ -167,10 +173,7 @@ export default function renderAdditionalFields({
                                 title="Select Complainant"
                                 isOpen={isApplicantModalOpen}
                                 onClose={() => setIsApplicantModalOpen(false)}
-                                onSelect={(resident) => setFormData(prev => ({
-                                    ...prev,
-                                    applicantName: `${resident.first_name} ${resident.last_name} ${resident.middle_name}`,
-                                }))}
+                                onSelect={handleSelectApplicant}
                             />
                         </div>
                     </div>
@@ -192,20 +195,148 @@ export default function renderAdditionalFields({
                     />
                 </div>
             );
+        case 'residence certification':
+            return (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className='flex-1'>
+                        <label className="block mb-2 text-sm font-medium text-gray-500">
+                            Name<span className="text-red-600">*</span>
+                        </label>
+                        <div className="relative rounded-md">
+                            <input
+                                type="text"
+                                name="complainantName"
+                                placeholder="Type or Search Complainant Name"
+                                className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                                value={formData.complainantName}
+                                onChange={handleInputChange}
+                            />
+                            <div
+                                className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md"
+                                onClick={() => setIsComplainantModalOpen((prev) => !prev)}
+                            >
+                                <IoSearch className="w-5 h-5 text-white" />
+                            </div>
+                            <SearchModal
+                                title="Select Complainant"
+                                isOpen={isComplainantModalOpen}
+                                onClose={() => setIsComplainantModalOpen(false)}
+                                onSelect={handleSelectComplainant}
+                            />
+                        </div>
+                    </div>
+                    <div className='flex-1'>
+                        <label className="block mb-2 text-sm font-medium text-gray-500">
+                            Mother's Name<span className="text-red-600">*</span>
+                        </label>
+                        <div className="relative rounded-md">
+                            <input
+                                type="text"
+                                name="motherName"
+                                placeholder="Type or Search Mother's Name"
+                                className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                                value={formData.motherName}
+                                onChange={handleInputChange}
+                            />
+                            <div
+                                className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md"
+                                onClick={() => setIsSelectMotherModalOpen((prev) => !prev)}
+                            >
+                                <IoSearch className="w-5 h-5 text-white" />
+                            </div>
+                            <SearchModal
+                                title="Select Mother"
+                                isOpen={isSelectMotherModalOpen}
+                                onClose={() => setIsSelectMotherModalOpen(false)}
+                                onSelect={handleSelectMother}
+                            />
+                        </div>
+                    </div>
+                    <div className='flex-1'>
+                        <label className="block mb-2 text-sm font-medium text-gray-500">
+                            Father's Name<span className="text-red-600">*</span>
+                        </label>
+                        <div className="relative rounded-md">
+                            <input
+                                type="text"
+                                name="motherName"
+                                placeholder="Type or Search Mother's Name"
+                                className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                                value={formData.fatherName}
+                                onChange={handleInputChange}
+                            />
+                            <div
+                                className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md"
+                                onClick={() => setIsSelectFatherModalOpen((prev) => !prev)}
+                            >
+                                <IoSearch className="w-5 h-5 text-white" />
+                            </div>
+                            <SearchModal
+                                title="Select Father"
+                                isOpen={isSelectFatherModalOpen}
+                                onClose={() => setIsSelectFatherModalOpen(false)}
+                                onSelect={handleSelectFather}
+                            />
+                        </div>
+                    </div>
+                </div>
+            );
         case 'lot certification':
             return (
-                <div className='flex-1'>
-                    <label className="block mb-2 text-sm font-medium text-gray-500">
-                        Lot Location<span className="text-red-600">*</span>
-                    </label>
-                    <input
-                        type="text"
-                        name="lotLocation"
-                        placeholder="Enter Lot Location"
-                        className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
-                        value={formData.lotLocation}
-                        onChange={handleInputChange}
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className='flex-1'>
+                        <label className="block mb-2 text-sm font-medium text-gray-500">
+                            Name<span className="text-red-600">*</span>
+                        </label>
+                        <div className="relative rounded-md">
+                            <input
+                                type="text"
+                                name="complainantName"
+                                placeholder="Type or Search Complainant Name"
+                                className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                                value={formData.complainantName}
+                                onChange={handleInputChange}
+                            />
+                            <div
+                                className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md"
+                                onClick={() => setIsComplainantModalOpen((prev) => !prev)}
+                            >
+                                <IoSearch className="w-5 h-5 text-white" />
+                            </div>
+                            <SearchModal
+                                title="Select Complainant"
+                                isOpen={isComplainantModalOpen}
+                                onClose={() => setIsComplainantModalOpen(false)}
+                                onSelect={handleSelectComplainant}
+                            />
+                        </div>
+                    </div>
+                    <div className='flex-1'>
+                        <label className="block mb-2 text-sm font-medium text-gray-500">
+                            Lot Size<span className="text-red-600">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="lotSize"
+                            placeholder="Enter Lot Location"
+                            className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                            value={formData.lotSize}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                    <div className='flex-1'>
+                        <label className="block mb-2 text-sm font-medium text-gray-500">
+                            Purpose<span className="text-red-600">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="purpose"
+                            placeholder="Purpose"
+                            className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                            value={formData.purpose}
+                            onChange={handleInputChange}
+                        />
+                    </div>
                 </div>
             );
         case 'electrical permit':
@@ -421,10 +552,7 @@ export default function renderAdditionalFields({
                                 title="Select Complainant"
                                 isOpen={isApplicantModalOpen}
                                 onClose={() => setIsApplicantModalOpen(false)}
-                                onSelect={(resident) => setFormData(prev => ({
-                                    ...prev,
-                                    applicantName: `${resident.first_name} ${resident.last_name} ${resident.middle_name}`,
-                                }))}
+                                onSelect={handleSelectApplicant}
                             />
                         </div>
                     </div>

@@ -10,17 +10,22 @@ export const useCertificationForm = () => {
     const [selectedCertificateType, setSelectedCertificateType] = useState(null);
     const [isComplainantModalOpen, setIsComplainantModalOpen] = useState(false);
     const [isApplicantModalOpen, setIsApplicantModalOpen] = useState(false);
+    const [isSelectMotherModalOpen, setIsSelectMotherModalOpen] = useState(false);
+    const [isSelectFatherModalOpen, setIsSelectFatherModalOpen] = useState(false);
 
     const { barangayId } = useAuth();
 
     const initialFormData = {
         certificateType: null,
+        birthPlace: '',
         issuanceDate: '',
         complainantName: '',
         complainantMiddleName: '',
         complainantAddress: '',
         complainantContact: '',
         complainantAge: '',
+        residenceGender: '',
+        birthday: '',
         civilStatus: '',
         businessName: '',
         businessAddress: '',
@@ -30,6 +35,8 @@ export const useCertificationForm = () => {
         calamityName: '',
         dateOfDeath: '',
         placeOfDeath: '',
+        motherName: '',
+        fatherName: '',
         deceasedName: '',
         purpose: '',
         relationship: '',
@@ -37,6 +44,7 @@ export const useCertificationForm = () => {
         permitType: '',
         solo_parent_type: '',
         calamity_type: '',
+        lotSize: '',
     };
 
     const [formData, setFormData] = useState(initialFormData);
@@ -111,7 +119,10 @@ export const useCertificationForm = () => {
             completeAddress: `${resident.address || ""} ${resident.purok}, ${resident.barangay} ${resident.city} ${resident.province}`,
             complainantContact: resident.contact_number || "",
             complainantAge: resident.age || "",
-            civilStatus: resident.civil_status
+            civilStatus: resident.civil_status,
+            gender: resident.gender || "",
+            birthPlace: resident.birth_place || "",
+            birthday: resident.birthday || "",
         }));
 
         setIsComplainantModalOpen(false);
@@ -124,6 +135,22 @@ export const useCertificationForm = () => {
         }));
         setIsApplicantModalOpen(false);
     };
+
+    const handleSelectMother = (resident) => {
+        setFormData(prev => ({
+            ...prev,
+            motherName: `${resident.first_name} ${resident.last_name} ${resident.middle_name}`,
+        }));
+        setIsSelectMotherModalOpen(false);
+    }
+
+    const handleSelectFather = (resident) => {
+        setFormData(prev => ({
+            ...prev,
+            fatherName: `${resident.first_name} ${resident.last_name} ${resident.middle_name}`,
+        }));
+        setIsSelectFatherModalOpen(false);
+    }
 
     const renderCertificateMessage = useMemo(() => {
         if (!selectedCertificateType || !brgyOfficials.length) {
@@ -141,12 +168,18 @@ export const useCertificationForm = () => {
             '[ADDRESS]': formData.complainantAddress || formData.businessAddress || '[ADDRESS]',
             '[CIVIL_STATUS]': formData.civilStatus || '[CIVIL_STATUS]',
             '[AGE]': formData.complainantAge || '[AGE]',
+            '[GENDER]' : formData.gender || '[GENDER]',
             '[PURPOSE]': formData.purpose || '[PURPOSE]',
             '[DECEASED_NAME]': formData.complainantName || '[DECEASED_NAME]',
             '[PLACE_OF_DEATH]': formData.placeOfDeath || '[PLACE_OF_DEATH]',
+            '[MOTHERS_NAME]' : formData.motherName || '[MOTHERS_NAME]',
+            '[FATHERS_NAME]' : formData.fatherName || '[FATHERS_NAME]',
             '[LOT_LOCATION]': formData.lotLocation || '[LOT_LOCATION]',
             '[RELATIONSHIP]': formData.relationship || '[RELATIONSHIP]',
-            '[CALAMITY_NAME]': formData.calamityName || '[CALAMITY_NAME]',
+            '[BIRTH_PLACE]': formData.birthPlace || '[BIRTH_PLACE]',
+            '[BIRTH_DATE]' : formData.birthday ? new Date(formData.birthday ).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) || '[BIRTH_DATE]' : '[BIRTH_DATE]',
+            '[CALAMITY_NAME]': formData.calamityName || '[CALAMITY_NAME]', 
+            '[LOT_SIZE]': formData.lotSize || '[LOT_SIZE]',
             '[DATE]': (() => {
                 const date = new Date().getDate();
                 const suffix = (date % 10 === 1 && date !== 11) ? 'st' :
@@ -185,13 +218,19 @@ export const useCertificationForm = () => {
         selectedCertificateType,
         isComplainantModalOpen,
         isApplicantModalOpen,
+        isSelectMotherModalOpen,
+        isSelectFatherModalOpen,
         formData,
         setIsComplainantModalOpen,
         setIsApplicantModalOpen,
+        setIsSelectMotherModalOpen,
+        setIsSelectFatherModalOpen,
         handleCertificateTypeChange,
         handleInputChange,
         handleSelectComplainant,
         handleSelectApplicant,
         renderCertificateMessage,
+        handleSelectMother,
+        handleSelectFather
     };
 };

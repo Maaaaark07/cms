@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
+
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -8,7 +10,7 @@ import Search from '../components/Search';
 import ActionModal from '../components/ActionModal';
 import SuccessMessage from '../components/SuccessMessage';
 import ViewResidentModal from '../components/ViewResidentModal';
-import axios from 'axios';
+
 import { RxAvatar } from "react-icons/rx";
 import { GrEdit } from "react-icons/gr";
 import { FaRegEye, FaRegTrashAlt } from "react-icons/fa";
@@ -194,8 +196,16 @@ const ResidentManagement = () => {
                                     {filteredResidents.length > 0 ? displayedResidents.map((resident) => (
                                         <tr key={resident.resident_id} className="border-b hover:bg-gray-100 even:bg-gray-50">
                                             <td className="p-3 flex items-center gap-2">
-                                                <div className='bg-gray-200 rounded-full'>
-                                                    <RxAvatar className='w-8 h-8 text-gray-400' />
+                                                <div className="bg-gray-200 rounded-full">
+                                                    {resident.image ? (
+                                                        <img
+                                                            src={resident.profile_image}
+                                                            alt="Resident"
+                                                            className="w-8 h-8 rounded-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <RxAvatar className="w-8 h-8 text-gray-400" />
+                                                    )}
                                                 </div>
                                                 <div className='flex flex-col leading-4 text-gray-500'>
                                                     <span className='text-sm text-gray-500'>{`${resident.first_name} ${resident.last_name} ${resident.suffix ?? ''}`}</span>

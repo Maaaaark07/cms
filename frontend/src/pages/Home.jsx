@@ -68,7 +68,7 @@ const Home = () => {
         const fetchPopulationData = async () => {
             try {
                 const response = await axios.get(
-                    "http://localhost:8080/stats/population",
+                    "http://localhost:8080/stats/population/" + barangayId,
                     { withCredentials: true }
                 );
                 const { male, female, seniorCitizens, youth, totalPopulation } =

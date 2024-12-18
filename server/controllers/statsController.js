@@ -16,37 +16,36 @@ export const getRegisteredVoters = (req, res) => {
 };
 
 export const getPopulationStats = (req, res) => {
-    const sql = `
-        SELECT 
-            COUNT(CASE WHEN gender = 'Male' THEN 1 END) AS male,
-            COUNT(CASE WHEN gender = 'Female' THEN 1 END) AS female,
-            COUNT(CASE WHEN age >= 60 THEN 1 END) AS seniorCitizens,
-            COUNT(CASE WHEN age < 18 THEN 1 END) AS youth,
-            COUNT(*) AS totalPopulation
-        FROM cbs_residents
-    `;
+    const { id } = req.params; 
+    const sql = "CALL GetPopulationStats(?)";
 
-    db.query(sql, (err, results) => {
+    db.query(sql, [id], (err, results) => {
         if (err) {
             console.error('Database error:', err);
             return res.status(500).json({ Error: 'Database error' });
         }
 
-        const { male, female, seniorCitizens, youth, totalPopulation } = results[0];
-        res.json({ male, female, seniorCitizens, youth, totalPopulation });
+        // Stored procedure results are typically wrapped in two layers
+        if (results && results[0]) {
+            const { male, female, seniorCitizens, youth, totalPopulation } = results[0][0]; // Access the first row of the first result set
+            return res.json({ male, female, seniorCitizens, youth, totalPopulation });
+        } else {
+            return res.status(404).json({ Error: 'No data found' });
+        }
     });
 };
 
 export const getResidentCount = (req, res) => {
-    const sql = "SELECT COUNT(*) AS NumberOfResidents FROM cbs_residents";
+    const { id } = req.params; 
+    const sql = "CALL GetResidentsCount(?)";
     
-    db.query(sql, (err, result) => {
+    db.query(sql, [id], (err, results) => {
         if (err) {
             console.error("Database error:", err);
             return res.status(500).json({ Error: "Database error" });
         }
 
-        const numberOfResidents = result[0]?.NumberOfResidents || 0;
+        const numberOfResidents = results[0][0]?.NumberOfResidents || 0;
         return res.json({ NumberOfResidents: numberOfResidents });
     });
 };

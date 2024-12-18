@@ -26,7 +26,7 @@ const DashboardCard = () => {
 
     const API_URLS = {
         registeredVoters: 'http://localhost:8080/stats/registered-voters/' + barangayId,
-        residentCount: 'http://localhost:8080/stats/count',
+        residentCount: 'http://localhost:8080/stats/count/' + barangayId,
     };
 
 
@@ -46,9 +46,11 @@ const DashboardCard = () => {
 
             if (residentsResponse.ok) {
                 const residentsData = await residentsResponse.json();
+                console.log('Residents Response:', residentsData);
                 setResidentCount(residentsData.NumberOfResidents);
             } else {
-                console.error('Error fetching resident count:', await residentsResponse.json());
+                const errorData = await residentsResponse.json();
+                console.error('Full error response:', errorData);
             }
 
         } catch (error) {

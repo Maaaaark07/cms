@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { PDFViewer } from '@react-pdf/renderer';
 
 import SearchDropdown from '../components/SearchDropdown';
@@ -15,33 +15,89 @@ const CertificationForm = () => {
         selectedCertificateType,
         isComplainantModalOpen,
         isApplicantModalOpen,
+        isSelectMotherModalOpen,
+        isSelectFatherModalOpen,
         formData,
         setIsComplainantModalOpen,
         setIsApplicantModalOpen,
+        setIsSelectMotherModalOpen,
+        setIsSelectFatherModalOpen,
         handleCertificateTypeChange,
         handleInputChange,
         handleSelectComplainant,
         handleSelectApplicant,
-        renderCertificateMessage
+        handleSelectMother,
+        handleSelectFather,
+        renderCertificateMessage,
     } = useCertificationForm();
 
     const [customPurpose, setCustomPurpose] = useState('');
     const [showCustomPurpose, setShowCustomPurpose] = useState(false);
     const [overrideMessage, setOverrideMessage] = useState(null);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [isGenerateButtonDisabled, setIsGenerateButtonDisabled] = useState(false);
+    const textareaRef = useRef(null);
 
     const handleGenerateTextContent = () => {
         if (renderCertificateMessage && renderCertificateMessage.length > 0) {
-            const initialText = renderCertificateMessage.map((message) => message.text).join(' ');
-            setCustomPurpose(initialText);
+
+            setShowCustomPurpose(true);
+
+            setIsGenerateButtonDisabled(true);
+            setIsGenerating(true);
+
+            const initialMessages = renderCertificateMessage;
+            let currentText = '';
+            let currentIndex = 0;
+
+            const typeText = () => {
+                if (currentIndex < initialMessages.length) {
+                    const currentMessage = initialMessages[currentIndex];
+
+                    // If this message is bold, wrap it in strong tags
+                    const messageText = currentMessage.isBold
+                        ? `<strong>${currentMessage.text}</strong>`
+                        : currentMessage.text;
+
+                    currentText += messageText + ' ';
+
+                    // Create a temp div to safely render HTML
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = currentText;
+                    setCustomPurpose(tempDiv.innerText);
+
+                    currentIndex++;
+
+                    // Randomize typing speed within 3-second total generation time
+                    const delay = 5000 / initialMessages.length;
+                    setTimeout(typeText, delay);
+                } else {
+                    // Set the final message with original bold formatting
+                    setIsGenerating(false);
+                    setOverrideMessage(initialMessages);
+                    setIsGenerateButtonDisabled(false);
+                }
+            };
+
+            // Start typing
+            typeText();
         }
-        setShowCustomPurpose(true);
     };
 
     const handleEditTextContent = (e) => {
         const newValue = e.target.value;
         setCustomPurpose(newValue);
-        setOverrideMessage([{ text: newValue, isBold: false }]);
     };
+
+    // Auto-resize textarea
+    useEffect(() => {
+        if (textareaRef.current) {
+            // Reset height to auto to correctly calculate the scroll height
+            textareaRef.current.style.height = 'auto';
+            // Set height based on scroll height
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+        }
+    }, [customPurpose]);
 
     const finalMessage = overrideMessage || renderCertificateMessage;
 
@@ -83,34 +139,62 @@ const CertificationForm = () => {
                     handleInputChange,
                     isComplainantModalOpen,
                     isApplicantModalOpen,
+                    isSelectMotherModalOpen,
+                    isSelectFatherModalOpen,
                     setIsComplainantModalOpen,
                     setIsApplicantModalOpen,
+                    setIsSelectMotherModalOpen,
+                    setIsSelectFatherModalOpen,
                     handleSelectComplainant,
-                    handleSelectApplicant
+                    handleSelectApplicant,
+                    handleSelectMother,
+                    handleSelectFather
                 })}
             </div>
 
             <div className='grid grid-cols-1'>
-
-                <div className="flex items-center space-x-2 mb-2">
+                <div className="flex items- justify-end space-x-2 mb-2">
                     <button
                         onClick={handleGenerateTextContent}
-                        disabled={!selectedCertificateType}
-                        className="bg-blue-500 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                        disabled={!selectedCertificateType || isGenerateButtonDisabled}
+                        className={`
+                            bg-blue-500 text-white px-4 py-2 rounded-md text-sm 
+                            hover:bg-blue-600 
+                            ${isGenerateButtonDisabled ? 'cursor-not-allowed opacity-50' : 'hover:bg-blue-600'}
+                            ${!selectedCertificateType ? 'disabled:bg-gray-300 disabled:cursor-not-allowed' : ''}
+                        `}
                     >
-                        Generate Purpose
+                        {isGenerateButtonDisabled ? 'Generating...' : 'Generate'}
                     </button>
                 </div>
+
                 {showCustomPurpose && (
                     <>
                         <label className="block mb-2 text-sm font-medium text-gray-500">
-                            Purpose<span className="text-red-600">*</span>
+                            Certificate text content:
                         </label>
-                        <textarea
-                            className="border text-sm border-gray-300 p-2 h-32 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            value={customPurpose}
-                            onChange={handleEditTextContent}
-                        />
+                        <div className="relative w-full">
+                            <textarea
+                                ref={textareaRef}
+                                className={`
+                                    border text-sm border-gray-300 p-2 w-full 
+                                    text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500
+                                    ${isGenerating ? 'bg-gray-100 cursor-wait' : ''}
+                                    resize-none overflow-hidden min-h-[100px]
+                                `}
+                                value={customPurpose}
+                                onChange={handleEditTextContent}
+                                disabled={isGenerating}
+                                placeholder={isGenerating ? 'Generating text...' : 'Edit your purpose here'}
+                            />
+                            {isGenerating && (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="animate-pulse text-gray-400">
+                                        Generating text...
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </>
                 )}
 
