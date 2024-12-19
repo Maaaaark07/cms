@@ -49,3 +49,25 @@ export const getResidentCount = (req, res) => {
         return res.json({ NumberOfResidents: numberOfResidents });
     });
 };
+
+
+export const getHouseholdCount = (req, res) => {
+    const { id } = req.params; 
+    const sql = "CALL GetHouseholdCount(?)";
+
+    db.query(sql, [id], (err, results) => {
+        if (err) {
+            console.error("Database error:", err);
+            return res.status(500).json({ Error: "Database error" });
+        }
+        console.log(results);
+        // Ensure results[0] and its content exist
+        if (results && results[0] && results[0][0]) {
+            const NumberOfHousehold = results[0][0].NumberOfHousehold;
+            return res.json({ NumberOfHousehold });
+        } else {
+            console.warn("Unexpected results format:", results);
+            return res.json({ NumberOfHousehold: 0 });
+        }
+    });
+};

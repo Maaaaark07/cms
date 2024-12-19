@@ -9,7 +9,7 @@ import Card from './Card';
 const DashboardCard = () => {
     const [registeredVoters, setRegisteredVoters] = useState(0);
     const [residentCount, setResidentCount] = useState(0);
-    const [householdCount, setHouseholdCount] = useState(5682); // Placeholder value
+    const [householdCount, setHouseholdCount] = useState(0); // Placeholder value
     const [establishmentCount, setEstablishmentCount] = useState(5682); // Placeholder value
 
     const [displayedVoters, setDisplayedVoters] = useState(0);
@@ -27,14 +27,16 @@ const DashboardCard = () => {
     const API_URLS = {
         registeredVoters: 'http://localhost:8080/stats/registered-voters/' + barangayId,
         residentCount: 'http://localhost:8080/stats/count/' + barangayId,
+        householdCount: 'http://localhost:8080/stats/household/' + barangayId,
     };
 
 
     const fetchData = async () => {
         try {
-            const [votersResponse, residentsResponse] = await Promise.all([
+            const [votersResponse, residentsResponse, householdResponse] = await Promise.all([
                 fetch(API_URLS.registeredVoters, { credentials: 'include' }),
                 fetch(API_URLS.residentCount, { credentials: 'include' }),
+                fetch(API_URLS.householdCount, { credentials: 'include' }),
             ]);
 
             if (votersResponse.ok) {
@@ -53,6 +55,15 @@ const DashboardCard = () => {
                 console.error('Full error response:', errorData);
             }
 
+            if (householdResponse.ok) {
+                const householdData = await householdResponse.json();
+                console.log('Household Response:', householdData);
+                setHouseholdCount(householdData.NumberOfHousehold || 0);
+            } else {
+                const errorData = await householdResponse.json();
+                console.error('Household API Error:', errorData);
+            }
+
         } catch (error) {
             console.error('Error fetching data:', error);
         } finally {
@@ -63,7 +74,6 @@ const DashboardCard = () => {
         }
     };
 
-    // Animation effects for counters
     useEffect(() => {
         if (!loadingVoters) {
             const interval = setInterval(() => {
@@ -152,7 +162,7 @@ const DashboardCard = () => {
                 borderColor="border-yellow-500"
                 bgColor="rgba(250, 204, 21, 0.1)"
                 txtColor="text-yellow-600"
-                txtContent="Residence"
+                txtContent="Household"
             />
             <Card
                 icon={<FaRegBuilding className='text-green-600 w-5 h-5' />}

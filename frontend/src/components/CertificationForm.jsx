@@ -29,6 +29,12 @@ const CertificationForm = () => {
         handleSelectMother,
         handleSelectFather,
         renderCertificateMessage,
+        setIsIssuedToModalOpen,
+        isIssuedToModalOpen,
+        handleIssuedTo,
+        handlePartnerName,
+        isPartnerNameModalOpen,
+        setIsPartnerNameModalOpen,
     } = useCertificationForm();
 
     const [customPurpose, setCustomPurpose] = useState('');
@@ -148,7 +154,13 @@ const CertificationForm = () => {
                     handleSelectComplainant,
                     handleSelectApplicant,
                     handleSelectMother,
-                    handleSelectFather
+                    handleSelectFather,
+                    setIsIssuedToModalOpen,
+                    isIssuedToModalOpen,
+                    handleIssuedTo,
+                    handlePartnerName,
+                    isPartnerNameModalOpen,
+                    setIsPartnerNameModalOpen,
                 })}
             </div>
 

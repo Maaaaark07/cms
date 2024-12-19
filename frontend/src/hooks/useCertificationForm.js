@@ -12,6 +12,8 @@ export const useCertificationForm = () => {
     const [isApplicantModalOpen, setIsApplicantModalOpen] = useState(false);
     const [isSelectMotherModalOpen, setIsSelectMotherModalOpen] = useState(false);
     const [isSelectFatherModalOpen, setIsSelectFatherModalOpen] = useState(false);
+    const [isIssuedToModalOpen, setIsIssuedToModalOpen] = useState(false);
+    const [isPartnerNameModalOpen, setIsPartnerNameModalOpen] = useState(false);
 
     const { barangayId } = useAuth();
 
@@ -37,8 +39,10 @@ export const useCertificationForm = () => {
         placeOfDeath: '',
         motherName: '',
         fatherName: '',
+        partnerName: '',
         deceasedName: '',
         purpose: '',
+        issuedTo: '',
         relationship: '',
         lotLocation: '',
         permitType: '',
@@ -152,6 +156,22 @@ export const useCertificationForm = () => {
         setIsSelectFatherModalOpen(false);
     }
 
+    const handleIssuedTo = (resident) => {
+        setFormData(prev => ({
+            ...prev,
+            issuedTo: `${resident.first_name} ${resident.last_name} ${resident.middle_name}`,
+        }));
+        setIsIssuedToModalOpen(false);
+    }
+
+    const handlePartnerName = (resident) => {
+        setFormData(prev => ({
+            ...prev,
+            partnerName: `${resident.first_name} ${resident.last_name} ${resident.middle_name}`,
+        }));
+        setIsPartnerNameModalOpen(false);
+    }
+
     const renderCertificateMessage = useMemo(() => {
         if (!selectedCertificateType || !brgyOfficials.length) {
             return [{ text: "Please select a certificate type first", isBold: false }];
@@ -174,8 +194,10 @@ export const useCertificationForm = () => {
             '[PLACE_OF_DEATH]': formData.placeOfDeath || '[PLACE_OF_DEATH]',
             '[MOTHERS_NAME]' : formData.motherName || '[MOTHERS_NAME]',
             '[FATHERS_NAME]' : formData.fatherName || '[FATHERS_NAME]',
+            '[ISSUED_TO]' : formData.issuedTo || '[ISSUED_TO]',
             '[LOT_LOCATION]': formData.lotLocation || '[LOT_LOCATION]',
             '[RELATIONSHIP]': formData.relationship || '[RELATIONSHIP]',
+            '[PARTNER_NAME]' : formData.partnerName || '[PARTNER_NAME]',
             '[BIRTH_PLACE]': formData.birthPlace || '[BIRTH_PLACE]',
             '[BIRTH_DATE]' : formData.birthday ? new Date(formData.birthday ).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) || '[BIRTH_DATE]' : '[BIRTH_DATE]',
             '[CALAMITY_NAME]': formData.calamityName || '[CALAMITY_NAME]', 
@@ -231,6 +253,12 @@ export const useCertificationForm = () => {
         handleSelectApplicant,
         renderCertificateMessage,
         handleSelectMother,
-        handleSelectFather
+        handleSelectFather,
+        setIsIssuedToModalOpen,
+        isIssuedToModalOpen,
+        handleIssuedTo,
+        handlePartnerName,
+        isPartnerNameModalOpen,
+        setIsPartnerNameModalOpen,
     };
 };
