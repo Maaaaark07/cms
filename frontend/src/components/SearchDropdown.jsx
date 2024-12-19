@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { IoCloseCircleOutline } from "react-icons/io5";
 
 const ComplaintTypes = [
@@ -27,6 +27,8 @@ const ComplaintTypes = [
 const SearchDropdown = ({
     options = ComplaintTypes,
     placeholder = "Search complaint type...",
+    title = "Select complaint type",
+    selectedValue = "",
     onSelect,
     uniqueKey,
     onSelectOption
@@ -35,6 +37,11 @@ const SearchDropdown = ({
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedType, setSelectedType] = useState("");
     const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        setSelectedType(selectedValue);
+    }, [selectedValue]);
+
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);
     };
@@ -71,7 +78,7 @@ const SearchDropdown = ({
         }
     };
 
-    React.useEffect(() => {
+    useEffect(() => {
         document.addEventListener("mousedown", handleOutsideClick);
         return () => {
             document.removeEventListener("mousedown", handleOutsideClick);
@@ -84,7 +91,7 @@ const SearchDropdown = ({
                 className="relative border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onClick={toggleDropdown}
             >
-                {selectedType || <span className="text-gray-400">Select complaint type</span>}
+                {selectedType || <span className="text-gray-400">{title}</span>}
                 {selectedType && <IoCloseCircleOutline onClick={handleOptionRemove} className="w-5 h-5 absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500" />}
             </div>
             {isOpen && (
@@ -97,15 +104,20 @@ const SearchDropdown = ({
                         className="text-sm border rounded border-gray-300 p-2 mb-4 w-full text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <ul className="max-h-40 overflow-y-auto">
-                        {filteredOptions?.map((option) => (
-                            <li
-                                key={option[uniqueKey] || option.title}
-                                onClick={() => handleOptionClick(option)}
-                                className={`p-2 text-sm hover:bg-blue-100 cursor-pointer ${(option[uniqueKey] || option.title) === selectedType ? "bg-blue-100" : ""}`}
-                            >
-                                {option[uniqueKey] || option.title}
-                            </li>
-                        ))}
+                        {filteredOptions.length > 0 ? (
+                            filteredOptions.map((option) => (
+                                <li
+                                    key={option[uniqueKey] || option.title}
+                                    onClick={() => handleOptionClick(option)}
+                                    className={`p-2 text-sm hover:bg-blue-100 cursor-pointer ${(option[uniqueKey] || option.title) === selectedType ? "bg-blue-100" : ""
+                                        }`}
+                                >
+                                    {option[uniqueKey] || option.title}
+                                </li>
+                            ))
+                        ) : (
+                            <li className="p-2 text-sm text-gray-500">Result Not Found</li>
+                        )}
                     </ul>
                 </div>
             )}
