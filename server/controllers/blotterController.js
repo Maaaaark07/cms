@@ -304,3 +304,27 @@ export const getBlotterHearingById = async (req, res) => {
         });
     }
 }
+
+export const getAllBlotterHearingStatuses = async (req, res) => {
+    const sql = "SELECT * FROM cbs_hearing_statuses";
+
+    try {
+        const result = await new Promise((resolve, reject) => {
+            db.query(sql, (err, results) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+
+        res.json(result);
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({
+            error: "Failed to retrieve blotter hearing statuses",
+            details: error.message,
+        });
+    }
+};

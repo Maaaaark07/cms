@@ -10,11 +10,13 @@ import Breadcrumbs from "../components/Breadcrumbs";
 import Pagination from '../components/Pagination';
 import Search from '../components/Search';
 import StatusBadge from "../components/StatusBadge";
+import SearchDropdown from "../components/SearchDropdown";
 
 import { LuLayoutGrid, LuLayoutList } from "react-icons/lu";
 import { IoPersonAddOutline, IoDocumentText } from "react-icons/io5";
 import { GrEdit } from "react-icons/gr";
 import { FaRegEye, FaRegTrashAlt } from "react-icons/fa";
+import { IoClose } from "react-icons/io5";
 
 const IncidentRepotViewPage = () => {
     const location = useLocation();
@@ -27,6 +29,9 @@ const IncidentRepotViewPage = () => {
     const [hearingLoading, setHearingLoading] = useState(false);
     const [error, setError] = useState(null);
     const [isSingleColumn, setIsSingleColumn] = useState(false);
+
+    //Modal
+    const [isRecordModalOpen, setIsRecordModalOpen] = useState(false);
 
     const { blotter_id } = location.state || {};
 
@@ -170,10 +175,11 @@ const IncidentRepotViewPage = () => {
                                     </div>
                                     <div>
                                         <div className='flex items-center justify-end mb-6'>
-                                            <button className='bg-blue-600 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full'>
+                                            <button className='bg-blue-600 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full' onClick={() => setIsRecordModalOpen(true)}>
                                                 <IoDocumentText className='w-4 h-4 text-white font-bold' />
                                                 Record Session
                                             </button>
+                                            <Modal isOpen={isRecordModalOpen} onClose={() => setIsRecordModalOpen(false)} />
                                         </div>
                                         <div className="overflow-x-auto rounded-lg mt-4">
                                             {hearingLoading ? (<div className="text-center">Loading... </div>
@@ -244,7 +250,6 @@ const IncidentRepotViewPage = () => {
                                                             </tr>
                                                         )}
                                                     </tbody>
-
                                                 </table>
                                             )}
                                         </div>
@@ -267,3 +272,106 @@ const IncidentRepotViewPage = () => {
 };
 
 export default IncidentRepotViewPage;
+
+
+function Modal({ isOpen, onClose }) {
+
+    const { barangayId } = useAuth();
+    const [barangayOfficials, setBarangayOfficials] = useState(null);
+    const [selectedBarangayOfficial, setSelectedBarangayOfficial] = useState("");
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        if (isOpen && barangayId) {
+            fetchBarangayOfficials();
+            fetchHearingStatuses();
+        }
+    }, [isOpen, barangayId]);
+
+    const fetchBarangayOfficials = async () => {
+        try {
+            const response = await axios.get('http://localhost:8080/official/' + barangayId, { withCredentials: true });
+            if (response.status !== 200) throw new Error("Something went wrong with fetching data");
+            console.log(response.data);
+            setBarangayOfficials(response.data);
+
+        } catch (error) {
+            console.error(error.message);
+            setError(error.message);
+        }
+    }
+
+    const fetchHearingStatuses = async () => {
+        try {
+            const response = await axios.get('http://localhost:8080/blotter/get-hearing-statuses/', { withCredentials: true });
+            if (response.status !== 200) throw new Error("Something went wrong with fetching data");
+            console.log(response.data);
+        } catch (error) {
+            console.error(error.message);
+            setError(error.message);
+        }
+    }
+
+    const handleOnClose = () => {
+        onClose();
+    };
+
+    const clearSelectedBarangayOfficial = () => {
+        setSelectedBarangayOfficial("");
+    };
+
+    const handleSelectedBarangayOfficialsChange = (selectedValue) => {
+        setSelectedBarangayOfficial(selectedValue?.full_name);
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white w-full max-w-2xl rounded-lg shadow-lg p-6 max-h-[560px] min-h-[560px]">
+                <div className='flex justify-between mb-8'>
+                    <h2 className="text-xl font-semibold">Record Session</h2>
+                    <IoClose
+                        className='w-6 h-6 cursor-pointer'
+                        onClick={() => handleOnClose()}
+                    />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2">
+                    <div className="mb-6">
+                        <label className="block mb-2 text-base font-medium text-gray-500">Attendees<span className="text-red-600">*</span></label>
+                    </div>
+                    <div className="mb-6">
+                        <label className="block mb-2 text-base font-medium text-gray-500">Officer In Charge<span className="text-red-600">*</span></label>
+                        <SearchDropdown
+                            options={barangayOfficials}
+                            selectedValue={selectedBarangayOfficial}
+                            onSelect={handleSelectedBarangayOfficialsChange}
+                            uniqueKey={"full_name"}
+                            placeholder={"Search an Officer"}
+                            title="Select Officer" />
+                    </div>
+                    <div className="mb-6">
+                        <label className="block mb-2 text-base font-medium text-gray-500">Status<span className="text-red-600">*</span></label>
+                    </div>
+                    <div className="col-span-full">
+                        <label className="block mb-2 text-base font-medium text-gray-500">Resolution Remarks<span className="text-red-600">*</span></label>
+                        <textarea
+                            className="border text-sm border-gray-300 p-2 h-48 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                            name="certificateDetails"
+                            placeholder="Type remarks"
+                        ></textarea>
+                    </div>
+                    <div className="col-span-full flex justify-end mt-4 space-x-4">
+                        <button
+                            type="submit"
+                            className={`bg-blue-500 text-white py-2 px-4 rounded-md `}
+                        >
+                            Submit
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    )
+}
