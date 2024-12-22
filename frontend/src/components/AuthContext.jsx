@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
+
 const encryptData = async (data) => {
     try {
         const encoder = new TextEncoder();

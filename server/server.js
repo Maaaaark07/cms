@@ -8,16 +8,18 @@ import blotterRoutes from './routes/blotter.js';
 import locationRoutes from './routes/location.js'
 import certificateRoutes from './routes/certificate.js'
 import brgyOfficialsRoutes  from './routes/officials.js';
+import cfg from './config/config.js';
 
 const app = express();
 
 // Middleware
 app.use(express.json());
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173","http://127.0.0.1:5173","http://" + cfg.domainname + ":5173"],
+    // origin: "*",
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "sentry-trace", "baggage"],
 }));
 app.use(cookieParser());
 

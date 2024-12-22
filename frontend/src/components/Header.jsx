@@ -3,6 +3,7 @@ import { TiArrowSortedDown } from "react-icons/ti";
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import cmsLogo from '../assets/cms-logo.png';
+import cfg from '../../../server/config/config.js';
 
 const Header = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -16,7 +17,7 @@ const Header = () => {
     };
 
     useEffect(() => {
-        axios.get('http://localhost:8080/home', { withCredentials: true })
+        axios.get('http://' + cfg.domainname + ':8080/home', { withCredentials: true })
             .then(res => {
                 if (res.data.Status === 'Success') {
                     setUser(res.data.user);
@@ -29,7 +30,7 @@ const Header = () => {
     }, []);
 
     const handleLogout = () => {
-        axios.get('http://localhost:8080/logout', { withCredentials: true })
+        axios.get('http://' + cfg.domainname + ':8080/logout', { withCredentials: true })
             .then(res => {
                 if (res.data.Status === "Success") {
                     navigate('/');

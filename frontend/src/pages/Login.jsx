@@ -6,6 +6,7 @@ import cmsBackground from '../assets/cms-background.png'
 import cmsLogo from '../assets/cms-logo.png'
 import axios from 'axios';
 import { useAuth } from '../components/AuthContext';
+import cfg from '../../../server/config/config.js';
 
 const Login = () => {
     const [isEmailFocused, setIsEmailFocused] = useState(false);
@@ -30,7 +31,7 @@ const Login = () => {
             return;
         }
 
-        axios.post('http://localhost:8080/login', values, { withCredentials: true })
+        axios.post('http://' + cfg.domainname + ':8080/login', values, { withCredentials: true })
             .then(res => {
                 if (res.data.Status === 'Success') {
                     setValues({ users: '', password: '' });

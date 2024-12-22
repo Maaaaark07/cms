@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { useAuth } from '../components/AuthContext';
+import cfg from '../../../server/config/config.js';
 
 export const useCertificationForm = () => {
     const [errorMessage, setErrorMessage] = useState(null);
@@ -73,7 +74,7 @@ export const useCertificationForm = () => {
 
     const fetchCertificateType = async () => {
         try {
-            const response = await axios.get("http://localhost:8080/certificate/", {
+            const response = await axios.get('http://' + cfg.domainname + ':8080/certificate/', {
                 withCredentials: true,
             });
             setCertificateTypes(response.data);
@@ -85,7 +86,7 @@ export const useCertificationForm = () => {
 
     const fetchBarangayOfficials = async () => {
         try {
-            const response = await axios.get(`http://localhost:8080/official/${barangayId}`, {
+            const response = await axios.get('http://' + cfg.domainname + ':8080/official/${barangayId}', {
                 withCredentials: true,
             });
             setBrgyOfficials(response.data);
