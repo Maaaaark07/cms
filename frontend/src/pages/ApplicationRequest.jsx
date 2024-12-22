@@ -9,6 +9,7 @@ import Sidebar from "../components/Sidebar";
 import Breadcrumbs from "../components/Breadcrumbs";
 import Pagination from '../components/Pagination';
 import Search from '../components/Search';
+import cfg from '../../../server/config/config.js';
 
 import { IoPersonAddOutline, IoDocumentText } from "react-icons/io5";
 import { RxAvatar } from "react-icons/rx";
@@ -35,7 +36,7 @@ const ApplicationRequest = () => {
     async function fetchCertificateRequest() {
         setLoading(true);
         try {
-            const response = await axios.get("http://localhost:8080/certificate/" + barangayId, {
+            const response = await axios.get(`http://${cfg.domainname}:8080/certificate/` + barangayId, {
                 withCredentials: true,
             });
             setRequests(response.data);

@@ -10,6 +10,7 @@ import Pagination from '../components/Pagination';
 import Search from '../components/Search';
 import SearchDropdown from "../components/SearchDropdown";
 import SearchModal from "../components/SearchModal";
+import cfg from '../../../server/config/config.js';
 
 import { IoSearch } from "react-icons/io5";
 import { IoCloseCircleOutline } from "react-icons/io5";
@@ -161,7 +162,7 @@ const AddIncidentReportPage = () => {
 
         setIsLoading(true);
         try {
-            const response = await axios.post('http://localhost:8080/blotter/add', payload, { withCredentials: true });
+            const response = await axios.post(`http://${cfg.domainname}:8080/blotter/add`, payload, { withCredentials: true });
             console.log(response);
             if (response.status === 201) {
                 setSuccessMessage("Blotter added successfully!");

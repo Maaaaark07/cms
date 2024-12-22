@@ -1,6 +1,7 @@
 import React from 'react'
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
+import cfg from '../../../server/config/config.js';
 
 const Reports = () => {
     return (

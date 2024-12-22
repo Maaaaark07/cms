@@ -5,6 +5,7 @@ import { IoFingerPrint } from 'react-icons/io5';
 import { FaRegBuilding } from 'react-icons/fa';
 import { useAuth } from './AuthContext';
 import Card from './Card';
+import cfg from '../../../server/config/config.js';
 
 const DashboardCard = () => {
     const [registeredVoters, setRegisteredVoters] = useState(0);
@@ -25,9 +26,9 @@ const DashboardCard = () => {
     const { barangayId } = useAuth();
 
     const API_URLS = {
-        registeredVoters: 'http://localhost:8080/stats/registered-voters/' + barangayId,
-        residentCount: 'http://localhost:8080/stats/count/' + barangayId,
-        householdCount: 'http://localhost:8080/stats/household/' + barangayId,
+        registeredVoters: `http://${cfg.domainname}:8080/stats/registered-voters/` + barangayId,
+        residentCount: `http://${cfg.domainname}:8080/stats/count/` + barangayId,
+        householdCount: `http://${cfg.domainname}:8080/stats/household/` + barangayId,
     };
 
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import cfg from '../../../server/config/config.js';
 
 const Register = () => {
     const [values, setValues] = useState({
@@ -12,7 +13,7 @@ const Register = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.post('http://localhost:8080/register', values)
+        axios.post(`http://${cfg.domainname}:8080/register`, values)
             .then(res => {
                 console.log(res);
                 setValues({ users: '', password: '' });

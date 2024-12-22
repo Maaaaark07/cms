@@ -9,6 +9,7 @@ import Breadcrumbs from "../components/Breadcrumbs";
 import DashboardCard from "../components/DashboardCard";
 import BlotterList from "../components/BlotterList";
 import { useAuth } from '../components/AuthContext';
+import cfg from '../../../server/config/config.js';
 
 const Home = () => {
     const [user, setUser] = useState(null);
@@ -30,7 +31,7 @@ const Home = () => {
     const { barangayId } = useAuth();
     useEffect(() => {
         axios
-            .get("http://localhost:8080/blotter/" + barangayId, { withCredentials: true })
+            .get("http://" + cfg.domainname + ":8080/blotter/" + barangayId, { withCredentials: true })
             .then((response) => setBlotterData(response.data))
             .catch((error) => {
                 console.error("Error fetching blotter data:", error);
@@ -47,7 +48,7 @@ const Home = () => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const response = await axios.get("http://localhost:8080/home", {
+                const response = await axios.get(`http://${cfg.domainname}:8080/home`, {
                     withCredentials: true,
                 });
                 if (response.data.Status === "Success") {
@@ -68,7 +69,7 @@ const Home = () => {
         const fetchPopulationData = async () => {
             try {
                 const response = await axios.get(
-                    "http://localhost:8080/stats/population/" + barangayId,
+                    `http://${cfg.domainname}:8080/stats/population/` + barangayId,
                     { withCredentials: true }
                 );
                 const { male, female, seniorCitizens, youth, totalPopulation } =
