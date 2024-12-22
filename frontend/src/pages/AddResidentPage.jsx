@@ -73,7 +73,7 @@ const AddResidentPage = ({ setSuccess }) => {
 
     const fetchAllProvince = async () => {
         try {
-            const response = await axios.get('http://' + cfg.domainname + ':8080/location/provinces/${selectedRegion}', { withCredentials: true });
+            const response = await axios.get('http://' + cfg.domainname + ':8080/location/provinces/' + selectedRegion, { withCredentials: true });
             const provinces = response.data;
             setAllProvinces(provinces);
 
@@ -102,7 +102,7 @@ const AddResidentPage = ({ setSuccess }) => {
 
     const fetchAllCity = async () => {
         try {
-            const response = await axios.get('http://' + cfg.domainname + ':8080/location/cities/${selectedProvince}', { withCredentials: true });
+            const response = await axios.get('http://' + cfg.domainname + ':8080/location/cities/' + selectedProvince, { withCredentials: true });
             const cities = response.data;
             setAllCities(cities);
 
@@ -130,7 +130,7 @@ const AddResidentPage = ({ setSuccess }) => {
 
     const fetchAllBarangay = async () => {
         try {
-            const response = await axios.get('http://' + cfg.domainname + ':8080/location/barangay/${selectedCity}', { withCredentials: true });
+            const response = await axios.get('http://' + cfg.domainname + ':8080/location/barangay/' + selectedCity, { withCredentials: true });
             const barangays = response.data;
             setAllBarangay(barangays);
 
@@ -161,7 +161,7 @@ const AddResidentPage = ({ setSuccess }) => {
                 return;
             }
 
-            const response = await axios.get('http://' + cfg.domainname + ':8080/location/purok/${selectedBarangay}', { withCredentials: true });
+            const response = await axios.get('http://' + cfg.domainname + ':8080/location/purok/' + selectedBarangay, { withCredentials: true });
             const puroks = response.data;
             setAllPuroks(puroks);
 

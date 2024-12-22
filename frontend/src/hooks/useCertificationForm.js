@@ -86,7 +86,7 @@ export const useCertificationForm = () => {
 
     const fetchBarangayOfficials = async () => {
         try {
-            const response = await axios.get('http://' + cfg.domainname + ':8080/official/${barangayId}', {
+            const response = await axios.get('http://' + cfg.domainname + ':8080/official/' + barangayId, {
                 withCredentials: true,
             });
             setBrgyOfficials(response.data);
