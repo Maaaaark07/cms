@@ -48,7 +48,7 @@ const Home = () => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const response = await axios.get("http://" + cfg.domainname + ":8080/home", {
+                const response = await axios.get(`http://${cfg.domainname}:8080/home`, {
                     withCredentials: true,
                 });
                 if (response.data.Status === "Success") {
@@ -69,7 +69,7 @@ const Home = () => {
         const fetchPopulationData = async () => {
             try {
                 const response = await axios.get(
-                    'http://' + cfg.domainname + ':8080/stats/population/' + barangayId,
+                    `http://${cfg.domainname}:8080/stats/population/` + barangayId,
                     { withCredentials: true }
                 );
                 const { male, female, seniorCitizens, youth, totalPopulation } =
