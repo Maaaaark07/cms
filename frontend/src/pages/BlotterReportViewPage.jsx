@@ -11,7 +11,7 @@ import Pagination from '../components/Pagination';
 import Search from '../components/Search';
 import StatusBadge from "../components/StatusBadge";
 import SearchDropdown from "../components/SearchDropdown";
-import cfg from '../../../server/config/config.js';
+import cfg from '../../../server/controllers/domainController.js';
 
 import { LuLayoutGrid, LuLayoutList } from "react-icons/lu";
 import { IoPersonAddOutline, IoDocumentText } from "react-icons/io5";
