@@ -8,7 +8,7 @@ import { BsFillPersonVcardFill } from "react-icons/bs";
 import { MdContactPhone } from "react-icons/md";
 import { IoIosInformationCircle } from "react-icons/io";
 import { FaMapLocationDot } from "react-icons/fa6";
-import cfg from '../../../server/config/config.js';
+import cfg from '../../../server/controllers/domainController.js';
 
 
 const AddResidentPage = ({ setSuccess }) => {
