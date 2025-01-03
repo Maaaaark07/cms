@@ -17,7 +17,7 @@ const statusStyles = {
         backgroundColor: "#00B83380",
         color: "#004a14",
     },
-    "Move to higher court": {
+    "Moved to higher court": {
         backgroundColor: "#E7003680",
         color: "#5c0016",
     },

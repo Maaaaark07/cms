@@ -328,3 +328,48 @@ export const getAllBlotterHearingStatuses = async (req, res) => {
         });
     }
 };
+
+export const addBlotterHearings = async (req, res) => {
+    try {
+        const {
+            blotter_id,
+            hearing_date,
+            attendees,
+            remarks,
+            status_id,
+            official_id,
+        } = req.body;
+
+        console.log(req.body);
+
+        const sql = `CALL AddBlotterHearing(?, ?, ?, ?, ?, ?)`;
+
+        const values = [
+            blotter_id,
+            hearing_date || null,
+            JSON.stringify(attendees),
+            remarks || null,
+            status_id || null,
+            official_id || null,
+        ];
+
+        console.log(values);
+
+        const result = await new Promise((resolve, reject) => {
+            db.query(sql, values, (error, result) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+        res.status(201).json({
+            message: 'Blotter hearing added successfully',
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to add blotter hearing', error });
+    }
+}

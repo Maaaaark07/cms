@@ -11,6 +11,7 @@ import Pagination from '../components/Pagination';
 import Search from '../components/Search';
 import StatusBadge from "../components/StatusBadge";
 import SearchDropdown from "../components/SearchDropdown";
+import InputDropdown from "../components/InputDropdown";
 import cfg from '../../../server/config/config.js';
 
 import { LuLayoutGrid, LuLayoutList } from "react-icons/lu";
@@ -29,12 +30,19 @@ const IncidentRepotViewPage = () => {
     const [detailsLoading, setDetailsLoading] = useState(false);
     const [hearingLoading, setHearingLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [isSingleColumn, setIsSingleColumn] = useState(false);
+
+    const [isSingleColumn, setIsSingleColumn] = useState(() => {
+        return localStorage.getItem("isSingleColumn") === "true";
+    });
 
     //Modal
     const [isRecordModalOpen, setIsRecordModalOpen] = useState(false);
 
     const { blotter_id } = location.state || {};
+
+    useEffect(() => {
+        localStorage.setItem("isSingleColumn", isSingleColumn);
+    }, [isSingleColumn]);
 
     useEffect(() => {
         fetchBlotterDetails();
@@ -180,7 +188,11 @@ const IncidentRepotViewPage = () => {
                                                 <IoDocumentText className='w-4 h-4 text-white font-bold' />
                                                 Record Session
                                             </button>
-                                            <Modal isOpen={isRecordModalOpen} onClose={() => setIsRecordModalOpen(false)} />
+                                            <Modal
+                                                isOpen={isRecordModalOpen}
+                                                onClose={() => setIsRecordModalOpen(false)}
+                                                blotter_id={blotter_id}
+                                                onSuccess={fetchBlotterHearings} />
                                         </div>
                                         <div className="overflow-x-auto rounded-lg mt-4">
                                             {hearingLoading ? (<div className="text-center">Loading... </div>
@@ -209,7 +221,7 @@ const IncidentRepotViewPage = () => {
                                                                             {formatIncidentDate(hearing.hearing_date)}
                                                                         </td>
                                                                         <td className="p-4 text-sm text-gray-500">
-                                                                            {hearing.attendees ?? "N/A"}
+                                                                            {hearing.attendees ? JSON.parse(hearing.attendees).join(", ") : "N/A"}
                                                                         </td>
                                                                         <td className="p-4 text-sm text-gray-500">
                                                                             {hearing.remarks ?? "N/A"}
@@ -275,15 +287,17 @@ const IncidentRepotViewPage = () => {
 export default IncidentRepotViewPage;
 
 
-function Modal({ isOpen, onClose }) {
+function Modal({ isOpen, onClose, blotter_id, onSuccess }) {
 
     const { barangayId } = useAuth();
 
     const [barangayOfficials, setBarangayOfficials] = useState(null);
     const [hearingStatuses, setHearingStatuses] = useState(null);
 
-    const [selectedBarangayOfficial, setSelectedBarangayOfficial] = useState("");
-    const [selectedHearingStatus, setSelectedHearingStatus] = useState("");
+    const [selectedBarangayOfficial, setSelectedBarangayOfficial] = useState(null);
+    const [selectedHearingStatus, setSelectedHearingStatus] = useState(null);
+    const [selectedAttendess, setSelectedAttendess] = useState([]);
+    const [remarks, setRemarks] = useState("");
 
     const [error, setError] = useState("");
 
@@ -317,42 +331,83 @@ function Modal({ isOpen, onClose }) {
         }
     }
 
+    const handleSubmit = async () => {
+        //Add Validation
+        const payload = {
+            hearing_date: null,
+            blotter_id: blotter_id,
+            attendees: selectedAttendess,
+            remarks: remarks,
+            status_id: selectedHearingStatus.iid,
+            official_id: selectedBarangayOfficial.official_id
+        }
+
+        try {
+            const response = await axios.post(`http://${cfg.domainname}:8080/blotter/add/blotter-hearings`, payload, { withCredentials: true });
+            if (response.status === 201) {
+                setError(null);
+                onSuccess();
+                handleOnClose();
+
+            }
+            console.log(response);
+        } catch (error) {
+            console.error(error);
+            setError(error.response?.data?.message || "An error occurred.");
+        }
+    };
+
     const handleOnClose = () => {
         setSelectedBarangayOfficial("");
         setSelectedHearingStatus("");
+        setSelectedAttendess([]);
         onClose();
     };
 
-
     const handleSelectedHearingStatusesChange = (selectedValue) => {
-        setSelectedHearingStatus(selectedValue?.iname);
+        setSelectedHearingStatus(selectedValue);
     };
 
     const handleSelectedBarangayOfficialsChange = (selectedValue) => {
-        setSelectedBarangayOfficial(selectedValue?.full_name);
+        setSelectedBarangayOfficial(selectedValue);
     };
+
+    const handleAddAttendeesChange = (item) => {
+        setSelectedAttendess((attendee) => [...attendee, item]);
+    }
+
+    const handleRemoveAttendeesChange = (item) => {
+        setSelectedAttendess((attendee) => attendee.filter((i) => i !== item));
+    }
 
     if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white w-full max-w-2xl rounded-lg shadow-lg p-6 min-h-[560px]">
-                <div className='flex justify-between mb-8'>
+            <div className="bg-white w-full max-w-3xl rounded-lg shadow-lg p-6 min-h-[560px]">
+                <div className='flex justify-between mb-2'>
                     <h2 className="text-xl font-semibold">Record Session</h2>
                     <IoClose
                         className='w-6 h-6 cursor-pointer'
                         onClick={() => handleOnClose()}
                     />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2">
+                {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
                     <div className="mb-6">
                         <label className="block mb-2 text-base font-medium text-gray-500">Attendees<span className="text-red-600">*</span></label>
+                        <InputDropdown
+                            title="Add Attendees"
+                            placeholder="Type Attendee Name"
+                            options={selectedAttendess}
+                            onAddValue={handleAddAttendeesChange}
+                            onRemoveValue={handleRemoveAttendeesChange} />
                     </div>
                     <div className="mb-6">
                         <label className="block mb-2 text-base font-medium text-gray-500">Officer In Charge<span className="text-red-600">*</span></label>
                         <SearchDropdown
                             options={barangayOfficials}
-                            selectedValue={selectedBarangayOfficial}
+                            selectedValue={selectedBarangayOfficial?.full_name}
                             onSelect={handleSelectedBarangayOfficialsChange}
                             uniqueKey={"full_name"}
                             placeholder={"Search an Officer"}
@@ -362,7 +417,7 @@ function Modal({ isOpen, onClose }) {
                         <label className="block mb-2 text-base font-medium text-gray-500">Status<span className="text-red-600">*</span></label>
                         <SearchDropdown
                             options={hearingStatuses}
-                            selectedValue={selectedHearingStatus}
+                            selectedValue={selectedHearingStatus?.iname}
                             onSelect={handleSelectedHearingStatusesChange}
                             uniqueKey={"iname"}
                             placeholder={"Search Status"}
@@ -373,12 +428,15 @@ function Modal({ isOpen, onClose }) {
                         <textarea
                             className="border text-sm border-gray-300 p-2 h-48 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                             name="certificateDetails"
+                            value={remarks}
+                            onChange={(e) => setRemarks(e.target.value)}
                             placeholder="Type remarks"
                         ></textarea>
                     </div>
                     <div className="col-span-full flex justify-end mt-4 space-x-4">
                         <button
                             type="submit"
+                            onClick={() => handleSubmit()}
                             className={`bg-blue-500 text-white py-2 px-4 rounded-md `}
                         >
                             Submit
