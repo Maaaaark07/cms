@@ -3,6 +3,7 @@ import {
     getAllBlotters,
     getBlottersById,
     addBlotter,
+    addBlotterHearings,
     updateBlotter,
     deleteBlotter,
     getBlotterHearingById,
@@ -17,6 +18,7 @@ router.get("/get-hearing/:id", verifyUser, getBlotterHearingById);
 router.get("/get/:id", verifyUser, getBlottersById);
 router.get("/:id", verifyUser, getAllBlotters);
 
+router.post("/add/blotter-hearings", verifyUser, addBlotterHearings);
 router.post("/add", verifyUser, addBlotter);
 router.put("/update/:id", verifyUser, updateBlotter);
 router.delete("/:id", verifyUser, deleteBlotter);

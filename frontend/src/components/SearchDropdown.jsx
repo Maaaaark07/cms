@@ -109,7 +109,8 @@ const SearchDropdown = ({
                                 <li
                                     key={option[uniqueKey] || option.title}
                                     onClick={() => handleOptionClick(option)}
-                                    className={`p-2 text-sm hover:bg-blue-100 cursor-pointer ${(option[uniqueKey] || option.title) === selectedType ? "bg-blue-100" : ""
+                                    className={`p-2 text-sm hover:bg-blue-100 cursor-pointer 
+                                        ${(option[uniqueKey] || option.title) === selectedType ? "bg-blue-100" : ""
                                         }`}
                                 >
                                     {option[uniqueKey] || option.title}
