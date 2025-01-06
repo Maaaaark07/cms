@@ -33,16 +33,16 @@ export const addResident = async (req, res) => {
             Region_ID, Province_ID, City_ID,
             Barangay_ID, Purok_ID, IsLocalResident, ResidentType,
             ContactNumber, Email,
+            IsSoloParent, IsPWD,
             IsHouseholdHead, HouseholdID,
             IsRegisteredVoter, VoterIDNumber,
             IsJuanBataanMember, JuanBataanID,
         } = req.body;
 
         // Get the profile image filename
-        const profileImage = req.file ? req.file.filename : null;  // Multer will store the file with a unique name
-        console.log("file", req.file);
+        const profileImage = req.file ? `/uploads/user_profile/${req.file.filename}` : null;
 
-        const sql = `CALL AddResident(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        const sql = `CALL AddResident(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
         const values = [
             FirstName,
@@ -64,21 +64,22 @@ export const addResident = async (req, res) => {
             ResidentType || null,
             ContactNumber,
             Email || null,
+            IsSoloParent ? 1 : 0,
+            IsPWD ? 1 : 0,
             IsHouseholdHead ? 1 : 0,
             HouseholdID || null,
             IsRegisteredVoter ? 1 : 0,
             VoterIDNumber || null,
             IsJuanBataanMember ? 1 : 0,
             JuanBataanID || null,
-            profileImage,  // This is the file name you want to store in the DB
+            profileImage,
         ];
 
         const result = await db.query(sql, values);
-        console.log(result);
 
         res.status(201).json({
             message: 'Resident added successfully',
-            residentId: result.insertId, // Use insertId instead of result[0]?.resident_id
+            residentId: result[0]?.[0]?.resident_id || result.insertId,
         });
     } catch (error) {
         console.error("Complete Error Object:", error);

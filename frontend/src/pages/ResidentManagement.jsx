@@ -198,11 +198,12 @@ const ResidentManagement = () => {
                                         <tr key={resident.resident_id} className="border-b hover:bg-gray-100 even:bg-gray-50">
                                             <td className="p-3 flex items-center gap-2">
                                                 <div className="bg-gray-200 rounded-full">
+                                                    {console.log("image:", resident.profile_image)}
                                                     {resident.profile_image ? (
                                                         <div
                                                             className="w-10 h-10 rounded-full"
                                                             style={{
-                                                                backgroundImage: `url(${resident.profile_image})`,
+                                                                backgroundImage: `url(http://${cfg.domainname}:8080${resident.profile_image})`,
                                                                 backgroundSize: 'cover',
                                                                 backgroundPosition: 'center',
                                                                 backgroundRepeat: 'no-repeat',
@@ -214,14 +215,13 @@ const ResidentManagement = () => {
                                                             role="img"
                                                             aria-label="Resident"
                                                         />
-
                                                     ) : (
                                                         <RxAvatar className="w-10 h-10 text-gray-400" />
                                                     )}
                                                 </div>
-                                                <div className='flex flex-col leading-4 text-gray-500'>
-                                                    <span className='text-sm text-gray-500'>{`${resident.first_name} ${resident.last_name} ${resident.suffix ?? ''}`}</span>
-                                                    <span className='text-xs text-gray-400'>{resident.occupation}</span>
+                                                <div className="flex flex-col leading-4 text-gray-500">
+                                                    <span className="text-sm text-gray-500">{`${resident.first_name} ${resident.last_name} ${resident.suffix ?? ''}`}</span>
+                                                    <span className="text-xs text-gray-400">{resident.occupation}</span>
                                                 </div>
                                             </td>
                                             <td className="p-3 text-gray-500">

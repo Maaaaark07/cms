@@ -4,11 +4,14 @@ import axios from 'axios';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Breadcrumbs from '../components/Breadcrumbs';
+import cfg from '../../../server/config/config.js';
+
 import { BsFillPersonVcardFill } from "react-icons/bs";
 import { MdContactPhone } from "react-icons/md";
 import { IoIosInformationCircle } from "react-icons/io";
+import { FaFileUpload } from 'react-icons/fa';
 import { FaMapLocationDot } from "react-icons/fa6";
-import cfg from '../../../server/config/config.js';
+import { IoCloseCircleOutline } from "react-icons/io5";
 
 
 const AddResidentPage = ({ setSuccess }) => {
@@ -33,6 +36,17 @@ const AddResidentPage = ({ setSuccess }) => {
     const [selectedCity, setSelectedCity] = useState('');
     const [selectedBarangay, setSelectedBarangay] = useState('');
     const [selectedPurok, setSelectedPurok] = useState('');
+    const [fileName, setFileName] = useState("");
+
+    const handleFilesChange = (e) => {
+        const file = e.target.files[0];
+        setFileName(file ? file.name : ""); // Update the file name or clear it
+    };
+
+    const handleOptionRemove = () => {
+        setFileName(""); // Reset the file name
+    };
+
 
     useEffect(() => {
         fetchAllRegion();
@@ -284,13 +298,92 @@ const AddResidentPage = ({ setSuccess }) => {
         navigate('/resident-management');
     }
 
-    const validateFormData = () => {
-        const { FirstName, LastName, Gender, Address, ContactNumber } = formData;
+    const validateFormData = async () => {
+        // Define required fields
+        const requiredFields = [
+            'first_name',
+            'last_name',
+            'age',
+            'birthday',
+            'gender',
+            'address',
+            'contact_number'
+        ];
 
-        if (!FirstName || !LastName || !Gender || !Address || !ContactNumber) {
-            setErrorMessage('Please fill in all required fields.');
+        // Check required fields
+        for (let field of requiredFields) {
+            if (!formData[field] || formData[field].toString().trim() === '') {
+                setErrorMessage(`${field.replace('_', ' ')} is required`);
+                return false;
+            }
+        }
+
+        // Additional validations
+        if (formData.age && (isNaN(formData.age) || formData.age <= 0)) {
+            setErrorMessage('Age must be a positive number');
             return false;
         }
+
+        if (formData.ContactNumber && !/^\d{10,15}$/.test(formData.ContactNumber)) {
+            setErrorMessage('Contact Number must be a valid phone number (10-15 digits)');
+            return false;
+        }
+
+        if (formData.Email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.Email)) {
+            setErrorMessage('Email must be a valid email address');
+            return false;
+        }
+
+        if (formData.birthday) {
+            const birthdayDate = new Date(formData.birthday);
+            if (isNaN(birthdayDate.getTime())) {
+                setErrorMessage('Birthday must be a valid date');
+                return false;
+            }
+
+            const today = new Date();
+            if (birthdayDate > today) {
+                setErrorMessage('Birthday cannot be in the future');
+                return false;
+            }
+        }
+
+        if (formData.Gender && !['Male', 'Female', 'Other'].includes(formData.Gender)) {
+            setErrorMessage('Gender must be Male, Female, or Other');
+            return false;
+        }
+
+        if (formData.IsRegisteredVoter) {
+            if (!formData.VoterIDNumber || formData.VoterIDNumber.trim() === '') {
+                setErrorMessage('Voter ID Number is required for registered voters');
+                return false;
+            }
+        }
+
+        if (formData.IsJuanBataanMember) {
+            if (!formData.JuanBataanID || formData.JuanBataanID.trim() === '') {
+                setErrorMessage('Juan Bataan ID is required for Juan Bataan members');
+                return false;
+            }
+        }
+
+        // Check for duplicate contact number
+        try {
+            const response = await axios.post('/check-duplicate-contact', {
+                contact_number: formData.ContactNumber
+            });
+
+            if (response.data.isDuplicate) {
+                setErrorMessage('Duplicate entry found: The contact number is already in use.');
+                return false;
+            }
+        } catch (error) {
+            setErrorMessage('Error checking for duplicate contact number. Please try again later.');
+            return false;
+        }
+
+        // Validation passed
+        setErrorMessage(''); // Clear any existing errors
         return true;
     };
 
@@ -309,12 +402,15 @@ const AddResidentPage = ({ setSuccess }) => {
         setErrorMessage('');
         setLoading(true);
 
-        if (!validateFormData()) return;
+        if (!validateFormData()) {
+            setLoading(false);
+            return;
+        }
 
         // Create FormData object
         const formDataToSubmit = new FormData();
 
-        // Append file if it exists
+        // Get the file input element and append file if it exists
         const fileInput = document.querySelector('input[type="file"]');
         if (fileInput && fileInput.files[0]) {
             formDataToSubmit.append('Profile_Image', fileInput.files[0]);
@@ -375,13 +471,6 @@ const AddResidentPage = ({ setSuccess }) => {
                                         <h2 className="text-sm font-bold text-gray-500">Personal Details</h2>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        <input
-                                            type="file"
-                                            name="Profile_Image"
-                                            onChange={handleFileChange}
-                                            accept="image/jpeg,image/png"
-                                            className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        />
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">First Name</label>
                                             <input type="text" name="FirstName" value={formData.FirstName} onChange={handleChange} placeholder="First Name" required className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
@@ -452,6 +541,35 @@ const AddResidentPage = ({ setSuccess }) => {
                                                 <option value="Female">Female</option>
                                                 <option value="Other">Other</option>
                                             </select>
+                                        </div>
+                                        <div className="relative w-full">
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">
+                                                Upload Profile Image
+                                            </label>
+                                            <div className="relative flex items-center justify-between border-dashed border-2 bg-gray-100 border-gray-300 rounded-md p-2 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
+                                                <input
+                                                    type="file"
+                                                    name="Profile_Image"
+                                                    onChange={handleFilesChange}
+                                                    accept="image/jpeg,image/png"
+                                                    className="absolute inset-0 opacity-0 cursor-pointer"
+                                                />
+                                                <div className="flex items-center space-x-2 text-xs text-gray-500">
+                                                    <FaFileUpload className="w-5 h-5 text-gray-500" />
+                                                    {fileName ? (
+                                                        <span className="font-semibold text-gray-700 truncate">{fileName}</span>
+                                                    ) : (
+                                                        <span>Choose a file (JPEG, PNG)</span>
+                                                    )}
+                                                </div>
+                                                {fileName && (
+                                                    <IoCloseCircleOutline
+                                                        onClick={handleOptionRemove}
+                                                        className="w-5 h-5 absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 cursor-pointer"
+                                                        title="Remove file"
+                                                    />
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

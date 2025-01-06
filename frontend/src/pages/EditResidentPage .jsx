@@ -6,7 +6,9 @@ import Sidebar from '../components/Sidebar';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { BsFillPersonVcardFill } from "react-icons/bs";
 import { MdContactPhone } from "react-icons/md";
+import { IoCloseCircleOutline } from "react-icons/io5";
 import { IoIosInformationCircle } from "react-icons/io";
+import { FaFileUpload } from 'react-icons/fa';
 import { FaMapLocationDot } from "react-icons/fa6";
 import cfg from '../../../server/config/config.js';
 
@@ -17,7 +19,7 @@ const EditResidentPage = ({ }) => {
         is_local_resident: false, resident_type: '', contact_number: '', email: '',
         civil_status: '', occupation: '', is_household_head: false, household_id: '',
         is_registered_voter: false, voter_id_number: '', is_juan_bataan_member: false,
-        juan_bataan_id: '',
+        juan_bataan_id: '', profile_image: '',
     });
 
     const [errorMessage, setErrorMessage] = useState('');
@@ -25,6 +27,9 @@ const EditResidentPage = ({ }) => {
     const location = useLocation();
     const { residentData } = location.state || {};
     const navigate = useNavigate();
+    const [imagePreview, setImagePreview] = useState(null);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [fileName, setFileName] = useState("");
     const [allRegion, setAllRegion] = useState([]);
     const [allProvinces, setAllProvinces] = useState([]);
     const [allCities, setAllCities] = useState([]);
@@ -259,6 +264,25 @@ const EditResidentPage = ({ }) => {
         }));
     };
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setSelectedFile(file);
+            setFileName(file ? file.name : "");
+            // Create preview URL
+            const previewURL = URL.createObjectURL(file);
+            setImagePreview(previewURL);
+            setFormData(prevData => ({
+                ...prevData,
+                profile_image: file
+            }));
+        }
+    };
+
+    const handleOptionRemove = () => {
+        setFileName(""); // Reset the file name
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
@@ -318,28 +342,77 @@ const EditResidentPage = ({ }) => {
         setLoading(true);
 
         try {
-            const response = await axios.put(`http://${cfg.domainname}:8080/residents/update/${formData.ResidentID}`, formData, { withCredentials: true });
+            // Create FormData object to handle file upload
+            const formDataToSend = new FormData();
+
+            // Append all form fields
+            Object.keys(formData).forEach(key => {
+                if (key === 'profile_image' && selectedFile) {
+                    formDataToSend.append('profile_image', selectedFile);
+                } else {
+                    formDataToSend.append(key, formData[key]);
+                }
+            });
+
+            const response = await axios.put(
+                `http://${cfg.domainname}:8080/residents/update/${formData.ResidentID}`,
+                formDataToSend,
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            );
 
             if (response.status === 200) {
                 sessionStorage.setItem('residentEditSuccess', 'true');
                 navigate('/resident-management');
-            } else {
-                setErrorMessage('Failed to update resident. Response status: ' + response.status);
             }
         } catch (error) {
             console.error('Error during update:', error);
-
-            if (error.response) {
-                setErrorMessage(`Failed to update resident. ${error.response.data.message || 'Unknown server error'}`);
-            } else if (error.request) {
-                setErrorMessage('Failed to update resident. No response from the server.');
-            } else {
-                setErrorMessage(`Failed to update resident. Error: ${error.message}`);
-            }
+            setErrorMessage(error.response?.data?.message || 'Failed to update resident');
         } finally {
             setLoading(false);
         }
     };
+
+    // Add useEffect to load existing profile image
+    useEffect(() => {
+        if (residentData && residentData.profile_image) {
+            setImagePreview(`http://${cfg.domainname}:8080/uploads/${residentData.profile_image}`);
+        }
+    }, [residentData]);
+
+
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     setErrorMessage('');
+    //     setLoading(true);
+
+    //     try {
+    //         const response = await axios.put(`http://${cfg.domainname}:8080/residents/update/${formData.ResidentID}`, formData, { withCredentials: true });
+
+    //         if (response.status === 200) {
+    //             sessionStorage.setItem('residentEditSuccess', 'true');
+    //             navigate('/resident-management');
+    //         } else {
+    //             setErrorMessage('Failed to update resident. Response status: ' + response.status);
+    //         }
+    //     } catch (error) {
+    //         console.error('Error during update:', error);
+
+    //         if (error.response) {
+    //             setErrorMessage(`Failed to update resident. ${error.response.data.message || 'Unknown server error'}`);
+    //         } else if (error.request) {
+    //             setErrorMessage('Failed to update resident. No response from the server.');
+    //         } else {
+    //             setErrorMessage(`Failed to update resident. Error: ${error.message}`);
+    //         }
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
     return (
         <div className="flex flex-col h-screen">
@@ -433,6 +506,35 @@ const EditResidentPage = ({ }) => {
                                                 <option value="Female">Female</option>
                                                 <option value="Other">Other</option>
                                             </select>
+                                        </div>
+                                        <div className="relative w-full">
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">
+                                                Upload Profile Image
+                                            </label>
+                                            <div className="relative flex items-center justify-between border-dashed border-2 bg-gray-100 border-gray-300 rounded-md p-2 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
+                                                <input
+                                                    type="file"
+                                                    name="Profile_Image"
+                                                    onChange={handleImageChange}
+                                                    accept="image/jpeg,image/png"
+                                                    className="absolute inset-0 opacity-0 cursor-pointer"
+                                                />
+                                                <div className="flex items-center space-x-2 text-xs text-gray-500">
+                                                    <FaFileUpload className="w-5 h-5 text-gray-500" />
+                                                    {fileName ? (
+                                                        <span className="font-semibold text-gray-700 truncate">{fileName}</span>
+                                                    ) : (
+                                                        <span>Choose a file (JPEG, PNG)</span>
+                                                    )}
+                                                </div>
+                                                {fileName && (
+                                                    <IoCloseCircleOutline
+                                                        onClick={handleOptionRemove}
+                                                        className="w-5 h-5 absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 cursor-pointer"
+                                                        title="Remove file"
+                                                    />
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
