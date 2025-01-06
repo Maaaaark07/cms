@@ -373,3 +373,27 @@ export const addBlotterHearings = async (req, res) => {
         res.status(500).json({ message: 'Failed to add blotter hearing', error });
     }
 }
+
+export const deleteBlotterHearings = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const query = 'DELETE FROM cbs_blotter_hearings WHERE iid = ?';
+
+        db.query(query, [id], (error, results) => {
+            if (error) {
+                console.error("Error deleting blotter hearing:", error);
+                return res.status(500).json({ message: 'Error deleting blotter hearing' });
+            }
+
+            if (results.affectedRows === 0) {
+                return res.status(404).json({ message: 'blotter hearing not found' });
+            }
+
+            res.status(200).json({ message: 'blotter hearing deleted successfully' });
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to delete blotter hearing', error });
+    }
+}

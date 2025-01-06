@@ -8,10 +8,12 @@ import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import Breadcrumbs from "../components/Breadcrumbs";
 import Pagination from '../components/Pagination';
+import ToastMessage from "../components/ToastMessage.jsx";
 import Search from '../components/Search';
 import StatusBadge from "../components/StatusBadge";
 import SearchDropdown from "../components/SearchDropdown";
 import InputDropdown from "../components/InputDropdown";
+
 import cfg from '../../../server/config/config.js';
 
 import { LuLayoutGrid, LuLayoutList } from "react-icons/lu";
@@ -27,6 +29,8 @@ const IncidentRepotViewPage = () => {
     const [blotterDetails, setBlotterDetails] = useState(null);
     const [blotterHearingDetails, setBlotterHearingDetails] = useState([]);
 
+    const [showAddToast, setShowAddToast] = useState(false);
+    const [showDeleteToast, setShowDeleteToast] = useState(false);
     const [detailsLoading, setDetailsLoading] = useState(false);
     const [hearingLoading, setHearingLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -58,7 +62,6 @@ const IncidentRepotViewPage = () => {
                 withCredentials: true,
             });
             setBlotterDetails(response.data[0]);
-            console.log(response.data[0]);
         } catch (error) {
             setError("Failed to fetch data. Please try again later.");
             console.error(error);
@@ -74,7 +77,6 @@ const IncidentRepotViewPage = () => {
                 withCredentials: true,
             });
             setBlotterHearingDetails(response.data);
-            console.log(response.data)
         } catch (error) {
             setError("Failed to fetch hearing details.");
             console.error(error);
@@ -82,6 +84,22 @@ const IncidentRepotViewPage = () => {
             setHearingLoading(false);
         }
     };
+
+    const handleDeleteBlotterHearings = async (id) => {
+        try {
+            await axios.delete(`http://${cfg.domainname}:8080/blotter/delete-hearing/` +
+                id, {
+                withCredentials: true
+            });
+
+            fetchBlotterHearings();
+            setShowDeleteToast(true);
+
+        } catch (error) {
+            setError("Failed to delete blotter hearing.");
+            console.error(error);
+        }
+    }
 
     if (!blotterDetails) return <p>Loading...</p>;
 
@@ -192,7 +210,10 @@ const IncidentRepotViewPage = () => {
                                                 isOpen={isRecordModalOpen}
                                                 onClose={() => setIsRecordModalOpen(false)}
                                                 blotter_id={blotter_id}
-                                                onSuccess={fetchBlotterHearings} />
+                                                onSuccess={() => {
+                                                    fetchBlotterHearings();
+                                                    setShowAddToast(true);
+                                                }} />
                                         </div>
                                         <div className="overflow-x-auto rounded-lg mt-4">
                                             {hearingLoading ? (<div className="text-center">Loading... </div>
@@ -235,20 +256,33 @@ const IncidentRepotViewPage = () => {
                                                                                     <div className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer">
                                                                                         <GrEdit className="w-5 h-5 text-gray-500" />
                                                                                     </div>
+
                                                                                     <div className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer">
                                                                                         <FaRegEye className="w-5 h-5 text-gray-500" />
                                                                                     </div>
-                                                                                    <div className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer">
+
+                                                                                    <div className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer" title="Delete"
+                                                                                        onClick={() => handleDeleteBlotterHearings(hearing.hearing_id)}>
                                                                                         <FaRegTrashAlt className="w-5 h-5 text-red-500" />
                                                                                     </div>
                                                                                 </>
                                                                             ) : (
+                                                                                <>
+                                                                                    <div className="bg-gray-200 p-2 w-max rounded-lg cursor-not-allowed opacity-50">
+                                                                                        <GrEdit className="w-5 h-5 text-gray-500" />
+                                                                                    </div>
 
-                                                                                <div className="p-2">
-                                                                                    <span className="text-gray-400 text-sm block h-full italic">Actions disabled</span>
-                                                                                </div>
+                                                                                    <div className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer">
+                                                                                        <FaRegEye className="w-5 h-5 text-gray-500" />
+                                                                                    </div>
+
+                                                                                    <div className="bg-gray-200 p-2 w-max rounded-lg cursor-not-allowed opacity-50">
+                                                                                        <FaRegTrashAlt className="w-5 h-5 text-red-500" />
+                                                                                    </div>
+                                                                                </>
                                                                             )}
                                                                         </td>
+
                                                                     </tr>
                                                                 );
                                                             })
@@ -277,6 +311,21 @@ const IncidentRepotViewPage = () => {
                            onPageChange={handlePageChange}
                            itemsPerPage={itemsPerPage}
                            onItemsPerPageChange={handleItemsPerPageChange} /> */}
+
+                        <ToastMessage
+                            message="Blotter hearing successfully added!"
+                            variant="default"
+                            isVisible={showAddToast}
+                            duration={3000}
+                            onClose={() => setShowAddToast(false)}
+                        />
+                        <ToastMessage
+                            message="Blotter hearing successfully deleted!"
+                            variant="delete"
+                            isVisible={showDeleteToast}
+                            duration={3000}
+                            onClose={() => setShowDeleteToast(false)}
+                        />
                     </div>
                 </main>
             </div >
