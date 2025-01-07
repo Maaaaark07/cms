@@ -56,6 +56,11 @@ const InputDropdown = ({
                             placeholder={placeholder}
                             value={value}
                             onChange={(e) => setValue(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    handleAdd();
+                                }
+                            }}
                             className="text-sm border rounded border-gray-300 p-2 w-full text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                         <button

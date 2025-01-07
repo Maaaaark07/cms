@@ -7,7 +7,8 @@ import {
     updateBlotter,
     deleteBlotter,
     getBlotterHearingById,
-    getAllBlotterHearingStatuses
+    getAllBlotterHearingStatuses,
+    deleteBlotterHearings
 } from "../controllers/blotterController.js";
 import { verifyUser } from "../middleware/authMiddleware.js";
 
@@ -21,6 +22,7 @@ router.get("/:id", verifyUser, getAllBlotters);
 router.post("/add/blotter-hearings", verifyUser, addBlotterHearings);
 router.post("/add", verifyUser, addBlotter);
 router.put("/update/:id", verifyUser, updateBlotter);
+router.delete("/delete-hearing/:id", verifyUser, deleteBlotterHearings);
 router.delete("/:id", verifyUser, deleteBlotter);
 
 
