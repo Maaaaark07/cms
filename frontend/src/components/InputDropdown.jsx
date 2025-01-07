@@ -16,6 +16,8 @@ const InputDropdown = ({
     const [value, setValue] = useState("");
 
     const handleAdd = () => {
+        if (!value) return;
+
         setValue("");
         onAddValue(value)
     }
