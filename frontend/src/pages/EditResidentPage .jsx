@@ -99,7 +99,6 @@ const EditResidentPage = ({ }) => {
             const response = await axios.get(`http://${cfg.domainname}:8080/location/provinces/${selectedRegion}`, { withCredentials: true });
             const provinces = response.data;
             setAllProvinces(provinces);
-            console.log(response.data)
 
             if (provinces.length > 0) {
                 const currentProvince = provinces.find(province => province.iid === residentData.province_id);
@@ -342,20 +341,33 @@ const EditResidentPage = ({ }) => {
         setLoading(true);
 
         try {
-            // Create FormData object to handle file upload
             const formDataToSend = new FormData();
 
-            // Append all form fields
+            const booleanFields = ['is_registered_voter', 'is_juan_bataan_member', 'is_solo_parent',
+                'is_pwd', 'is_household_head', 'is_local_resident'];
+
+            console.log('Form data contents:');
+            formDataToSend.forEach((value, key) => {
+                console.log(key + ': ' + value);
+            });
+
             Object.keys(formData).forEach(key => {
-                if (key === 'profile_image' && selectedFile) {
-                    formDataToSend.append('profile_image', selectedFile);
-                } else {
+                if (booleanFields.includes(key)) {
+                    // Handle both boolean and string boolean values
+                    const value = formData[key];
+                    const boolValue = (value === true || value === 'true' || value === '1') ? '1' : '0';
+                    formDataToSend.append(key, boolValue);
+                }
+                else if (key === 'profile_image' && selectedFile) {
+                    formDataToSend.append('Profile_Image', selectedFile);
+                }
+                else if (formData[key] !== null && formData[key] !== undefined) {
                     formDataToSend.append(key, formData[key]);
                 }
             });
 
             const response = await axios.put(
-                `http://${cfg.domainname}:8080/residents/update/${formData.ResidentID}`,
+                `http://${cfg.domainname}:8080/residents/update/${residentData.ResidentID}`,
                 formDataToSend,
                 {
                     withCredentials: true,
@@ -371,18 +383,19 @@ const EditResidentPage = ({ }) => {
             }
         } catch (error) {
             console.error('Error during update:', error);
-            setErrorMessage(error.response?.data?.message || 'Failed to update resident');
+            const errorMessage = error.response?.data?.message || 'Failed to update resident';
+            setErrorMessage(errorMessage);
+
+            // Add better error handling for file-related errors
+            if (error.response?.status === 413) {
+                setErrorMessage('File size too large. Maximum size is 5MB.');
+            } else if (error.response?.data?.error?.includes('Invalid file type')) {
+                setErrorMessage('Invalid file type. Please upload a valid image file.');
+            }
         } finally {
             setLoading(false);
         }
     };
-
-    // Add useEffect to load existing profile image
-    useEffect(() => {
-        if (residentData && residentData.profile_image) {
-            setImagePreview(`http://${cfg.domainname}:8080/uploads/${residentData.profile_image}`);
-        }
-    }, [residentData]);
 
 
     // const handleSubmit = async (e) => {

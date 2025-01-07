@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
+import multer from 'multer';
+
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth.js';
 import residentRoutes from './routes/resident.js';
@@ -35,6 +37,7 @@ app.use((err, req, res, next) => {
     }
     next();
 });
+
 
 const uploadDirs = ['user_profile', 'certificates', 'brgy_logo', 'others'].map(
     dir => path.join('./uploads', dir)

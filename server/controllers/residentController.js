@@ -103,26 +103,33 @@ export const addResident = async (req, res) => {
 };
 
 export const updateResident = async (req, res) => {
+    const residentId = req.body.resident_id;  // Resident ID from the request parameter
     const {
-        resident_id, first_name, last_name, middle_name, suffix,
+        first_name, last_name, middle_name, suffix,
         birthday, birth_place, occupation,
         civil_status, gender, address,
         region_id, province_id, city_id,
         barangay_id, purok_id, is_local_resident, resident_type,
         contact_number, email,
+        is_solo_parent, is_pwd,
         is_household_head, household_id,
         is_registered_voter, voter_id_number,
         is_juan_bataan_member, juan_bataan_id,
     } = req.body;
 
-    if (!first_name || !last_name || !address || !contact_number) {
+    console.log("Resident ID:", residentId);
+
+    if (!residentId || !first_name || !last_name || !address || !contact_number) {
         return res.status(400).json({ message: 'Please fill in all required fields.' });
     }
 
     try {
-        const sql = `CALL UpdateResident(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        const profileImage = req.file ? `/uploads/user_profile/${req.file.filename}` : null;
+
+        // SQL query
+        const sql = `CALL UpdateResident(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         const values = [
-            resident_id,
+            residentId,  // Ensure residentId is the first item
             first_name,
             last_name,
             middle_name || null,
@@ -142,22 +149,32 @@ export const updateResident = async (req, res) => {
             resident_type || null,
             contact_number,
             email || null,
+            is_solo_parent ? 1 : 0,
+            is_pwd ? 1 : 0,
             is_household_head ? 1 : 0,
             household_id || null,
             is_registered_voter ? 1 : 0,
             voter_id_number || null,
             is_juan_bataan_member ? 1 : 0,
             juan_bataan_id || null,
+            profileImage || null,
         ];
 
         const result = await db.query(sql, values);
-        console.log(values);
+        console.log("Received values:", values);
 
-        if (result.affectedRows === 0) {
+        if (!result || result.affectedRows === 0) {
             return res.status(404).json({ message: 'Resident not found or no changes made' });
         }
 
-        res.status(200).json({ message: 'Resident updated successfully' });
+        if (!result || result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Resident not found or no changes made' });
+        }
+
+        res.status(200).json({
+            message: 'Resident updated successfully',
+            profile_image: profileImage,
+        });
     } catch (error) {
         console.error("Error updating resident:", error);
         res.status(500).json({ message: 'Failed to update resident', error: error.message });
