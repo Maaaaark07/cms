@@ -21,17 +21,18 @@ export const register = (req, res) => {
 
 export const login = (req, res) => {
     const { users, password } = req.body;
-    const sql = "SELECT * FROM cbs_users WHERE user = ?";
+    //const sql = "SELECT * FROM cbs_users WHERE user = ?";
+    const sql = "CALL getCBSUser(?)";
 
     db.query(sql, [users], (err, data) => {
         if (err) return res.status(500).json({ Error: "Database error" });
 
         if (data.length > 0) {
-            bcrypt.compare(password.toString(), data[0].password, (err, result) => {
+            bcrypt.compare(password.toString(), data[0][0].password, (err, result) => {
                 if (err) return res.status(500).json({ Error: "Password Compare Error" });
                 if (result) {
                     const token = jwt.sign(
-                        { user: data[0].user, user_id: data[0].id, role: data[0].role, barangay_id: data[0].barangay_id },
+                        { user: data[0][0].user, user_id: data[0][0].id, role: data[0][0].role, barangay_id: data[0][0].barangay_id },
                         "jwt-secret-key",
                         { expiresIn: '1d' }
                     );
@@ -42,7 +43,7 @@ export const login = (req, res) => {
                         sameSite: 'Lax',
                         path: '/',
                     });
-                    return res.json({ Status: "Success", Id: data[0].barangay_id });
+                    return res.json({ Status: "Success", Id: data[0][0].barangay_id });
                 }
                 return res.json({ Error: "Invalid password" });
             });

@@ -161,7 +161,7 @@ const AddIncidentReportPage = () => {
 
         setIsLoading(true);
         try {
-            const response = await axios.post(`http://${cfg.domainname}:8080/blotter/add`, payload, { withCredentials: true });
+            const response = await axios.post(`http://${cfg.domainname}:${cfg.serverport}/blotter/add`, payload, { withCredentials: true });
             if (response.status === 201) {
                 setSuccessMessage("Blotter added successfully!");
                 setErrorMessage(null);

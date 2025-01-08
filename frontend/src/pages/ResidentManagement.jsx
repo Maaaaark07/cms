@@ -62,7 +62,7 @@ const ResidentManagement = () => {
 
     const fetchResidents = async () => {
         try {
-            const response = await axios.get(`http://${cfg.domainname}:8080/residents/` + barangayId, { withCredentials: true });
+            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/residents/` + barangayId, { withCredentials: true });
             setResidents(response.data);
         } catch (error) {
             console.error("Error fetching residents data:", error);
@@ -86,7 +86,7 @@ const ResidentManagement = () => {
 
     const fetchTotalResidentCount = async () => {
         try {
-            const response = await axios.get(`http://${cfg.domainname}:8080/residents/count/` + barangayId, { withCredentials: true });
+            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/residents/count/` + barangayId, { withCredentials: true });
             setTotalResidents(response.data.count);
         } catch (error) {
             console.error("Error fetching residents count:", error);
@@ -96,7 +96,7 @@ const ResidentManagement = () => {
 
     const deleteResident = async (residentId) => {
         try {
-            await axios.delete(`http://${cfg.domainname}:8080/residents/` + residentId, { withCredentials: true });
+            await axios.delete(`http://${cfg.domainname}:${cfg.serverport}/residents/` + residentId, { withCredentials: true });
             fetchResidents();
             setDeleteSuccess(true);
             setTimeout(() => setDeleteSuccess(false), 3000);
@@ -201,7 +201,7 @@ const ResidentManagement = () => {
                                                         <div
                                                             className="w-10 h-10 rounded-full"
                                                             style={{
-                                                                backgroundImage: `url(http://${cfg.domainname}:8080${resident.profile_image})`,
+                                                                backgroundImage: `url(http://${cfg.domainname}:${cfg.serverport}${resident.profile_image})`,
                                                                 backgroundSize: 'cover',
                                                                 backgroundPosition: 'center',
                                                                 backgroundRepeat: 'no-repeat',

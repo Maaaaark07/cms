@@ -60,7 +60,7 @@ const IncidentRepotViewPage = () => {
         try {
             setDetailsLoading(true);
             const response = await axios.get(
-                `http://${cfg.domainname}:8080/blotter/get/` +
+                `http://${cfg.domainname}:${cfg.serverport}/blotter/get/` +
                 blotter_id, {
                 withCredentials: true,
             });
@@ -76,7 +76,7 @@ const IncidentRepotViewPage = () => {
     const fetchBlotterHearings = async () => {
         try {
             setHearingLoading(true);
-            const response = await axios.get(`http://${cfg.domainname}:8080/blotter/get-hearing/` + blotter_id, {
+            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/blotter/get-hearing/` + blotter_id, {
                 withCredentials: true,
             });
             setBlotterHearingDetails(response.data);
@@ -90,7 +90,7 @@ const IncidentRepotViewPage = () => {
 
     const handleDeleteBlotterHearings = async (id) => {
         try {
-            await axios.delete(`http://${cfg.domainname}:8080/blotter/delete-hearing/` +
+            await axios.delete(`http://${cfg.domainname}:${cfg.serverport}/blotter/delete-hearing/` +
                 id, {
                 withCredentials: true
             });
@@ -363,7 +363,7 @@ function Modal({ isOpen, onClose, blotter_id, onSuccess }) {
 
     const fetchBarangayOfficials = async () => {
         try {
-            const response = await axios.get(`http://${cfg.domainname}:8080/official/` + barangayId, { withCredentials: true });
+            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/official/` + barangayId, { withCredentials: true });
             if (response.status !== 200) throw new Error("Something went wrong with fetching data");
             setBarangayOfficials(response.data);
 
@@ -375,7 +375,7 @@ function Modal({ isOpen, onClose, blotter_id, onSuccess }) {
 
     const fetchHearingStatuses = async () => {
         try {
-            const response = await axios.get(`http://${cfg.domainname}:8080/blotter/get-hearing-statuses/`, { withCredentials: true });
+            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/blotter/get-hearing-statuses/`, { withCredentials: true });
             if (response.status !== 200) throw new Error("Something went wrong with fetching data");
             setHearingStatuses(response.data);
         } catch (error) {
@@ -398,7 +398,7 @@ function Modal({ isOpen, onClose, blotter_id, onSuccess }) {
         if (!remarks || !selectedAttendess || !selectedHearingStatus?.iid || !selectedBarangayOfficial?.official_id) return;
 
         try {
-            const response = await axios.post(`http://${cfg.domainname}:8080/blotter/add/blotter-hearings`, payload, { withCredentials: true });
+            const response = await axios.post(`http://${cfg.domainname}:${cfg.serverport}/blotter/add/blotter-hearings`, payload, { withCredentials: true });
             if (response.status === 201) {
                 setError(null);
                 onSuccess();
