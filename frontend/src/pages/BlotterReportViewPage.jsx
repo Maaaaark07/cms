@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import ReactDOM from "react-dom";
 import { useAuth } from "../components/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDateFormatter } from "../hooks/useDateFormatter";
@@ -8,6 +9,7 @@ import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import Breadcrumbs from "../components/Breadcrumbs";
 import Pagination from '../components/Pagination';
+import ActionModal from "../components/ActionModal.jsx";
 import ToastMessage from "../components/ToastMessage.jsx";
 import Search from '../components/Search';
 import StatusBadge from "../components/StatusBadge";
@@ -21,6 +23,7 @@ import { IoPersonAddOutline, IoDocumentText } from "react-icons/io5";
 import { GrEdit } from "react-icons/gr";
 import { FaRegEye, FaRegTrashAlt } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
+import AlertDialog from "../components/AlertDialog.jsx";
 
 const IncidentRepotViewPage = () => {
     const location = useLocation();
@@ -348,6 +351,7 @@ function Modal({ isOpen, onClose, blotter_id, onSuccess }) {
     const [selectedAttendess, setSelectedAttendess] = useState([]);
     const [remarks, setRemarks] = useState("");
 
+    const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
     const [error, setError] = useState("");
 
     useEffect(() => {
@@ -387,9 +391,11 @@ function Modal({ isOpen, onClose, blotter_id, onSuccess }) {
             blotter_id: blotter_id,
             attendees: selectedAttendess,
             remarks: remarks,
-            status_id: selectedHearingStatus.iid,
-            official_id: selectedBarangayOfficial.official_id
+            status_id: selectedHearingStatus?.iid,
+            official_id: selectedBarangayOfficial?.official_id
         }
+
+        if (!remarks || !selectedAttendess || !selectedHearingStatus?.iid || !selectedBarangayOfficial?.official_id) return;
 
         try {
             const response = await axios.post(`http://${cfg.domainname}:8080/blotter/add/blotter-hearings`, payload, { withCredentials: true });
@@ -409,7 +415,9 @@ function Modal({ isOpen, onClose, blotter_id, onSuccess }) {
     const handleOnClose = () => {
         setSelectedBarangayOfficial("");
         setSelectedHearingStatus("");
+        setRemarks("");
         setSelectedAttendess([]);
+        setIsAlertModalOpen(false);
         onClose();
     };
 
@@ -431,69 +439,89 @@ function Modal({ isOpen, onClose, blotter_id, onSuccess }) {
 
     if (!isOpen) return null;
 
-    return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white w-full max-w-3xl rounded-lg shadow-lg p-6 min-h-[560px]">
-                <div className='flex justify-between mb-2'>
-                    <h2 className="text-xl font-semibold">Record Session</h2>
-                    <IoClose
-                        className='w-6 h-6 cursor-pointer'
-                        onClick={() => handleOnClose()}
-                    />
-                </div>
-                {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
-                    <div className="mb-6">
-                        <label className="block mb-2 text-base font-medium text-gray-500">Attendees<span className="text-red-600">*</span></label>
-                        <InputDropdown
-                            title="Add Attendees"
-                            placeholder="Type Attendee Name"
-                            options={selectedAttendess}
-                            onAddValue={handleAddAttendeesChange}
-                            onRemoveValue={handleRemoveAttendeesChange} />
+    return ReactDOM.createPortal(
+        <div className="modal-wrapper" role="modal">
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div className="bg-white w-full max-w-3xl rounded-lg shadow-lg p-6 min-h-[560px]">
+                    <div className='flex justify-between mb-2'>
+                        <h2 className="text-xl font-semibold">Record Session</h2>
+                        <IoClose
+                            className='w-6 h-6 cursor-pointer'
+                            onClick={() => setIsAlertModalOpen(true)}
+                        />
                     </div>
-                    <div className="mb-6">
-                        <label className="block mb-2 text-base font-medium text-gray-500">Officer In Charge<span className="text-red-600">*</span></label>
-                        <SearchDropdown
-                            options={barangayOfficials}
-                            selectedValue={selectedBarangayOfficial?.full_name}
-                            onSelect={handleSelectedBarangayOfficialsChange}
-                            uniqueKey={"full_name"}
-                            placeholder={"Search an Officer"}
-                            title="Select Officer" />
-                    </div>
-                    <div className="mb-6">
-                        <label className="block mb-2 text-base font-medium text-gray-500">Status<span className="text-red-600">*</span></label>
-                        <SearchDropdown
-                            options={hearingStatuses}
-                            selectedValue={selectedHearingStatus?.iname}
-                            onSelect={handleSelectedHearingStatusesChange}
-                            uniqueKey={"iname"}
-                            placeholder={"Search Status"}
-                            title="Select Hearing Status" />
-                    </div>
-                    <div className="col-span-full">
-                        <label className="block mb-2 text-base font-medium text-gray-500">Resolution Remarks<span className="text-red-600">*</span></label>
-                        <textarea
-                            className="border text-sm border-gray-300 p-2 h-48 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                            name="certificateDetails"
-                            value={remarks}
-                            onChange={(e) => setRemarks(e.target.value)}
-                            placeholder="Type remarks"
-                        ></textarea>
-                    </div>
-                    <div className="col-span-full flex justify-end mt-4 space-x-4">
-                        <button
-                            type="submit"
-                            onClick={() => handleSubmit()}
-                            className={`bg-blue-500 text-white py-2 px-4 rounded-md `}
-                        >
-                            Submit
-                        </button>
-                    </div>
+                    {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
+                        <div className="mb-6">
+                            <label className="block mb-2 text-base font-medium text-gray-500">Attendees<span className="text-red-600">*</span></label>
+                            <InputDropdown
+                                title="Add Attendees"
+                                placeholder="Type Attendee Name"
+                                options={selectedAttendess}
+                                onAddValue={handleAddAttendeesChange}
+                                onRemoveValue={handleRemoveAttendeesChange} />
+                        </div>
+                        <div className="mb-6">
+                            <label className="block mb-2 text-base font-medium text-gray-500">Officer In Charge<span className="text-red-600">*</span></label>
+                            <SearchDropdown
+                                options={barangayOfficials}
+                                selectedValue={selectedBarangayOfficial?.full_name}
+                                onSelect={handleSelectedBarangayOfficialsChange}
+                                uniqueKey={"full_name"}
+                                placeholder={"Search an Officer"}
+                                title="Select Officer" />
+                        </div>
+                        <div className="mb-6">
+                            <label className="block mb-2 text-base font-medium text-gray-500">Status<span className="text-red-600">*</span></label>
+                            <SearchDropdown
+                                options={hearingStatuses}
+                                selectedValue={selectedHearingStatus?.iname}
+                                onSelect={handleSelectedHearingStatusesChange}
+                                uniqueKey={"iname"}
+                                placeholder={"Search Status"}
+                                title="Select Hearing Status" />
+                        </div>
+                        <div className="col-span-full">
+                            <label className="block mb-2 text-base font-medium text-gray-500">Resolution Remarks<span className="text-red-600">*</span></label>
+                            <textarea
+                                className="border text-sm border-gray-300 p-2 h-48 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                name="certificateDetails"
+                                value={remarks}
+                                onChange={(e) => setRemarks(e.target.value)}
+                                placeholder="Type remarks"
+                            ></textarea>
+                        </div>
+                        <div className="col-span-full flex justify-end mt-4 space-x-4">
+                            <button
+                                type="submit"
+                                onClick={() => handleSubmit()}
+                                className={`bg-blue-500 text-white py-2 px-4 rounded-md `}
+                            >
+                                Submit
+                            </button>
+                        </div>
 
+                    </div>
                 </div>
+                <AlertDialog
+                    isOpen={isAlertModalOpen}
+                    message={"Are you sure you want to cancel all changes? This will undo any unsaved changes."}
+                    title="Cancel"
+                    buttonConfig={[
+                        {
+                            label: "No",
+                            color: "bg-gray-200 text-gray-600",
+                            action: () => setIsAlertModalOpen(false),
+                        },
+                        {
+                            label: "Yes, Cancel",
+                            color: "bg-red-600 text-white",
+                            action: () => handleOnClose(),
+                        },
+                    ]}
+                />
             </div>
-        </div>
-    )
+        </div>,
+        document.body
+    );
 }
