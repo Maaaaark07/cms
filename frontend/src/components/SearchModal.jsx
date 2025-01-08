@@ -4,7 +4,7 @@ import { useAuth } from './AuthContext';
 import { IoClose } from "react-icons/io5";
 import { IoIosArrowBack } from "react-icons/io";
 import { RxAvatar } from "react-icons/rx";
-import cfg from '../../../server/config/config.js';
+import cfg from '../../../server/config/domain.js';
 
 export default function SearchModal({
     isOpen,
@@ -28,7 +28,7 @@ export default function SearchModal({
 
     const fetchResidents = async () => {
         try {
-            const response = await axios.get(`http://${cfg.domainname}:8080/residents/` + barangayId, { withCredentials: true });
+            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/residents/` + barangayId, { withCredentials: true });
             setResidents(response.data);
         } catch (error) {
             console.error("Error fetching residents data:", error);

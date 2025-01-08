@@ -2,7 +2,7 @@ import React from 'react'
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import Breadcrumbs from "../components/Breadcrumbs";
-import cfg from '../../../server/config/config.js';
+import cfg from '../../../server/config/domain.js';
 
 const UserManagement = () => {
     return (

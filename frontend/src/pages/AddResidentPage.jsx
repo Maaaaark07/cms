@@ -4,7 +4,7 @@ import axios from 'axios';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Breadcrumbs from '../components/Breadcrumbs';
-import cfg from '../../../server/config/config.js';
+import cfg from '../../../server/config/domain.js';
 
 import { BsFillPersonVcardFill } from "react-icons/bs";
 import { MdContactPhone } from "react-icons/md";
@@ -78,7 +78,7 @@ const AddResidentPage = ({ setSuccess }) => {
 
     const fetchAllRegion = async () => {
         try {
-            const response = await axios.get(`http://${cfg.domainname}:8080/location/region`, { withCredentials: true });
+            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/location/region`, { withCredentials: true });
             setAllRegion(response.data);
         } catch (error) {
             console.error("Error fetching all Region:", error)
@@ -87,7 +87,7 @@ const AddResidentPage = ({ setSuccess }) => {
 
     const fetchAllProvince = async () => {
         try {
-            const response = await axios.get(`http://${cfg.domainname}:8080/location/provinces/${selectedRegion}`, { withCredentials: true });
+            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/location/provinces/${selectedRegion}`, { withCredentials: true });
             const provinces = response.data;
             setAllProvinces(provinces);
 
@@ -116,7 +116,7 @@ const AddResidentPage = ({ setSuccess }) => {
 
     const fetchAllCity = async () => {
         try {
-            const response = await axios.get(`http://${cfg.domainname}:8080/location/cities/${selectedProvince}`, { withCredentials: true });
+            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/location/cities/${selectedProvince}`, { withCredentials: true });
             const cities = response.data;
             setAllCities(cities);
 
@@ -144,7 +144,7 @@ const AddResidentPage = ({ setSuccess }) => {
 
     const fetchAllBarangay = async () => {
         try {
-            const response = await axios.get(`http://${cfg.domainname}:8080/location/barangay/${selectedCity}`, { withCredentials: true });
+            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/location/barangay/${selectedCity}`, { withCredentials: true });
             const barangays = response.data;
             setAllBarangay(barangays);
 
@@ -175,7 +175,7 @@ const AddResidentPage = ({ setSuccess }) => {
                 return;
             }
 
-            const response = await axios.get(`http://${cfg.domainname}:8080/location/purok/${selectedBarangay}`, { withCredentials: true });
+            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/location/purok/${selectedBarangay}`, { withCredentials: true });
             const puroks = response.data;
             setAllPuroks(puroks);
 
@@ -431,7 +431,7 @@ const AddResidentPage = ({ setSuccess }) => {
 
         try {
             const response = await axios.post(
-                `http://${cfg.domainname}:8080/residents/add`,
+                `http://${cfg.domainname}:${cfg.serverport}/residents/add`,
                 formDataToSubmit,
                 {
                     withCredentials: true,

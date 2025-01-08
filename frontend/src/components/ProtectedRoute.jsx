@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import axios from 'axios';
-import cfg from '../../../server/config/config.js';
+import cfg from '../../../server/config/domain.js';
 
 const ProtectedRoute = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        axios.get(`http://${cfg.domainname}:8080/home`, { withCredentials: true })
+        axios.get(`http://${cfg.domainname}:${cfg.serverport}/home`, { withCredentials: true })
             .then((res) => {
                 if (res.data.Status === 'Success') {
                     setIsAuthenticated(true);
