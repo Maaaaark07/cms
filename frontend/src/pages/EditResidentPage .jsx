@@ -10,7 +10,7 @@ import { IoCloseCircleOutline } from "react-icons/io5";
 import { IoIosInformationCircle } from "react-icons/io";
 import { FaFileUpload } from 'react-icons/fa';
 import { FaMapLocationDot } from "react-icons/fa6";
-import cfg from '../../../server/config/config.js';
+import cfg from '../../../server/config/domain.js';
 
 const EditResidentPage = ({ }) => {
     const [formData, setFormData] = useState({

@@ -4,7 +4,7 @@ import axios from 'axios';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Breadcrumbs from '../components/Breadcrumbs';
-import cfg from '../../../server/config/config.js';
+import cfg from '../../../server/config/domain.js';
 
 import { BsFillPersonVcardFill } from "react-icons/bs";
 import { MdContactPhone } from "react-icons/md";

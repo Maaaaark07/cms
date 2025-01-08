@@ -10,7 +10,7 @@ import Pagination from '../components/Pagination';
 import Search from '../components/Search';
 import SearchDropdown from "../components/SearchDropdown";
 import SearchModal from "../components/SearchModal";
-import cfg from '../../../server/config/config.js';
+import cfg from '../../../server/config/domain.js';
 
 import { IoSearch } from "react-icons/io5";
 import { IoCloseCircleOutline } from "react-icons/io5";

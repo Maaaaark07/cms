@@ -6,7 +6,7 @@ import cmsBackground from '../assets/cms-background.png'
 import cmsLogo from '../assets/cms-logo.png'
 import axios from 'axios';
 import { useAuth } from '../components/AuthContext';
-import cfg from '../../../server/config/config.js';
+import cfg from '../../../server/config/domain.js';
 
 const Login = () => {
     const [isEmailFocused, setIsEmailFocused] = useState(false);

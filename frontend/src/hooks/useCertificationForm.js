@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { useAuth } from '../components/AuthContext';
-import cfg from '../../../server/config/config.js';
+import cfg from '../../../server/config/domain.js';
 
 export const useCertificationForm = () => {
     const [errorMessage, setErrorMessage] = useState(null);

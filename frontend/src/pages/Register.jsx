@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import cfg from '../../../server/config/config.js';
+import cfg from '../../../server/config/domain.js';
 
 const Register = () => {
     const [values, setValues] = useState({

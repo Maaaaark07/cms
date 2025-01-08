@@ -9,7 +9,7 @@ import Breadcrumbs from "../components/Breadcrumbs";
 import DashboardCard from "../components/DashboardCard";
 import BlotterList from "../components/BlotterList";
 import { useAuth } from '../components/AuthContext';
-import cfg from '../../../server/config/config.js';
+import cfg from '../../../server/config/domain.js';
 
 const Home = () => {
     const [user, setUser] = useState(null);

@@ -3,7 +3,7 @@ import { TiArrowSortedDown } from "react-icons/ti";
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import cmsLogo from '../assets/cms-logo.png';
-import cfg from '../../../server/config/config.js';
+import cfg from '../../../server/config/domain.js';
 
 const Header = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);

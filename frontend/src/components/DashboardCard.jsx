@@ -5,7 +5,7 @@ import { IoFingerPrint } from 'react-icons/io5';
 import { FaRegBuilding } from 'react-icons/fa';
 import { useAuth } from './AuthContext';
 import Card from './Card';
-import cfg from '../../../server/config/config.js';
+import cfg from '../../../server/config/domain.js';
 
 const DashboardCard = () => {
     const [registeredVoters, setRegisteredVoters] = useState(0);

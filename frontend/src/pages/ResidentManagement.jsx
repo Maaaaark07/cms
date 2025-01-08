@@ -10,7 +10,7 @@ import Search from '../components/Search';
 import ActionModal from '../components/ActionModal';
 import SuccessMessage from '../components/SuccessMessage';
 import ViewResidentModal from '../components/ViewResidentModal';
-import cfg from '../../../server/config/config.js';
+import cfg from '../../../server/config/domain.js';
 
 import { RxAvatar } from "react-icons/rx";
 import { GrEdit } from "react-icons/gr";

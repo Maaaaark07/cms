@@ -16,7 +16,7 @@ import StatusBadge from "../components/StatusBadge";
 import SearchDropdown from "../components/SearchDropdown";
 import InputDropdown from "../components/InputDropdown";
 
-import cfg from '../../../server/config/config.js';
+import cfg from '../../../server/config/domain.js';
 
 import { LuLayoutGrid, LuLayoutList } from "react-icons/lu";
 import { IoPersonAddOutline, IoDocumentText } from "react-icons/io5";
