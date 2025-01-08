@@ -7,9 +7,10 @@ import cfg from '../../../server/config/config.js';
 
 const Header = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [user, setUser] = useState(null);
-    const [role, setRole] = useState(null);
+    //const [user, setUser] = useState(null);
+    //const [role, setRole] = useState(null);
     const [error, setError] = useState(null);
+    const [userData, setuserData] = useState({});
     const navigate = useNavigate();
 
     const toggleDropdown = () => {
@@ -20,8 +21,9 @@ const Header = () => {
         axios.get(`http://${cfg.domainname}:${cfg.serverport}/home`, { withCredentials: true })
             .then(res => {
                 if (res.data.Status === 'Success') {
-                    setUser(res.data.user);
-                    setRole(res.data.role);
+                    //setUser(res.data.user);
+                    //setRole(res.data.role);
+                    setuserData(res.data)
                 } else {
                     setError(res.data.Error || 'Not authorized');
                 }
@@ -42,10 +44,10 @@ const Header = () => {
     return (
         <header className="bg-white shadow-md p-4 flex justify-between items-center">
             <div className="flex items-center">
-                <img src={cmsLogo} alt="Logo" className="h-12 w-12 mr-3" />
+                <img src={userData.barangay_logo} alt="Logo" className="h-12 w-12 mr-3" />
                 <div className='leading-[1px]'>
-                    <h1 className="text-xl font-semibold text-gray-600">Nspire</h1>
-                    <span className='text-xs text-gray-400'>Nspire</span>
+                    <h1 className="text-xl font-semibold text-gray-600">{userData.barangay_name}</h1>
+                    <span className='text-xs text-gray-400'>{userData.city_name}, {userData.province_name}</span>
                 </div>
             </div>
             <div className="flex items-center relative">
@@ -55,12 +57,12 @@ const Header = () => {
                     aria-haspopup="true"
                     aria-expanded={isDropdownOpen}
                 >
-                    <img src={cmsLogo} alt="Logo" className="h-10 w-10 object-contain mr-3" />
+                    <img src={userData.profile_image} alt="Logo" className="h-10 w-10 object-contain mr-3" />
                     <div className='flex flex-col items-start'>
-                        {user && (
+                        {userData.user && (
                             <>
-                                <p className='text-sm'>{user || 'Guest'}</p>
-                                <p className="text-blue-500 text-xs">{role || 'Guest'}</p>
+                                <p className='text-sm'>{userData.user || 'Guest'}</p>
+                                <p className="text-blue-500 text-xs">{userData.role || 'Guest'}</p>
                             </>
                         )}
                     </div>
@@ -69,8 +71,8 @@ const Header = () => {
                 {isDropdownOpen && (
                     <div className="absolute right-3 top-full mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-md z-10">
                         <div className="p-2">
-                            <div className="text-gray-700 font-semibold">{user}</div>
-                            <div className="text-gray-600">{role}</div> {/* Displaying role here as well */}
+                            <div className="text-gray-700 font-semibold">{userData.user}</div>
+                            <div className="text-gray-600">{userData.role}</div> {/* Displaying role here as well */}
                         </div>
                         <div className="border-t border-gray-200"></div>
                         <button className="w-full text-left p-2 text-gray-600 hover:bg-gray-100">
