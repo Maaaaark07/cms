@@ -31,6 +31,7 @@ const IncidentRepotViewPage = () => {
 
     const [blotterDetails, setBlotterDetails] = useState(null);
     const [blotterHearingDetails, setBlotterHearingDetails] = useState([]);
+    const [blotterHearingId, setBlotterHearingId] = useState(null);
 
     const [showAddToast, setShowAddToast] = useState(false);
     const [showDeleteToast, setShowDeleteToast] = useState(false);
@@ -43,7 +44,8 @@ const IncidentRepotViewPage = () => {
     });
 
     //Modal
-    const [isRecordModalOpen, setIsRecordModalOpen] = useState(false);
+    const [isAddRecordModalOpen, setIsAddRecordModalOpen] = useState(false);
+    const [isEditRecordModalOpen, setIsEditRecordModalOpen] = useState(false);
 
     const { blotter_id } = location.state || {};
 
@@ -76,7 +78,7 @@ const IncidentRepotViewPage = () => {
     const fetchBlotterHearings = async () => {
         try {
             setHearingLoading(true);
-            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/blotter/get-hearing/` + blotter_id, {
+            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/blotter/get-all-hearing/` + blotter_id, {
                 withCredentials: true,
             });
             setBlotterHearingDetails(response.data);
@@ -205,18 +207,10 @@ const IncidentRepotViewPage = () => {
                                     </div>
                                     <div>
                                         <div className='flex items-center justify-end mb-6'>
-                                            <button className='bg-blue-600 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full' onClick={() => setIsRecordModalOpen(true)}>
+                                            <button className='bg-blue-600 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full' onClick={() => setIsAddRecordModalOpen(true)}>
                                                 <IoDocumentText className='w-4 h-4 text-white font-bold' />
                                                 Record Session
                                             </button>
-                                            <Modal
-                                                isOpen={isRecordModalOpen}
-                                                onClose={() => setIsRecordModalOpen(false)}
-                                                blotter_id={blotter_id}
-                                                onSuccess={() => {
-                                                    fetchBlotterHearings();
-                                                    setShowAddToast(true);
-                                                }} />
                                         </div>
                                         <div className="overflow-x-auto rounded-lg mt-4">
                                             {hearingLoading ? (<div className="text-center">Loading... </div>
@@ -256,7 +250,11 @@ const IncidentRepotViewPage = () => {
                                                                         <td className="p-3 text-gray-500 flex items-center justify-center gap-2">
                                                                             {isLatest ? (
                                                                                 <>
-                                                                                    <div className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer">
+                                                                                    <div className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer"
+                                                                                        onClick={() => {
+                                                                                            setBlotterHearingId(hearing.hearing_id);
+                                                                                            setIsEditRecordModalOpen(true)
+                                                                                        }}>
                                                                                         <GrEdit className="w-5 h-5 text-gray-500" />
                                                                                     </div>
 
@@ -329,6 +327,22 @@ const IncidentRepotViewPage = () => {
                             duration={3000}
                             onClose={() => setShowDeleteToast(false)}
                         />
+                        <AddRecordModal
+                            isOpen={isAddRecordModalOpen}
+                            onClose={() => setIsAddRecordModalOpen(false)}
+                            blotter_id={blotter_id}
+                            onSuccess={() => {
+                                fetchBlotterHearings();
+                                setShowAddToast(true);
+                            }} />
+                        <EditRecordModal
+                            isOpen={isEditRecordModalOpen}
+                            onClose={() => setIsEditRecordModalOpen(false)}
+                            hearing_id={blotterHearingId}
+                            onSuccess={() => {
+                                fetchBlotterHearings();
+                                setShowAddToast(true);
+                            }} />
                     </div>
                 </main>
             </div >
@@ -339,7 +353,7 @@ const IncidentRepotViewPage = () => {
 export default IncidentRepotViewPage;
 
 
-function Modal({ isOpen, onClose, blotter_id, onSuccess }) {
+function AddRecordModal({ isOpen, onClose, blotter_id, onSuccess, }) {
 
     const { barangayId } = useAuth();
 
@@ -389,6 +403,225 @@ function Modal({ isOpen, onClose, blotter_id, onSuccess }) {
         const payload = {
             hearing_date: null,
             blotter_id: blotter_id,
+            attendees: selectedAttendess,
+            remarks: remarks,
+            status_id: selectedHearingStatus?.iid,
+            official_id: selectedBarangayOfficial?.official_id
+        }
+
+        if (!remarks || !selectedAttendess || !selectedHearingStatus?.iid || !selectedBarangayOfficial?.official_id) return;
+
+        try {
+            const response = await axios.post(`http://${cfg.domainname}:${cfg.serverport}/blotter/add/blotter-hearings`, payload, { withCredentials: true });
+            if (response.status === 201) {
+                setError(null);
+                onSuccess();
+                handleOnClose();
+
+            }
+            console.log(response);
+        } catch (error) {
+            console.error(error);
+            setError(error.response?.data?.message || "An error occurred.");
+        }
+    };
+
+    const handleOnClose = () => {
+        setSelectedBarangayOfficial("");
+        setSelectedHearingStatus("");
+        setRemarks("");
+        setSelectedAttendess([]);
+        setIsAlertModalOpen(false);
+        onClose();
+    };
+
+    const handleSelectedHearingStatusesChange = (selectedValue) => {
+        setSelectedHearingStatus(selectedValue);
+    };
+
+    const handleSelectedBarangayOfficialsChange = (selectedValue) => {
+        setSelectedBarangayOfficial(selectedValue);
+    };
+
+    const handleAddAttendeesChange = (item) => {
+        setSelectedAttendess((attendee) => [...attendee, item]);
+    }
+
+    const handleRemoveAttendeesChange = (item) => {
+        setSelectedAttendess((attendee) => attendee.filter((i) => i !== item));
+    }
+
+    if (!isOpen) return null;
+
+    return ReactDOM.createPortal(
+        <div className="modal-wrapper" role="modal">
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div className="bg-white w-full max-w-3xl rounded-lg shadow-lg p-6 min-h-[560px]">
+                    <div className='flex justify-between mb-2'>
+                        <h2 className="text-xl font-semibold">Record Session</h2>
+                        <IoClose
+                            className='w-6 h-6 cursor-pointer'
+                            onClick={() => setIsAlertModalOpen(true)}
+                        />
+                    </div>
+                    {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
+                        <div className="mb-6">
+                            <label className="block mb-2 text-base font-medium text-gray-500">Attendees<span className="text-red-600">*</span></label>
+                            <InputDropdown
+                                title="Add Attendees"
+                                placeholder="Type Attendee Name"
+                                options={selectedAttendess}
+                                onAddValue={handleAddAttendeesChange}
+                                onRemoveValue={handleRemoveAttendeesChange} />
+                        </div>
+                        <div className="mb-6">
+                            <label className="block mb-2 text-base font-medium text-gray-500">Officer In Charge<span className="text-red-600">*</span></label>
+                            <SearchDropdown
+                                options={barangayOfficials}
+                                selectedValue={selectedBarangayOfficial?.full_name}
+                                onSelect={handleSelectedBarangayOfficialsChange}
+                                uniqueKey={"full_name"}
+                                placeholder={"Search an Officer"}
+                                title="Select Officer" />
+                        </div>
+                        <div className="mb-6">
+                            <label className="block mb-2 text-base font-medium text-gray-500">Status<span className="text-red-600">*</span></label>
+                            <SearchDropdown
+                                options={hearingStatuses}
+                                selectedValue={selectedHearingStatus?.iname}
+                                onSelect={handleSelectedHearingStatusesChange}
+                                uniqueKey={"iname"}
+                                placeholder={"Search Status"}
+                                title="Select Hearing Status" />
+                        </div>
+                        <div className="col-span-full">
+                            <label className="block mb-2 text-base font-medium text-gray-500">Resolution Remarks<span className="text-red-600">*</span></label>
+                            <textarea
+                                className="border text-sm border-gray-300 p-2 h-48 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                name="certificateDetails"
+                                value={remarks}
+                                onChange={(e) => setRemarks(e.target.value)}
+                                placeholder="Type remarks"
+                            ></textarea>
+                        </div>
+                        <div className="col-span-full flex justify-end mt-4 space-x-4">
+                            <button
+                                type="submit"
+                                onClick={() => handleSubmit()}
+                                className={`bg-blue-500 text-white py-2 px-4 rounded-md `}
+                            >
+                                Submit
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+                <AlertDialog
+                    isOpen={isAlertModalOpen}
+                    message={"Are you sure you want to cancel all changes? This will undo any unsaved changes."}
+                    title="Cancel"
+                    buttonConfig={[
+                        {
+                            label: "No",
+                            color: "bg-gray-200 text-gray-600",
+                            action: () => setIsAlertModalOpen(false),
+                        },
+                        {
+                            label: "Yes, Cancel",
+                            color: "bg-red-600 text-white",
+                            action: () => handleOnClose(),
+                        },
+                    ]}
+                />
+            </div>
+        </div>,
+        document.body
+    );
+}
+
+function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
+
+    const { barangayId } = useAuth();
+
+    const [initialData, setInitialData] = useState({});
+    const [barangayOfficials, setBarangayOfficials] = useState(null);
+    const [hearingStatuses, setHearingStatuses] = useState(null);
+
+    const [selectedBarangayOfficial, setSelectedBarangayOfficial] = useState(null);
+    const [selectedHearingStatus, setSelectedHearingStatus] = useState(null);
+    const [selectedAttendess, setSelectedAttendess] = useState([]);
+    const [remarks, setRemarks] = useState("");
+
+    const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        if (isOpen && barangayId && hearing_id) {
+            fetchHearingDetails();
+            fetchHearingStatuses();
+            fetchBarangayOfficials();
+        }
+    }, [isOpen, barangayId, hearing_id]);
+
+    const fetchHearingDetails = async () => {
+        try {
+            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/blotter/get-hearing/` + hearing_id, { withCredentials: true });
+
+            if (response.status !== 200) throw new Error("Something went wrong with fetching data");
+            setInitialData(response.data);
+
+            try {
+                setSelectedAttendess(JSON.parse(response.data.attendees));
+            } catch (parseError) {
+                console.error("Error parsing attendees:", parseError);
+                setSelectedAttendess([]);
+            }
+
+            await fetchBarangayOfficials(response.data.official_id);
+        } catch (error) {
+            console.error(error.message);
+            setError(error.message);
+        }
+    }
+
+    const fetchBarangayOfficials = async (officialId) => {
+        try {
+            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/official/` + barangayId, { withCredentials: true });
+            if (response.status !== 200) throw new Error("Something went wrong with fetching data");
+
+            const barangayOfficial = response.data;
+            setBarangayOfficials(barangayOfficial);
+
+            console.log(barangayOfficial)
+            if (barangayOfficial.length > 0) {
+                const selectedBarangayOfficial = barangayOfficial.find(ofc =>
+                    ofc.official_id === officialId
+                );
+                console.log(selectedBarangayOfficial)
+                setSelectedBarangayOfficial(selectedBarangayOfficial);
+            }
+        } catch (error) {
+            console.error(error.message);
+            setError(error.message);
+        }
+    }
+
+    const fetchHearingStatuses = async () => {
+        try {
+            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/blotter/get-hearing-statuses/`, { withCredentials: true });
+            if (response.status !== 200) throw new Error("Something went wrong with fetching data");
+            setHearingStatuses(response.data);
+        } catch (error) {
+            console.error(error.message);
+            setError(error.message);
+        }
+    }
+
+    const handleSubmit = async () => {
+        //Add Validation
+        const payload = {
+            hearing_date: null,
             attendees: selectedAttendess,
             remarks: remarks,
             status_id: selectedHearingStatus?.iid,

@@ -281,7 +281,7 @@ export const deleteBlotter = async (req, res) => {
 };
 
 //Hearings
-export const getBlotterHearingById = async (req, res) => {
+export const getAllBlotterHearing = async (req, res) => {
     const { id } = req.params;
     const sql = "CALL GetBlotterHearings(?)";
 
@@ -304,6 +304,31 @@ export const getBlotterHearingById = async (req, res) => {
         });
     }
 }
+
+export const getBlotterHearingById = async (req, res) => {
+    const { id } = req.params;
+    console.log(id);
+    const sql = "SELECT * FROM cbs_blotter_hearings WHERE iid = ?;"
+
+    try {
+        const result = await new Promise((resolve, reject) => {
+            db.query(sql, [id], (err, results) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(results);
+                }
+            })
+        });
+        res.json(result[0]);
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({
+            error: "Failed to retrieve blotter hearings data",
+            details: error.message,
+        });
+    }
+};
 
 export const getAllBlotterHearingStatuses = async (req, res) => {
     const sql = "SELECT * FROM cbs_hearing_statuses";
@@ -340,8 +365,6 @@ export const addBlotterHearings = async (req, res) => {
             official_id,
         } = req.body;
 
-        console.log(req.body);
-
         const sql = `CALL AddBlotterHearing(?, ?, ?, ?, ?, ?)`;
 
         const values = [
@@ -352,8 +375,6 @@ export const addBlotterHearings = async (req, res) => {
             status_id || null,
             official_id || null,
         ];
-
-        console.log(values);
 
         const result = await new Promise((resolve, reject) => {
             db.query(sql, values, (error, result) => {
