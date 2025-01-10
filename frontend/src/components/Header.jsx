@@ -57,7 +57,8 @@ const Header = () => {
                     aria-haspopup="true"
                     aria-expanded={isDropdownOpen}
                 >
-                    <img src={userData.profile_image} alt="Logo" className="h-10 w-10 object-contain mr-3" />
+                    <img src={userData.profile_image} alt="Logo" className="h-10 w-10 rounded-full object-contain mr-2" />
+
                     <div className='flex flex-col items-start'>
                         {userData.user && (
                             <>

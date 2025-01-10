@@ -27,7 +27,7 @@ export const login = (req, res) => {
     db.query(sql, [users], (err, data) => {
         if (err) return res.status(500).json({ Error: "Database error" });
 
-        if (data.length > 0) {
+        if (data[0].length > 0) {
             bcrypt.compare(password.toString(), data[0][0].password, (err, result) => {
                 if (err) return res.status(500).json({ Error: "Password Compare Error" });
                 if (result) {
