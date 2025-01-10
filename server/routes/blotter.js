@@ -6,6 +6,7 @@ import {
     addBlotterHearings,
     updateBlotter,
     deleteBlotter,
+    getAllBlotterHearing,
     getBlotterHearingById,
     getAllBlotterHearingStatuses,
     deleteBlotterHearings
@@ -15,6 +16,7 @@ import { verifyUser } from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 router.get("/get-hearing-statuses/", verifyUser, getAllBlotterHearingStatuses);
+router.get("/get-all-hearing/:id", verifyUser, getAllBlotterHearing);
 router.get("/get-hearing/:id", verifyUser, getBlotterHearingById);
 router.get("/get/:id", verifyUser, getBlottersById);
 router.get("/:id", verifyUser, getAllBlotters);
