@@ -34,6 +34,7 @@ const IncidentRepotViewPage = () => {
     const [blotterHearingId, setBlotterHearingId] = useState(null);
 
     const [showAddToast, setShowAddToast] = useState(false);
+    const [showUpdateToast, setShowUpdateToast] = useState(false);
     const [showDeleteToast, setShowDeleteToast] = useState(false);
     const [detailsLoading, setDetailsLoading] = useState(false);
     const [hearingLoading, setHearingLoading] = useState(false);
@@ -226,10 +227,10 @@ const IncidentRepotViewPage = () => {
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        {blotterHearingDetails && blotterHearingDetails.length > 0 ? (
-                                                            blotterHearingDetails.map((hearing, index) => {
+                                                        {blotterHearingDetails && blotterHearingDetails?.length > 0 ? (
+                                                            blotterHearingDetails?.map((hearing, index) => {
                                                                 const isLatest = index === blotterHearingDetails.length - 1; // 
-
+                                                                const isDefault = blotterHearingDetails?.length === 1;
                                                                 return (
                                                                     <tr
                                                                         key={hearing.hearing_id}
@@ -250,11 +251,13 @@ const IncidentRepotViewPage = () => {
                                                                         <td className="p-3 text-gray-500 flex items-center justify-center gap-2">
                                                                             {isLatest ? (
                                                                                 <>
-                                                                                    <div className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer"
+                                                                                    <div
+                                                                                        className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer"
                                                                                         onClick={() => {
                                                                                             setBlotterHearingId(hearing.hearing_id);
-                                                                                            setIsEditRecordModalOpen(true)
-                                                                                        }}>
+                                                                                            setIsEditRecordModalOpen(true);
+                                                                                        }}
+                                                                                    >
                                                                                         <GrEdit className="w-5 h-5 text-gray-500" />
                                                                                     </div>
 
@@ -262,10 +265,19 @@ const IncidentRepotViewPage = () => {
                                                                                         <FaRegEye className="w-5 h-5 text-gray-500" />
                                                                                     </div>
 
-                                                                                    <div className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer" title="Delete"
-                                                                                        onClick={() => handleDeleteBlotterHearings(hearing.hearing_id)}>
-                                                                                        <FaRegTrashAlt className="w-5 h-5 text-red-500" />
-                                                                                    </div>
+                                                                                    {isDefault ? (
+                                                                                        <div className="bg-gray-200 p-2 w-max rounded-lg cursor-not-allowed opacity-50">
+                                                                                            <FaRegTrashAlt className="w-5 h-5 text-red-500" />
+                                                                                        </div>
+                                                                                    ) : (
+                                                                                        <div
+                                                                                            className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer"
+                                                                                            title="Delete"
+                                                                                            onClick={() => handleDeleteBlotterHearings(hearing.hearing_id)}
+                                                                                        >
+                                                                                            <FaRegTrashAlt className="w-5 h-5 text-red-500" />
+                                                                                        </div>
+                                                                                    )}
                                                                                 </>
                                                                             ) : (
                                                                                 <>
@@ -282,6 +294,7 @@ const IncidentRepotViewPage = () => {
                                                                                     </div>
                                                                                 </>
                                                                             )}
+
                                                                         </td>
 
                                                                     </tr>
@@ -321,6 +334,13 @@ const IncidentRepotViewPage = () => {
                             onClose={() => setShowAddToast(false)}
                         />
                         <ToastMessage
+                            message="Blotter hearing successfully updated!"
+                            variant="default"
+                            isVisible={showUpdateToast}
+                            duration={3000}
+                            onClose={() => setShowUpdateToast(false)}
+                        />
+                        <ToastMessage
                             message="Blotter hearing successfully deleted!"
                             variant="delete"
                             isVisible={showDeleteToast}
@@ -341,7 +361,7 @@ const IncidentRepotViewPage = () => {
                             hearing_id={blotterHearingId}
                             onSuccess={() => {
                                 fetchBlotterHearings();
-                                setShowAddToast(true);
+                                setShowUpdateToast(true);
                             }} />
                     </div>
                 </main>
@@ -520,7 +540,7 @@ function AddRecordModal({ isOpen, onClose, blotter_id, onSuccess, }) {
                 <AlertDialog
                     isOpen={isAlertModalOpen}
                     message={"Are you sure you want to cancel all changes? This will undo any unsaved changes."}
-                    title="Cancel"
+                    title="Confirm Action"
                     buttonConfig={[
                         {
                             label: "No",
@@ -570,15 +590,18 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
 
             if (response.status !== 200) throw new Error("Something went wrong with fetching data");
             setInitialData(response.data);
+            setRemarks(response.data.remarks);
 
             try {
-                setSelectedAttendess(JSON.parse(response.data.attendees));
+                const parsedAttendees = JSON.parse(response.data.attendees);
+                setSelectedAttendess(Array.isArray(parsedAttendees) ? parsedAttendees : []);
             } catch (parseError) {
                 console.error("Error parsing attendees:", parseError);
                 setSelectedAttendess([]);
             }
 
             await fetchBarangayOfficials(response.data.official_id);
+            await fetchHearingStatuses(response.data.status_id);
         } catch (error) {
             console.error(error.message);
             setError(error.message);
@@ -593,12 +616,10 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
             const barangayOfficial = response.data;
             setBarangayOfficials(barangayOfficial);
 
-            console.log(barangayOfficial)
             if (barangayOfficial.length > 0) {
                 const selectedBarangayOfficial = barangayOfficial.find(ofc =>
                     ofc.official_id === officialId
                 );
-                console.log(selectedBarangayOfficial)
                 setSelectedBarangayOfficial(selectedBarangayOfficial);
             }
         } catch (error) {
@@ -607,21 +628,28 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
         }
     }
 
-    const fetchHearingStatuses = async () => {
+    const fetchHearingStatuses = async (statusId) => {
         try {
             const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/blotter/get-hearing-statuses/`, { withCredentials: true });
             if (response.status !== 200) throw new Error("Something went wrong with fetching data");
-            setHearingStatuses(response.data);
+            const hearingStatus = response.data;
+            setHearingStatuses(hearingStatus);
+
+            if (hearingStatus?.length > 0) {
+                const selectedHearingStatus = hearingStatus?.find((status) =>
+                    status?.iid === statusId);
+                setSelectedHearingStatus(selectedHearingStatus);
+            }
+
         } catch (error) {
             console.error(error.message);
             setError(error.message);
         }
     }
 
-    const handleSubmit = async () => {
+    const handleUpdate = async () => {
         //Add Validation
         const payload = {
-            hearing_date: null,
             attendees: selectedAttendess,
             remarks: remarks,
             status_id: selectedHearingStatus?.iid,
@@ -631,12 +659,11 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
         if (!remarks || !selectedAttendess || !selectedHearingStatus?.iid || !selectedBarangayOfficial?.official_id) return;
 
         try {
-            const response = await axios.post(`http://${cfg.domainname}:${cfg.serverport}/blotter/add/blotter-hearings`, payload, { withCredentials: true });
-            if (response.status === 201) {
+            const response = await axios.put(`http://${cfg.domainname}:${cfg.serverport}/blotter/update/hearing/` + hearing_id, payload, { withCredentials: true });
+            if (response.status === 200) {
                 setError(null);
                 onSuccess();
                 handleOnClose();
-
             }
             console.log(response);
         } catch (error) {
@@ -663,8 +690,8 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
     };
 
     const handleAddAttendeesChange = (item) => {
-        setSelectedAttendess((attendee) => [...attendee, item]);
-    }
+        setSelectedAttendess(prevAttendees => [...(prevAttendees || []), item]);
+    };
 
     const handleRemoveAttendeesChange = (item) => {
         setSelectedAttendess((attendee) => attendee.filter((i) => i !== item));
@@ -727,10 +754,10 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
                         <div className="col-span-full flex justify-end mt-4 space-x-4">
                             <button
                                 type="submit"
-                                onClick={() => handleSubmit()}
+                                onClick={() => handleUpdate()}
                                 className={`bg-blue-500 text-white py-2 px-4 rounded-md `}
                             >
-                                Submit
+                                Update
                             </button>
                         </div>
 
@@ -739,7 +766,7 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
                 <AlertDialog
                     isOpen={isAlertModalOpen}
                     message={"Are you sure you want to cancel all changes? This will undo any unsaved changes."}
-                    title="Cancel"
+                    title="Confirm Action"
                     buttonConfig={[
                         {
                             label: "No",

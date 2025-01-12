@@ -395,6 +395,50 @@ export const addBlotterHearings = async (req, res) => {
     }
 }
 
+export const updateBlotterHearing = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const {
+            attendees,
+            remarks,
+            status_id,
+            official_id,
+        } = req.body;
+
+        const sql = `CALL UpdateBlotterHearing(?, ?, ?, ?, ?)`;
+
+        const values = [
+            id,
+            JSON.stringify(attendees),
+            remarks || null,
+            status_id || null,
+            official_id || null,
+        ];
+
+        const result = await new Promise((resolve, reject) => {
+            db.query(sql, values, (error, result) => {
+                if (error) {
+                    return reject(error);
+                }
+                resolve(result);
+            });
+        });
+
+        res.status(200).json({
+            message: 'Blotter hearing updated successfully',
+            result,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            message: 'Failed to update blotter hearing',
+            error: error.message,
+        });
+    }
+};
+
+
 export const deleteBlotterHearings = async (req, res) => {
     const { id } = req.params;
 
