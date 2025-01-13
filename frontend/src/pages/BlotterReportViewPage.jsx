@@ -32,6 +32,7 @@ const IncidentRepotViewPage = () => {
     const [blotterDetails, setBlotterDetails] = useState(null);
     const [blotterHearingDetails, setBlotterHearingDetails] = useState([]);
     const [blotterHearingId, setBlotterHearingId] = useState(null);
+    const [viewBlotterHearingId, setViewBlotterHearingId] = useState(null);
 
     const [showAddToast, setShowAddToast] = useState(false);
     const [showUpdateToast, setShowUpdateToast] = useState(false);
@@ -47,6 +48,7 @@ const IncidentRepotViewPage = () => {
     //Modal
     const [isAddRecordModalOpen, setIsAddRecordModalOpen] = useState(false);
     const [isEditRecordModalOpen, setIsEditRecordModalOpen] = useState(false);
+    const [isViewRecordModalOpen, setIsViewRecordModalOpen] = useState(false);
 
     const { blotter_id } = location.state || {};
 
@@ -91,7 +93,7 @@ const IncidentRepotViewPage = () => {
         }
     };
 
-    const handleDeleteBlotterHearings = async (id) => {
+    /*const handleDeleteBlotterHearings = async (id) => {
         try {
             await axios.delete(`http://${cfg.domainname}:${cfg.serverport}/blotter/delete-hearing/` +
                 id, {
@@ -105,7 +107,7 @@ const IncidentRepotViewPage = () => {
             setError("Failed to delete blotter hearing.");
             console.error(error);
         }
-    }
+    } */
 
     if (!blotterDetails) return <p>Loading...</p>;
 
@@ -240,7 +242,9 @@ const IncidentRepotViewPage = () => {
                                                                             {formatIncidentDate(hearing.hearing_date)}
                                                                         </td>
                                                                         <td className="p-4 text-sm text-gray-500">
-                                                                            {hearing.attendees ? JSON.parse(hearing.attendees).join(", ") : "N/A"}
+                                                                            {hearing?.attendees && JSON.parse(hearing.attendees).length > 0
+                                                                                ? JSON.parse(hearing.attendees).join(", ")
+                                                                                : "N/A"}
                                                                         </td>
                                                                         <td className="p-4 text-sm text-gray-500">
                                                                             {hearing.remarks ?? "N/A"}
@@ -260,12 +264,7 @@ const IncidentRepotViewPage = () => {
                                                                                     >
                                                                                         <GrEdit className="w-5 h-5 text-gray-500" />
                                                                                     </div>
-
-                                                                                    <div className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer">
-                                                                                        <FaRegEye className="w-5 h-5 text-gray-500" />
-                                                                                    </div>
-
-                                                                                    {isDefault ? (
+                                                                                    {/* {isDefault ? (
                                                                                         <div className="bg-gray-200 p-2 w-max rounded-lg cursor-not-allowed opacity-50">
                                                                                             <FaRegTrashAlt className="w-5 h-5 text-red-500" />
                                                                                         </div>
@@ -277,26 +276,26 @@ const IncidentRepotViewPage = () => {
                                                                                         >
                                                                                             <FaRegTrashAlt className="w-5 h-5 text-red-500" />
                                                                                         </div>
-                                                                                    )}
+                                                                                    )} */}
                                                                                 </>
                                                                             ) : (
                                                                                 <>
                                                                                     <div className="bg-gray-200 p-2 w-max rounded-lg cursor-not-allowed opacity-50">
                                                                                         <GrEdit className="w-5 h-5 text-gray-500" />
                                                                                     </div>
-
-                                                                                    <div className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer">
-                                                                                        <FaRegEye className="w-5 h-5 text-gray-500" />
-                                                                                    </div>
-
-                                                                                    <div className="bg-gray-200 p-2 w-max rounded-lg cursor-not-allowed opacity-50">
+                                                                                    {/* <div className="bg-gray-200 p-2 w-max rounded-lg cursor-not-allowed opacity-50">
                                                                                         <FaRegTrashAlt className="w-5 h-5 text-red-500" />
-                                                                                    </div>
+                                                                                    </div> */}
                                                                                 </>
                                                                             )}
 
+                                                                            <div className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer" onClick={() => {
+                                                                                setViewBlotterHearingId(hearing?.hearing_id);
+                                                                                setIsViewRecordModalOpen(true);
+                                                                            }}>
+                                                                                <FaRegEye className="w-5 h-5 text-gray-500" />
+                                                                            </div>
                                                                         </td>
-
                                                                     </tr>
                                                                 );
                                                             })
@@ -363,6 +362,11 @@ const IncidentRepotViewPage = () => {
                                 fetchBlotterHearings();
                                 setShowUpdateToast(true);
                             }} />
+                        <ViewRecordModal
+                            isOpen={isViewRecordModalOpen}
+                            onClose={() => setIsViewRecordModalOpen(false)}
+                            hearing_id={viewBlotterHearingId}
+                            setBlotterHearingId={setBlotterHearingId} />
                     </div>
                 </main>
             </div >
@@ -665,7 +669,6 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
                 onSuccess();
                 handleOnClose();
             }
-            console.log(response);
         } catch (error) {
             console.error(error);
             setError(error.response?.data?.message || "An error occurred.");
@@ -703,10 +706,10 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
         <div className="modal-wrapper" role="modal">
             <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
                 <div className="bg-white w-full max-w-3xl rounded-lg shadow-lg p-6 min-h-[560px]">
-                    <div className='flex justify-between mb-2'>
-                        <h2 className="text-xl font-semibold">Record Session</h2>
+                    <div className='flex justify-between mb-5'>
+                        <h2 className="text-xl font-semibold text-neutral-700">Edit Record Session</h2>
                         <IoClose
-                            className='w-6 h-6 cursor-pointer'
+                            className='w-6 h-6 cursor-pointer text-neutral-700'
                             onClick={() => setIsAlertModalOpen(true)}
                         />
                     </div>
@@ -782,6 +785,155 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
                 />
             </div>
         </div>,
+        document.body
+    );
+}
+
+function ViewRecordModal({ isOpen, onClose, hearing_id, setBlotterHearingId }) {
+
+    const { barangayId } = useAuth();
+
+    const [selectedBarangayOfficial, setSelectedBarangayOfficial] = useState(null);
+    const [selectedHearingStatus, setSelectedHearingStatus] = useState(null);
+    const [selectedAttendess, setSelectedAttendess] = useState([]);
+    const [remarks, setRemarks] = useState("");
+
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        if (isOpen && barangayId && hearing_id) {
+            fetchHearingDetails();
+            fetchHearingStatuses();
+            fetchBarangayOfficials();
+        }
+
+        return () => {
+            setBlotterHearingId(null);
+            setSelectedBarangayOfficial(null);
+            setSelectedHearingStatus(null);
+            setSelectedAttendess([]);
+            setRemarks("");
+        }
+    }, [isOpen, barangayId, hearing_id]);
+
+    const fetchHearingDetails = async () => {
+        try {
+            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/blotter/get-hearing/` + hearing_id, { withCredentials: true });
+
+            if (response.status !== 200) throw new Error("Something went wrong with fetching data");
+
+            setRemarks(response.data.remarks);
+
+            try {
+                const parsedAttendees = JSON.parse(response.data.attendees);
+                setSelectedAttendess(Array.isArray(parsedAttendees) ? parsedAttendees : []);
+            } catch (parseError) {
+                console.error("Error parsing attendees:", parseError);
+                setSelectedAttendess([]);
+            }
+
+            await fetchBarangayOfficials(response.data.official_id);
+            await fetchHearingStatuses(response.data.status_id);
+        } catch (error) {
+            console.error(error.message);
+            setError(error.message);
+        }
+    }
+
+    const fetchBarangayOfficials = async (officialId) => {
+        try {
+            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/official/` + barangayId, { withCredentials: true });
+            if (response.status !== 200) throw new Error("Something went wrong with fetching data");
+
+            const barangayOfficial = response.data;
+            if (barangayOfficial.length > 0) {
+                const selectedBarangayOfficial = barangayOfficial.find(ofc =>
+                    ofc.official_id === officialId
+                );
+                setSelectedBarangayOfficial(selectedBarangayOfficial);
+            }
+        } catch (error) {
+            console.error(error.message);
+            setError(error.message);
+        }
+    }
+
+    const fetchHearingStatuses = async (statusId) => {
+        try {
+            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/blotter/get-hearing-statuses/`, { withCredentials: true });
+            if (response.status !== 200) throw new Error("Something went wrong with fetching data");
+            const hearingStatus = response.data;
+            if (hearingStatus?.length > 0) {
+                const selectedHearingStatus = hearingStatus?.find((status) =>
+                    status?.iid === statusId);
+                setSelectedHearingStatus(selectedHearingStatus);
+            }
+
+        } catch (error) {
+            console.error(error.message);
+            setError(error.message);
+        }
+    }
+
+    if (!isOpen) return null;
+
+    return ReactDOM.createPortal(
+        <div className="modal-wrapper" role="dialog">
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div className="bg-white w-full max-w-3xl rounded-lg shadow-lg p-6 min-h-[560px]">
+                    <div className='flex justify-between mb-5'>
+                        <h2 className="text-xl font-semibold text-neutral-700">View Record Session</h2>
+                        <IoClose
+                            className='w-6 h-6 cursor-pointer text-neutral-700'
+                            aria-label="Close modal"
+                            onClick={() => onClose()}
+                        />
+                    </div>
+                    {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
+                        <div className="mb-4">
+                            <label className='block text-lg font-semibold text-gray-500 mb-2'>Attendees:</label>
+                            {
+                                selectedAttendess?.length > 0 ? (
+                                    selectedAttendess?.map((attendees, index) => (
+                                        <div key={index} className="mb-2">
+                                            <label className="font-medium text-gray-500" key={index}>{index + 1}. </label>
+                                            <span className="text-gray-400">{attendees}</span>
+                                        </div>
+                                    ))) : (
+                                    <p className="text-gray-400">No attendees available</p>
+                                )
+                            }
+                        </div>
+                        <div className="mb-6">
+                            <label className='block text-lg font-semibold text-gray-500 mb-2'>Office in Charge:</label>
+                            <div className="mb-2">
+                                <label className="font-medium text-gray-500">1. </label>
+                                {selectedBarangayOfficial ? (
+                                    <span className="text-gray-400">{selectedBarangayOfficial?.full_name}</span>
+                                ) : (
+                                    <p className="text-gray-400">No official assigned</p>
+                                )}
+                            </div>
+                        </div>
+                        <div className="mb-6 max-w-[250px]">
+                            <label className='block text-lg font-semibold text-gray-500 mb-2'>Status:</label>
+                            <StatusBadge status={selectedHearingStatus?.iname} />
+                        </div>
+                        <div className="col-span-full">
+                            <label className='block text-lg font-semibold text-gray-500 mb-2'>Resolution Remarks:</label>
+                            <textarea
+                                className="border border-gray-300 p-2 h-48 w-full text-gray-400 rounded-md resize-none"
+                                value={remarks ?? "N/A"}
+                                onChange={(e) => setRemarks(e.target.value)}
+                                disabled
+                                placeholder="Type remarks"
+                            ></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div >,
         document.body
     );
 }
