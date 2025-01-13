@@ -27,23 +27,44 @@ export const getAllResidents = async (req, res) => {
 export const addResident = async (req, res) => {
     try {
         const {
-            FirstName, LastName, MiddleName, Suffix,
-            birthday, BirthPlace, Occupation,
-            CivilStatus, Gender, Address,
-            Region_ID, Province_ID, City_ID,
-            Barangay_ID, Purok_ID, IsLocalResident, ResidentType,
-            ContactNumber, Email,
-            IsSoloParent, IsPWD,
-            IsHouseholdHead, HouseholdID,
-            IsRegisteredVoter, VoterIDNumber,
-            IsJuanBataanMember, JuanBataanID,
+            FirstName,
+            LastName,
+            MiddleName,
+            Suffix,
+            birthday,
+            BirthPlace,
+            Occupation,
+            CivilStatus,
+            Gender,
+            Address,
+            Region_ID,
+            Province_ID,
+            City_ID,
+            Barangay_ID,
+            Purok_ID,
+            IsLocalResident,
+            ResidentType,
+            ContactNumber,
+            Email,
+            IsSoloParent,
+            SoloParentID,
+            IsPWD,
+            PWDID,
+            IsHouseholdHead,
+            HouseholdID,
+            IsRegisteredVoter,
+            VoterIDNumber,
+            IsJuanBataanMember,
+            JuanBataanID,
         } = req.body;
 
         // Get the profile image filename
         const profileImage = req.file ? `/uploads/user_profile/${req.file.filename}` : null;
 
-        const sql = `CALL AddResident(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        // Correct SQL query with proper parameter count (31 total)
+        const sql = `CALL AddResident(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
+        // Matching values with procedure parameters
         const values = [
             FirstName,
             LastName,
@@ -65,14 +86,16 @@ export const addResident = async (req, res) => {
             ContactNumber,
             Email || null,
             IsSoloParent ? 1 : 0,
+            SoloParentID || null,
             IsPWD ? 1 : 0,
+            PWDID || null,
             IsHouseholdHead ? 1 : 0,
             HouseholdID || null,
             IsRegisteredVoter ? 1 : 0,
             VoterIDNumber || null,
             IsJuanBataanMember ? 1 : 0,
             JuanBataanID || null,
-            profileImage,
+            profileImage, // Ensure this is properly passed
         ];
 
         const result = await db.query(sql, values);
@@ -102,8 +125,10 @@ export const addResident = async (req, res) => {
     }
 };
 
+
+
 export const updateResident = async (req, res) => {
-    const residentId = req.body.resident_id;  // Resident ID from the request parameter
+    const residentId = req.body.resident_id;
     const {
         first_name, last_name, middle_name, suffix,
         birthday, birth_place, occupation,
@@ -115,21 +140,26 @@ export const updateResident = async (req, res) => {
         is_household_head, household_id,
         is_registered_voter, voter_id_number,
         is_juan_bataan_member, juan_bataan_id,
+        previousProfileImage
     } = req.body;
 
-    console.log("Resident ID:", residentId);
+    console.log('Updating resident with ID:', residentId);
+    console.log('Previous Profile Image:', previousProfileImage);
+    console.log('File:', req.file); // Check if file exists in request
 
     if (!residentId || !first_name || !last_name || !address || !contact_number) {
         return res.status(400).json({ message: 'Please fill in all required fields.' });
     }
 
     try {
-        const profileImage = req.file ? `/uploads/user_profile/${req.file.filename}` : null;
+        const profileImage = req.file
+        ? `/uploads/user_profile/${req.file.filename}` // Use the uploaded file's path
+        : req.body.previousProfileImage;
 
         // SQL query
         const sql = `CALL UpdateResident(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         const values = [
-            residentId,  // Ensure residentId is the first item
+            residentId,  
             first_name,
             last_name,
             middle_name || null,
@@ -157,15 +187,10 @@ export const updateResident = async (req, res) => {
             voter_id_number || null,
             is_juan_bataan_member ? 1 : 0,
             juan_bataan_id || null,
-            profileImage || null,
+            profileImage || null,  // Ensure profileImage is updated
         ];
 
         const result = await db.query(sql, values);
-        console.log("Received values:", values);
-
-        if (!result || result.affectedRows === 0) {
-            return res.status(404).json({ message: 'Resident not found or no changes made' });
-        }
 
         if (!result || result.affectedRows === 0) {
             return res.status(404).json({ message: 'Resident not found or no changes made' });

@@ -17,12 +17,36 @@ import { IoCloseCircleOutline } from "react-icons/io5";
 const AddResidentPage = ({ setSuccess }) => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        FirstName: '', LastName: '', MiddleName: '', Suffix: '', birthday: '', BirthPlace: '', Gender: '', Address: '',
-        Region_ID: '', Province_ID: '', City_ID: '', Barangay_ID: '', Purok_ID: '',
-        IsLocalResident: false, ResidentType: '', ContactNumber: '', Email: '',
-        CivilStatus: '', Occupation: '', IsHouseholdHead: false, HouseholdID: '',
-        IsRegisteredVoter: false, VoterIDNumber: '', IsJuanBataanMember: false,
-        JuanBataanID: '', Profile_Image: '',
+        FirstName: '',
+        LastName: '',
+        MiddleName: '',
+        Suffix: '',
+        birthday: '',
+        BirthPlace: '',
+        Gender: '',
+        Address: '',
+        Region_ID: '',
+        Province_ID: '',
+        City_ID: '',
+        Barangay_ID: '',
+        Purok_ID: '',
+        IsLocalResident: false,
+        ResidentType: '',
+        ContactNumber: '',
+        Email: '',
+        CivilStatus: '',
+        Occupation: '',
+        IsSoloParent: false,
+        SoloParentID: '',
+        IsPWD: false,
+        PWDID: '',
+        IsHouseholdHead: false,
+        HouseholdID: '',
+        IsRegisteredVoter: false,
+        VoterIDNumber: '',
+        IsJuanBataanMember: false,
+        JuanBataanID: '',
+        Profile_Image: '',
     });
     const [errorMessage, setErrorMessage] = useState('');
     const [loading, setLoading] = useState(false);
@@ -292,6 +316,20 @@ const AddResidentPage = ({ setSuccess }) => {
             IsJuanBataanMember: e.target.value === 'yes' ? 1 : 0
         }));
     };
+
+    const handleIsPwd = (e) => {
+        setFormData(prevData => ({
+            ...prevData,
+            IsPWD: e.target.value === 'yes' ? 1 : 0
+        }));
+    };
+
+    const handleIsSoloParent = (e) => {
+        setFormData(prevData => ({
+            ...prevData,
+            IsSoloParent: e.target.value === 'yes' ? 1 : 0
+        }));
+    }
 
 
     const handleCancel = () => {
@@ -841,6 +879,76 @@ const AddResidentPage = ({ setSuccess }) => {
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">One Bataan ID</label>
                                             <input type="text" name="JuanBataanID" value={formData.JuanBataanID} onChange={handleChange} placeholder='12345' className="border text-sm text-gray-500 border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 mb-4 gap-6">
+                                        <div>
+                                            <div className='leading-3 mb-4'>
+                                                <label className="block text-sm font-medium text-gray-500">Are you a member of PWD?</label>
+                                            </div>
+                                            <div className="flex items-center space-x-4">
+                                                <label className="flex items-center space-x-2">
+                                                    <input
+                                                        type="radio"
+                                                        name="IsPWD"
+                                                        value="yes"
+                                                        checked={formData.IsPWD === 1}
+                                                        onChange={handleIsPwd}
+                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                                    />
+                                                    <span className="text-sm text-gray-700">Yes</span>
+                                                </label>
+                                                <label className="flex items-center space-x-2">
+                                                    <input
+                                                        type="radio"
+                                                        name="IsPWD"
+                                                        value="no"
+                                                        checked={formData.IsPWD === 0}
+                                                        onChange={handleIsPwd}
+                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                                    />
+                                                    <span className="text-sm text-gray-700">No</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">PWD ID</label>
+                                            <input type="text" name="PWDID" value={formData.PWDID} onChange={handleChange} placeholder='XXX-XX-XX' className="border text-sm text-gray-500 border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 mb-4 gap-6">
+                                        <div>
+                                            <div className='leading-3 mb-4'>
+                                                <label className="block text-sm font-medium text-gray-500">Are you a member of Solo Parent?</label>
+                                            </div>
+                                            <div className="flex items-center space-x-4">
+                                                <label className="flex items-center space-x-2">
+                                                    <input
+                                                        type="radio"
+                                                        name="IsSoloParent"
+                                                        value="yes"
+                                                        checked={formData.IsSoloParent === 1}
+                                                        onChange={handleIsSoloParent}
+                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                                    />
+                                                    <span className="text-sm text-gray-700">Yes</span>
+                                                </label>
+                                                <label className="flex items-center space-x-2">
+                                                    <input
+                                                        type="radio"
+                                                        name="IsSoloParent"
+                                                        value="no"
+                                                        checked={formData.IsSoloParent === 0}
+                                                        onChange={handleIsSoloParent}
+                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                                    />
+                                                    <span className="text-sm text-gray-700">No</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">Solo Parent ID</label>
+                                            <input type="text" name="SoloParentID" value={formData.SoloParentID} onChange={handleChange} placeholder='XXX-XX-XX' className="border text-sm text-gray-500 border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                         </div>
                                     </div>
                                 </div>

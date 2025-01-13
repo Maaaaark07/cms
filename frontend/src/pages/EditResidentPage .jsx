@@ -175,7 +175,6 @@ const EditResidentPage = ({ }) => {
             console.error("Error fetching all Barangays:", error);
         }
     };
-
     const fetchAllPurok = async () => {
         try {
             if (!selectedBarangay) {
@@ -187,16 +186,27 @@ const EditResidentPage = ({ }) => {
             const puroks = response.data;
             setAllPuroks(puroks);
 
+            // Add a default "Select Purok" option
             if (puroks.length > 0) {
+                // Only set the current purok if it exists in the new list of puroks
                 const currentPurok = puroks.find(purok => purok.iid === residentData.purok_id);
-                setSelectedPurok(currentPurok.iid);
-                setFormData((prevState) => ({
-                    ...prevState,
-                    purok_id: currentPurok.iid,
-                }));
+                if (currentPurok) {
+                    setSelectedPurok(currentPurok.iid);
+                    setFormData(prevState => ({
+                        ...prevState,
+                        purok_id: currentPurok.iid,
+                    }));
+                } else {
+                    // If the current purok is not in the new list, reset the selection
+                    setSelectedPurok('');
+                    setFormData(prevState => ({
+                        ...prevState,
+                        purok_id: '',
+                    }));
+                }
             } else {
                 setSelectedPurok('');
-                setFormData((prevState) => ({
+                setFormData(prevState => ({
                     ...prevState,
                     purok_id: '',
                 }));
@@ -341,61 +351,56 @@ const EditResidentPage = ({ }) => {
         setLoading(true);
 
         try {
-            const formDataToSend = new FormData();
+            const formDataWithImage = new FormData();
 
-            const booleanFields = ['is_registered_voter', 'is_juan_bataan_member', 'is_solo_parent',
-                'is_pwd', 'is_household_head', 'is_local_resident'];
+            if (selectedFile) {
+                formDataWithImage.append('Profile_Image', selectedFile);
+            } else if (formData.profile_image) {
+                formDataWithImage.append('Profile_Image', formData.profile_image); // Send the previous image path
+            }
 
-            console.log('Form data contents:');
-            formDataToSend.forEach((value, key) => {
-                console.log(key + ': ' + value);
-            });
-
-            Object.keys(formData).forEach(key => {
-                if (booleanFields.includes(key)) {
-                    // Handle both boolean and string boolean values
-                    const value = formData[key];
-                    const boolValue = (value === true || value === 'true' || value === '1') ? '1' : '0';
-                    formDataToSend.append(key, boolValue);
-                }
-                else if (key === 'profile_image' && selectedFile) {
-                    formDataToSend.append('Profile_Image', selectedFile);
-                }
-                else if (formData[key] !== null && formData[key] !== undefined) {
-                    formDataToSend.append(key, formData[key]);
+            // Append other fields from formData
+            Object.keys(formData).forEach((key) => {
+                if (key !== 'profile_image') { // Skip the profile_image key to avoid redundancy
+                    formDataWithImage.append(key, formData[key] || ''); // Handle empty fields
                 }
             });
 
+            // Log the FormData for debugging
+            console.log('Form Data With Image:', formDataWithImage);
+            console.log('Form Data:', formData);
+
+            // Send the PUT request with FormData containing the image and other form fields
             const response = await axios.put(
-                `http://${cfg.domainname}:${cfg.serverport}/residents/update/${residentData.ResidentID}`,
-                formDataToSend,
+                `http://${cfg.domainname}:${cfg.serverport}/residents/update/${formData.ResidentID}`,
+                formDataWithImage,
                 {
-                    withCredentials: true,
                     headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
+                        'Content-Type': 'multipart/form-data',
+                    },
+                    withCredentials: true,
                 }
             );
 
             if (response.status === 200) {
                 sessionStorage.setItem('residentEditSuccess', 'true');
-                navigate('/resident-management');
+                // Update the profile_image with the response from the server if it was updated
+                setFormData({
+                    ...formData,
+                    profile_image: response.data.profile_image || formData.profile_image, // Update profile_image if necessary
+                });
+                navigate('/resident-management', { state: { residentData: response.data } }); // Redirect after successful update
+            } else {
+                setErrorMessage('Failed to update resident.');
             }
         } catch (error) {
             console.error('Error during update:', error);
-            const errorMessage = error.response?.data?.message || 'Failed to update resident';
-            setErrorMessage(errorMessage);
-
-            // Add better error handling for file-related errors
-            if (error.response?.status === 413) {
-                setErrorMessage('File size too large. Maximum size is 5MB.');
-            } else if (error.response?.data?.error?.includes('Invalid file type')) {
-                setErrorMessage('Invalid file type. Please upload a valid image file.');
-            }
+            setErrorMessage('Failed to update resident.');
         } finally {
             setLoading(false);
         }
     };
+
 
 
     // const handleSubmit = async (e) => {
@@ -528,7 +533,9 @@ const EditResidentPage = ({ }) => {
                                                 <input
                                                     type="file"
                                                     name="Profile_Image"
-                                                    onChange={handleImageChange}
+                                                    onChange={(e) =>
+                                                        setFormData({ ...formData, profile_image: e.target.files[0] })
+                                                    }
                                                     accept="image/jpeg,image/png"
                                                     className="absolute inset-0 opacity-0 cursor-pointer"
                                                 />
@@ -636,6 +643,7 @@ const EditResidentPage = ({ }) => {
                                                 disabled={!selectedBarangay}
                                                 className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             >
+                                                <option value="">Select Purok</option>
                                                 {allPuroks.length > 0 ? (
                                                     allPuroks.map((purok) => (
                                                         <option value={purok.iid} key={purok.iid}>{purok.iname}</option>
@@ -644,6 +652,7 @@ const EditResidentPage = ({ }) => {
                                                     <option value="">No Puroks Available</option>
                                                 )}
                                             </select>
+
                                         </div>
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">House No.</label>
