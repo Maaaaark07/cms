@@ -125,41 +125,30 @@ export const addResident = async (req, res) => {
     }
 };
 
-
-
 export const updateResident = async (req, res) => {
     const residentId = req.body.resident_id;
     const {
-        first_name, last_name, middle_name, suffix,
-        birthday, birth_place, occupation,
-        civil_status, gender, address,
-        region_id, province_id, city_id,
-        barangay_id, purok_id, is_local_resident, resident_type,
-        contact_number, email,
-        is_solo_parent, is_pwd,
-        is_household_head, household_id,
-        is_registered_voter, voter_id_number,
-        is_juan_bataan_member, juan_bataan_id,
-        previousProfileImage
+        first_name, last_name, middle_name, suffix, birthday, birth_place,
+        occupation, civil_status, gender, address, region_id, province_id,
+        city_id, barangay_id, purok_id, is_local_resident, resident_type,
+        contact_number, email, is_solo_parent, solo_parent_id, is_pwd,
+        pwd_id, is_household_head, household_id, is_registered_voter,
+        voter_id_number, is_juan_bataan_member, juan_bataan_id,
     } = req.body;
-
-    console.log('Updating resident with ID:', residentId);
-    console.log('Previous Profile Image:', previousProfileImage);
-    console.log('File:', req.file); // Check if file exists in request
 
     if (!residentId || !first_name || !last_name || !address || !contact_number) {
         return res.status(400).json({ message: 'Please fill in all required fields.' });
     }
 
     try {
-        const profileImage = req.file
-        ? `/uploads/user_profile/${req.file.filename}` // Use the uploaded file's path
-        : req.body.previousProfileImage;
+        const profileImage = req.file 
+            ? `/uploads/user_profile/${req.file.filename}` 
+            : req.body.Profile_Image;  // Note: Changed to match the actual field name in request
 
-        // SQL query
-        const sql = `CALL UpdateResident(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        const sql = `CALL UpdateResident(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        
         const values = [
-            residentId,  
+            residentId,
             first_name,
             last_name,
             middle_name || null,
@@ -180,29 +169,43 @@ export const updateResident = async (req, res) => {
             contact_number,
             email || null,
             is_solo_parent ? 1 : 0,
+            solo_parent_id || null,
             is_pwd ? 1 : 0,
+            pwd_id || null,
             is_household_head ? 1 : 0,
             household_id || null,
             is_registered_voter ? 1 : 0,
             voter_id_number || null,
             is_juan_bataan_member ? 1 : 0,
             juan_bataan_id || null,
-            profileImage || null,  // Ensure profileImage is updated
+            profileImage || null
         ];
 
-        const result = await db.query(sql, values);
+        // Wrap the callback-based query in a Promise
+        const result = await new Promise((resolve, reject) => {
+            db.query(sql, values, (error, results) => {
+                if (error) reject(error);
+                else resolve(results);
+            });
+        });
 
-        if (!result || result.affectedRows === 0) {
-            return res.status(404).json({ message: 'Resident not found or no changes made' });
+        if (!result || result.length === 0) {
+            return res.status(404).json({ 
+                message: 'Resident not found or no changes made' 
+            });
         }
 
         res.status(200).json({
             message: 'Resident updated successfully',
             profile_image: profileImage,
         });
+
     } catch (error) {
         console.error("Error updating resident:", error);
-        res.status(500).json({ message: 'Failed to update resident', error: error.message });
+        res.status(500).json({
+            message: 'Failed to update resident',
+            error: error.message
+        });
     }
 };
 

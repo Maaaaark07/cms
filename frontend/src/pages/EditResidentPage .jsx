@@ -17,9 +17,10 @@ const EditResidentPage = ({ }) => {
         first_name: '', last_name: '', middle_name: '', suffix: '', birthday: '', birth_place: '', gender: '', address: '',
         region_id: '', province_id: '', city_id: '', barangay_id: '', purok_id: '',
         is_local_resident: false, resident_type: '', contact_number: '', email: '',
+        is_solo_parent: false, solo_parent_id: '', is_pwd: false, pwd_id: '',
         civil_status: '', occupation: '', is_household_head: false, household_id: '',
         is_registered_voter: false, voter_id_number: '', is_juan_bataan_member: false,
-        juan_bataan_id: '', profile_image: '',
+        juan_bataan_id: '', profile_image: ''
     });
 
     const [errorMessage, setErrorMessage] = useState('');
@@ -326,6 +327,20 @@ const EditResidentPage = ({ }) => {
         setFormData(prevData => ({
             ...prevData,
             is_juan_bataan_member: e.target.value === 'yes' ? 1 : 0
+        }));
+    };
+
+    const handleIsSoloParent = (e) => {
+        setFormData(prevData => ({
+            ...prevData,
+            is_solo_parent: e.target.value === 'yes' ? 1 : 0,
+        }));
+    };
+
+    const handleIsPWD = (e) => {
+        setFormData(prevData => ({
+            ...prevData,
+            is_pwd: e.target.value === 'yes' ? 1 : 0,
         }));
     };
 
@@ -828,6 +843,90 @@ const EditResidentPage = ({ }) => {
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">One Bataan ID</label>
                                             <input type="text" name="juan_bataan_id" value={formData.juan_bataan_id} onChange={handleChange} placeholder='12345' className="border text-sm text-gray-500 border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 mb-4 gap-6">
+                                        <div>
+                                            <div className='leading-3 mb-4'>
+                                                <label className="block text-sm font-medium text-gray-500">Are you a Solo Parent?</label>
+                                            </div>
+                                            <div className="flex items-center space-x-4">
+                                                <label className="flex items-center space-x-2">
+                                                    <input
+                                                        type="radio"
+                                                        name="is_solo_parent"
+                                                        value="yes"
+                                                        checked={formData.is_solo_parent === 1}
+                                                        onChange={handleIsSoloParent}
+                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                                    />
+                                                    <span className="text-sm text-gray-700">Yes</span>
+                                                </label>
+                                                <label className="flex items-center space-x-2">
+                                                    <input
+                                                        type="radio"
+                                                        name="is_solo_parent"
+                                                        value="no"
+                                                        checked={formData.is_solo_parent === 0}
+                                                        onChange={handleIsSoloParent}
+                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                                    />
+                                                    <span className="text-sm text-gray-700">No</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">Solo Parent ID</label>
+                                            <input
+                                                type="text"
+                                                name="solo_parent_id"
+                                                value={formData.solo_parent_id}
+                                                onChange={handleChange}
+                                                placeholder='12345'
+                                                className="border text-sm text-gray-500 border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 mb-4 gap-6">
+                                        <div>
+                                            <div className='leading-3 mb-4'>
+                                                <label className="block text-sm font-medium text-gray-500">Are you a PWD?</label>
+                                            </div>
+                                            <div className="flex items-center space-x-4">
+                                                <label className="flex items-center space-x-2">
+                                                    <input
+                                                        type="radio"
+                                                        name="is_pwd"
+                                                        value="yes"
+                                                        checked={formData.is_pwd === 1}
+                                                        onChange={handleIsPWD}
+                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                                    />
+                                                    <span className="text-sm text-gray-700">Yes</span>
+                                                </label>
+                                                <label className="flex items-center space-x-2">
+                                                    <input
+                                                        type="radio"
+                                                        name="is_pwd"
+                                                        value="no"
+                                                        checked={formData.is_pwd === 0}
+                                                        onChange={handleIsPWD}
+                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                                    />
+                                                    <span className="text-sm text-gray-700">No</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">PWD ID</label>
+                                            <input
+                                                type="text"
+                                                name="pwd_id"
+                                                value={formData.pwd_id}
+                                                onChange={handleChange}
+                                                placeholder='12345'
+                                                className="border text-sm text-gray-500 border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            />
                                         </div>
                                     </div>
                                 </div>
