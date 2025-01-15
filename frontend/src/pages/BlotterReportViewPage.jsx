@@ -390,6 +390,7 @@ function AddRecordModal({ isOpen, onClose, blotter_id, onSuccess, }) {
     const [remarks, setRemarks] = useState("");
 
     const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+    const [isAlertSubmitOpen, setIsAlertSubmitOpen] = useState(false);
     const [error, setError] = useState("");
 
     useEffect(() => {
@@ -408,6 +409,7 @@ function AddRecordModal({ isOpen, onClose, blotter_id, onSuccess, }) {
         } catch (error) {
             console.error(error.message);
             setError(error.message);
+            resetError();
         }
     }
 
@@ -419,11 +421,12 @@ function AddRecordModal({ isOpen, onClose, blotter_id, onSuccess, }) {
         } catch (error) {
             console.error(error.message);
             setError(error.message);
+            resetError();
         }
     }
 
     const handleSubmit = async () => {
-        //Add Validation
+
         const payload = {
             hearing_date: null,
             blotter_id: blotter_id,
@@ -433,22 +436,44 @@ function AddRecordModal({ isOpen, onClose, blotter_id, onSuccess, }) {
             official_id: selectedBarangayOfficial?.official_id
         }
 
-        if (!remarks || !selectedAttendess || !selectedHearingStatus?.iid || !selectedBarangayOfficial?.official_id) return;
-
         try {
             const response = await axios.post(`http://${cfg.domainname}:${cfg.serverport}/blotter/add/blotter-hearings`, payload, { withCredentials: true });
             if (response.status === 201) {
                 setError(null);
                 onSuccess();
                 handleOnClose();
-
             }
-            console.log(response);
         } catch (error) {
             console.error(error);
             setError(error.response?.data?.message || "An error occurred.");
+            resetError();
         }
     };
+
+    const handleAlertSubmit = async () => {
+        if (!selectedAttendess || selectedAttendess.length === 0) {
+            setError("At least one attendee must be selected.");
+            resetError();
+            return;
+        }
+        if (!selectedBarangayOfficial?.official_id) {
+            setError("Please select an officer in charge.");
+            resetError();
+            return;
+        }
+        if (!selectedHearingStatus?.iid) {
+            setError("Please select a hearing status.");
+            resetError();
+            return;
+        }
+        if (!remarks) {
+            setError("Remarks field is required.");
+            resetError();
+            return;
+        }
+
+        setIsAlertSubmitOpen(true);
+    }
 
     const handleOnClose = () => {
         setSelectedBarangayOfficial("");
@@ -456,6 +481,7 @@ function AddRecordModal({ isOpen, onClose, blotter_id, onSuccess, }) {
         setRemarks("");
         setSelectedAttendess([]);
         setIsAlertModalOpen(false);
+        setIsAlertSubmitOpen(false);
         onClose();
     };
 
@@ -474,6 +500,13 @@ function AddRecordModal({ isOpen, onClose, blotter_id, onSuccess, }) {
     const handleRemoveAttendeesChange = (item) => {
         setSelectedAttendess((attendee) => attendee.filter((i) => i !== item));
     }
+
+    const resetError = () => {
+        setTimeout(() => {
+            setError("");
+        }, 4000);
+    };
+
 
     if (!isOpen) return null;
 
@@ -532,7 +565,7 @@ function AddRecordModal({ isOpen, onClose, blotter_id, onSuccess, }) {
                         <div className="col-span-full flex justify-end mt-4 space-x-4">
                             <button
                                 type="submit"
-                                onClick={() => handleSubmit()}
+                                onClick={() => handleAlertSubmit()}
                                 className={`bg-blue-500 text-white py-2 px-4 rounded-md `}
                             >
                                 Submit
@@ -558,6 +591,23 @@ function AddRecordModal({ isOpen, onClose, blotter_id, onSuccess, }) {
                         },
                     ]}
                 />
+                <AlertDialog
+                    isOpen={isAlertSubmitOpen}
+                    message={"Are you sure you want to submit? Once submitted, this action cannot be undone."}
+                    title="Confirm Submission"
+                    buttonConfig={[
+                        {
+                            label: "No, Cancel",
+                            color: "bg-gray-200 text-gray-600",
+                            action: () => setIsAlertSubmitOpen(false),
+                        },
+                        {
+                            label: "Yes, Submit",
+                            color: "bg-green-500 text-white",
+                            action: () => handleSubmit(),
+                        },
+                    ]}
+                />
             </div>
         </div>,
         document.body
@@ -578,6 +628,7 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
     const [remarks, setRemarks] = useState("");
 
     const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+    const [isAlertUpdateOpen, setIsAlertUpdateOpen] = useState(false);
     const [error, setError] = useState("");
 
     useEffect(() => {
@@ -609,6 +660,7 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
         } catch (error) {
             console.error(error.message);
             setError(error.message);
+            resetError();
         }
     }
 
@@ -629,6 +681,7 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
         } catch (error) {
             console.error(error.message);
             setError(error.message);
+            resetError();
         }
     }
 
@@ -648,19 +701,38 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
         } catch (error) {
             console.error(error.message);
             setError(error.message);
+            resetError();
         }
     }
 
     const handleUpdate = async () => {
-        //Add Validation
+        if (!selectedAttendess || selectedAttendess.length === 0) {
+            setError("At least one attendee must be selected.");
+            resetError();
+            return;
+        }
+        if (!selectedBarangayOfficial?.official_id) {
+            setError("Please select an officer in charge.");
+            resetError();
+            return;
+        }
+        if (!selectedHearingStatus?.iid) {
+            setError("Please select a hearing status.");
+            resetError();
+            return;
+        }
+        if (!remarks) {
+            setError("Remarks field is required.");
+            resetError();
+            return;
+        }
+
         const payload = {
             attendees: selectedAttendess,
             remarks: remarks,
             status_id: selectedHearingStatus?.iid,
             official_id: selectedBarangayOfficial?.official_id
         }
-
-        if (!remarks || !selectedAttendess || !selectedHearingStatus?.iid || !selectedBarangayOfficial?.official_id) return;
 
         try {
             const response = await axios.put(`http://${cfg.domainname}:${cfg.serverport}/blotter/update/hearing/` + hearing_id, payload, { withCredentials: true });
@@ -672,8 +744,34 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
         } catch (error) {
             console.error(error);
             setError(error.response?.data?.message || "An error occurred.");
+            resetError();
         }
     };
+
+    const handleAlertUpdate = async () => {
+        if (!selectedAttendess || selectedAttendess.length === 0) {
+            setError("At least one attendee must be selected.");
+            resetError();
+            return;
+        }
+        if (!selectedBarangayOfficial?.official_id) {
+            setError("Please select an officer in charge.");
+            resetError();
+            return;
+        }
+        if (!selectedHearingStatus?.iid) {
+            setError("Please select a hearing status.");
+            resetError();
+            return;
+        }
+        if (!remarks) {
+            setError("Remarks field is required.");
+            resetError();
+            return;
+        }
+
+        setIsAlertUpdateOpen(true);
+    }
 
     const handleOnClose = () => {
         setSelectedBarangayOfficial("");
@@ -681,6 +779,7 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
         setRemarks("");
         setSelectedAttendess([]);
         setIsAlertModalOpen(false);
+        setIsAlertUpdateOpen(false);
         onClose();
     };
 
@@ -699,6 +798,12 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
     const handleRemoveAttendeesChange = (item) => {
         setSelectedAttendess((attendee) => attendee.filter((i) => i !== item));
     }
+
+    const resetError = () => {
+        setTimeout(() => {
+            setError("");
+        }, 4000);
+    };
 
     if (!isOpen) return null;
 
@@ -757,7 +862,7 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
                         <div className="col-span-full flex justify-end mt-4 space-x-4">
                             <button
                                 type="submit"
-                                onClick={() => handleUpdate()}
+                                onClick={() => handleAlertUpdate()}
                                 className={`bg-blue-500 text-white py-2 px-4 rounded-md `}
                             >
                                 Update
@@ -783,6 +888,25 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
                         },
                     ]}
                 />
+
+                <AlertDialog
+                    isOpen={isAlertUpdateOpen}
+                    message={"Are you sure you want to proceed with the update?"}
+                    title="Confirm Update"
+                    buttonConfig={[
+                        {
+                            label: "No, Cancel",
+                            color: "bg-gray-200 text-gray-600",
+                            action: () => setIsAlertUpdateOpen(false),
+                        },
+                        {
+                            label: "Yes, Update",
+                            color: "bg-green-500 text-white",
+                            action: () => handleUpdate(),
+                        },
+                    ]}
+                />
+
             </div>
         </div>,
         document.body
