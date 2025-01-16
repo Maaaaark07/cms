@@ -136,6 +136,18 @@ const CertificationForm = () => {
                         className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
+                <div className='flex-1'>
+                    <label className="block mb-2 text-sm font-medium text-gray-500">
+                        Amount<span className="text-red-600">*</span>
+                    </label>
+                    <input
+                        type='date'
+                        name="amount"
+                        value={formData.amount}
+                        onChange={handleInputChange}
+                        className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
             </div>
 
             <div className="">
