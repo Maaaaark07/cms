@@ -1,4 +1,5 @@
 import axios from "axios";
+import cfg from '../../../server/config/domain.js';
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../components/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -10,7 +11,8 @@ import Breadcrumbs from "../components/Breadcrumbs";
 import Pagination from '../components/Pagination';
 import Search from '../components/Search';
 import StatusBadge from "../components/StatusBadge";
-import cfg from '../../../server/config/domain.js';
+import ToastMessage from "../components/ToastMessage.jsx";
+import AlertDialog from "../components/AlertDialog.jsx";
 
 import { IoPersonAddOutline, IoDocumentText } from "react-icons/io5";
 import { RxAvatar } from "react-icons/rx";
@@ -22,6 +24,7 @@ const IncidentReport = () => {
 
     const { barangayId } = useAuth();
     const { formatIncidentDate } = useDateFormatter();
+
     const navigate = useNavigate();
 
     const [blotters, setBlotters] = useState(null);
@@ -31,6 +34,13 @@ const IncidentReport = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    const [selectedDeleteId, setSelectedDeleteId] = useState(null);
+
+    //Toast
+    const [showDeleteToast, setShowDeleteToast] = useState(false);
+
+    //Alert
+    const [isAlertDeleteOpen, setIsAlertDeleteOpen] = useState(false);
 
     useEffect(() => {
         fetchBlotters();
@@ -79,6 +89,29 @@ const IncidentReport = () => {
     const handleViewBlotter = (id) => {
         navigate("/Blotter-Report/Blotter-Report-View", { state: { blotter_id: id } });
     };
+
+    const handleDeleteBlotter = async () => {
+        try {
+            const response = await axios.delete(`http://${cfg.domainname}:${cfg.serverport}/blotter/` + selectedDeleteId, {
+                withCredentials: true
+            });
+
+            if (response.status === 200 || response.status === 204) {
+                console.log("Deletion was successful.");
+                fetchBlotters();
+                setShowDeleteToast(true);
+            } else {
+                console.warn("Unexpected response status:", response.status);
+            }
+        } catch (error) {
+            console.error("Error occurred while deleting:", error);
+        }
+    };
+
+    const handleDeleteConfirmation = async (id) => {
+        setSelectedDeleteId(id);
+        setIsAlertDeleteOpen(true);
+    }
 
     return (
         <div className="flex flex-col h-screen">
@@ -150,7 +183,7 @@ const IncidentReport = () => {
                                                                     <FaRegEye className='w-5 h-5 text-gray-500' />
                                                                 </div>
                                                                 <div
-                                                                    className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'>
+                                                                    className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer' onClick={() => handleDeleteConfirmation(blotter?.blotter_id)}>
                                                                     <FaRegTrashAlt className='w-5 h-5 text-red-500' />
                                                                 </div>
                                                             </td>
@@ -178,6 +211,34 @@ const IncidentReport = () => {
                     </div>
                 </main>
             </div >
+            <ToastMessage
+                message="Blotter record successfully deleted!"
+                variant="delete"
+                isVisible={showDeleteToast}
+                duration={3000}
+                onClose={() => setShowDeleteToast(false)}
+            />
+            <AlertDialog
+                isOpen={isAlertDeleteOpen}
+                message={"Are you sure you want to delete this record? This action cannot be undone, and the record will be permanently removed."}
+                title="Delete Confirmation"
+                buttonConfig={[
+                    {
+                        label: "Cancel",
+                        color: "bg-gray-200 text-gray-600",
+                        action: () => setIsAlertDeleteOpen(false),
+                    },
+                    {
+                        label: "Yes, Delete",
+                        color: "bg-red-600 text-white",
+                        action: async () => {
+                            await handleDeleteBlotter();
+                            setIsAlertDeleteOpen(false);
+                        },
+                    },
+                ]}
+            />
+
         </div >
     );
 };

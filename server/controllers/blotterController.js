@@ -263,17 +263,24 @@ export const updateBlotter = async (req, res) => {
 };
 
 export const deleteBlotter = async (req, res) => {
+
     const { id } = req.params;
-    const sql = "DELETE FROM cbs_blotters WHERE id = ?";
-
+    console.log("Blotter Id:", id);
     try {
-        const result = await db.query(sql, [id]);
+        const query = "CALL DeleteBlotter(?)";
 
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ message: "Blotter record not found" });
-        }
+        db.query(query, [Number(id)], (error, results) => {
+            if (error) {
+                console.error("Error deleting blotter record:", error);
+                return res.status(500).json({ message: 'Error deleting blotter record' });
+            }
 
-        res.status(200).json({ message: "Blotter record deleted successfully" });
+            if (results.affectedRows === 0) {
+                return res.status(404).json({ message: 'blotter record not found' });
+            }
+
+            res.status(200).json({ message: 'blotter record deleted successfully' });
+        });
     } catch (error) {
         console.error("Error deleting blotter record:", error);
         res.status(500).json({ message: "Failed to delete blotter record" });
@@ -437,7 +444,6 @@ export const updateBlotterHearing = async (req, res) => {
         });
     }
 };
-
 
 export const deleteBlotterHearings = async (req, res) => {
     const { id } = req.params;
