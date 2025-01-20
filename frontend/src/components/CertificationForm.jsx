@@ -42,6 +42,7 @@ const CertificationForm = () => {
     const [overrideMessage, setOverrideMessage] = useState(null);
     const [isGenerating, setIsGenerating] = useState(false);
     const [isGenerateButtonDisabled, setIsGenerateButtonDisabled] = useState(false);
+    const [isPreview, setIsPreview] = useState(false);
     const textareaRef = useRef(null);
 
     const handleGenerateTextContent = () => {
@@ -141,7 +142,7 @@ const CertificationForm = () => {
                         Amount<span className="text-red-600">*</span>
                     </label>
                     <input
-                        type='date'
+                        type='number'
                         name="amount"
                         value={formData.amount}
                         onChange={handleInputChange}
@@ -222,25 +223,45 @@ const CertificationForm = () => {
                     </>
                 )}
 
-                <PDFViewer style={{ width: '100%', height: '100vh' }}>
-                    <CertificatePreview
-                        message={finalMessage}
-                        brgyOfficials={brgyOfficials}
-                        certificateTitle={selectedCertificateType?.iname || ''}
-                        date={formData.issuanceDate
-                            ? new Date(formData.issuanceDate).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                            })
-                            : new Date().toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                            })
-                        }
-                    />
-                </PDFViewer>
+                {isPreview && (
+
+                    <PDFViewer style={{ width: '100%', height: '100vh' }}>
+                        <CertificatePreview
+                            message={finalMessage}
+                            brgyOfficials={brgyOfficials}
+                            certificateTitle={selectedCertificateType?.iname || ''}
+                            date={formData.issuanceDate
+                                ? new Date(formData.issuanceDate).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                })
+                                : new Date().toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                })
+                            }
+                        />
+                    </PDFViewer>
+
+                )}
+
+
+                <div className="flex justify-end space-x-2 mb-4">
+                    <button
+                        onClick={() => setIsPreview(true)}
+                        className="bg-gray-500 text-white px-4 py-2 rounded-md text-sm hover:bg-gray-600"
+                    >
+                        Preview
+                    </button>
+                    {/* <button
+                        onClick={() => alert('Form submitted!')} // Replace with actual submit logic
+                        className="bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:bg-green-600"
+                    >
+                        Submit
+                    </button> */}
+                </div>
             </div>
         </div>
     );

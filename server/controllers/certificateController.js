@@ -47,3 +47,58 @@ export const getAllCertificateTypes = async (req, res) => {
         });
     }
 }
+
+export const addCertificationRequest = async (req, res) => {
+    const {
+        resident_id,
+        certification_type_id,
+        status_id,
+        amount,
+        purpose,
+        barangay_id,
+        issued_by,
+    } = req.body;
+
+    // Determine the file path for the certificate if uploaded
+    const certificate = req.file
+        ? `/uploads/certificates/${req.file.filename}`
+        : null; // Set to null if no file is uploaded
+
+    const sql = `
+        CALL AddCertificationRequest(?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    try {
+        await new Promise((resolve, reject) => {
+            db.query(
+                sql,
+                [
+                    resident_id,
+                    certification_type_id,
+                    status_id,
+                    amount,
+                    purpose,
+                    certificate,
+                    barangay_id,
+                    issued_by,
+                ],
+                (err, results) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(results);
+                    }
+                }
+            );
+        });
+
+        res.status(201).json({ message: "Certification request added successfully" });
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({
+            error: "Failed to add certification request",
+            details: error.message,
+        });
+    }
+};
+
