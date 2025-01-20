@@ -2,7 +2,7 @@ import axios from "axios";
 import cfg from '../../../server/config/domain.js';
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../components/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useDateFormatter } from "../hooks/useDateFormatter";
 
 import Header from "../components/Header";
@@ -26,6 +26,7 @@ const IncidentReport = () => {
     const { formatIncidentDate } = useDateFormatter();
 
     const navigate = useNavigate();
+    const location = useLocation();
 
     const [blotters, setBlotters] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -38,6 +39,7 @@ const IncidentReport = () => {
 
     //Toast
     const [showDeleteToast, setShowDeleteToast] = useState(false);
+    const [showSuccessToast, setShowSuccessToast] = useState(false);
 
     //Alert
     const [isAlertDeleteOpen, setIsAlertDeleteOpen] = useState(false);
@@ -45,6 +47,14 @@ const IncidentReport = () => {
     useEffect(() => {
         fetchBlotters();
     }, [barangayId]);
+
+    useEffect(() => {
+        if (location.state?.toastMessage) {
+            setShowSuccessToast(true);
+
+            window.history.replaceState({}, document.title);
+        }
+    }, [location]);
 
     async function fetchBlotters() {
         setLoading(true);
@@ -211,6 +221,7 @@ const IncidentReport = () => {
                     </div>
                 </main>
             </div >
+
             <ToastMessage
                 message="Blotter record successfully deleted!"
                 variant="delete"
@@ -218,6 +229,15 @@ const IncidentReport = () => {
                 duration={3000}
                 onClose={() => setShowDeleteToast(false)}
             />
+
+            <ToastMessage
+                message="Blotter record added successfully!"
+                variant="default"
+                isVisible={showSuccessToast}
+                duration={3000}
+                onClose={() => setShowSuccessToast(false)}
+            />
+
             <AlertDialog
                 isOpen={isAlertDeleteOpen}
                 message={"Are you sure you want to delete this record? This action cannot be undone, and the record will be permanently removed."}

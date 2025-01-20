@@ -30,6 +30,7 @@ const IncidentRepotViewPage = () => {
     const { formatIncidentDate } = useDateFormatter();
 
     const [blotterDetails, setBlotterDetails] = useState(null);
+    const [selectedWitnesses, setSelectedWitnesses] = useState([]);
     const [blotterHearingDetails, setBlotterHearingDetails] = useState([]);
     const [blotterHearingId, setBlotterHearingId] = useState(null);
     const [viewBlotterHearingId, setViewBlotterHearingId] = useState(null);
@@ -70,6 +71,15 @@ const IncidentRepotViewPage = () => {
                 withCredentials: true,
             });
             setBlotterDetails(response.data[0]);
+
+            try {
+                const parsedWitnesses = response.data[0].witnesses ? JSON.parse(response.data[0].witnesses) : [];
+                setSelectedWitnesses(Array.isArray(parsedWitnesses) ? parsedWitnesses : []);
+            } catch (parseError) {
+                console.error("Error parsing attendees:", parseError);
+                setSelectedWitnesses([]);
+            }
+
         } catch (error) {
             setError("Failed to fetch data. Please try again later.");
             console.error(error);
@@ -197,6 +207,22 @@ const IncidentRepotViewPage = () => {
                                                         </div>
                                                     </div>
                                                 ))}
+                                            </div>
+
+                                            {/* Witnesses */}
+                                            <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-6 border-b-2 pb-4">
+                                                <h2 className="text-lg font-bold text-gray-500">Witnesses</h2>
+                                                <div>
+                                                    {selectedWitnesses?.length > 0 ? (
+                                                        selectedWitnesses?.map((witnesses, index) => (
+                                                            <div key={index} className="mb-2">
+                                                                <label className="font-medium text-gray-500" key={index}>{index + 1}. </label>
+                                                                <span className="text-gray-400">{witnesses}</span>
+                                                            </div>
+                                                        ))) : (
+                                                        <p className="text-gray-400">No witnesses available</p>
+                                                    )}
+                                                </div>
                                             </div>
 
                                             {/* Statement Details */}
@@ -854,7 +880,7 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
                             <textarea
                                 className="border text-sm border-gray-300 p-2 h-48 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                                 name="certificateDetails"
-                                value={remarks}
+                                value={remarks || ""}
                                 onChange={(e) => setRemarks(e.target.value)}
                                 placeholder="Type remarks"
                             ></textarea>
@@ -1032,12 +1058,13 @@ function ViewRecordModal({ isOpen, onClose, hearing_id, setBlotterHearingId }) {
                         <div className="mb-6">
                             <label className='block text-lg font-semibold text-gray-500 mb-2'>Office in Charge:</label>
                             <div className="mb-2">
-                                <label className="font-medium text-gray-500">1. </label>
-                                {selectedBarangayOfficial ? (
-                                    <span className="text-gray-400">{selectedBarangayOfficial?.full_name}</span>
-                                ) : (
-                                    <p className="text-gray-400">No official assigned</p>
-                                )}
+                                <label className="font-medium text-gray-500">1.
+                                    {selectedBarangayOfficial ? (
+                                        <span className="text-gray-400">{selectedBarangayOfficial?.full_name}</span>
+                                    ) : (
+                                        <span className="text-gray-400"> No official assigned</span>
+                                    )}</label>
+
                             </div>
                         </div>
                         <div className="mb-6 max-w-[250px]">
