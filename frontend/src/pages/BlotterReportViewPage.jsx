@@ -603,7 +603,7 @@ function AddRecordModal({ isOpen, onClose, blotter_id, onSuccess, }) {
                         },
                         {
                             label: "Yes, Submit",
-                            color: "bg-green-500 text-white",
+                            color: "bg-emerald-500 text-white",
                             action: () => handleSubmit(),
                         },
                     ]}
@@ -901,7 +901,7 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
                         },
                         {
                             label: "Yes, Update",
-                            color: "bg-green-500 text-white",
+                            color: "bg-emerald-500 text-white",
                             action: () => handleUpdate(),
                         },
                     ]}
