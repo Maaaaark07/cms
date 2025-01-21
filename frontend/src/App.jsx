@@ -14,6 +14,8 @@ import Reports from "./pages/Reports";
 import EditResidentPage from "./pages/EditResidentPage ";
 import AddResidentPage from "./pages/AddResidentPage";
 import AddCertificationPage from "./pages/AddCertificationPage";
+import EditBlotterReportPage from "./pages/EditBlotterReportPage";
+import AppLayout from "./components/AppLayout";
 
 const App = () => {
     return (
@@ -73,7 +75,19 @@ const App = () => {
                     path="/blotter-report"
                     element={
                         <ProtectedRoute>
-                            <BlotterReport />
+                            <AppLayout>
+                                <BlotterReport />
+                            </AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/blotter-report/edit-complaint"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout>
+                                <EditBlotterReportPage />
+                            </AppLayout>
                         </ProtectedRoute>
                     }
                 />
@@ -97,7 +111,9 @@ const App = () => {
                     path="/user-management"
                     element={
                         <ProtectedRoute>
-                            <UserManagement />
+                            <AppLayout>
+                                <UserManagement />
+                            </AppLayout>
                         </ProtectedRoute>
                     }
                 />
