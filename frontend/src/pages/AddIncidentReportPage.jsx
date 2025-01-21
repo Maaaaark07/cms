@@ -1,4 +1,5 @@
 import axios from "axios";
+import cfg from '../../../server/config/domain.js';
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../components/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -10,7 +11,7 @@ import Pagination from '../components/Pagination';
 import Search from '../components/Search';
 import SearchDropdown from "../components/SearchDropdown";
 import SearchModal from "../components/SearchModal";
-import cfg from '../../../server/config/domain.js';
+import InputDropdown from "../components/InputDropdown";
 
 import { IoSearch } from "react-icons/io5";
 import { IoCloseCircleOutline } from "react-icons/io5";
@@ -18,6 +19,9 @@ import { IoCloseCircleOutline } from "react-icons/io5";
 const AddIncidentReportPage = () => {
 
     const { barangayId } = useAuth();
+    const navigate = useNavigate();
+
+    const [reporterId, setReporterId] = useState(null);
 
     const [isLoading, setIsLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState(null);
@@ -33,40 +37,13 @@ const AddIncidentReportPage = () => {
     const [complainantName, setComplainantName] = useState("");
     const [complainantAddress, setComplainantAddress] = useState("");
     const [complainantContact, setComplainantContact] = useState("");
-    // const [defendants, setDefendants] = useState([
-    //     { name: "", address: "", contact: "" }
-    // ]);
 
     const [defendants, setDefendants] = useState([]);
     const [defendantAddresses, setDefendantAddresses] = useState([]);
     const [defendantContacts, setDefendantContacts] = useState([]);
 
     const [statement, setStatement] = useState("");
-
-    // const addDefendant = () => {
-    //     if (defendants[0].name === "" || defendants[0].address === "" || defendants[0].contact === "") {
-    //         return;
-    //     }
-    //     setDefendants([...defendants, { name: "", address: "", contact: "" }]);
-    // };
-
-    // const handleDefendantChange = (index, fieldData) => {
-    //     setDefendants((prevDefendants) =>
-    //         prevDefendants.map((defendant, i) =>
-    //             i === index ? { ...defendant, ...fieldData } : defendant
-    //         )
-    //     );
-    // };
-
-    // const removeDefendant = (index) => {
-    //     if (defendants.length > 1) {
-    //         setDefendants((prevDefendants) =>
-    //             prevDefendants.filter((_, i) => i !== index)
-    //         );
-    //     } else {
-    //         alert("There must always be at least one defendant.");
-    //     }
-    // };
+    const [selectedWitnesses, setSelectedWitnesses] = useState("");
 
     // Modify the initial state to include the first defendant
     const addInitialDefendant = () => {
@@ -79,12 +56,33 @@ const AddIncidentReportPage = () => {
         addInitialDefendant();
     }, []);
 
+    useEffect(() => {
+        const fetchReporterId = async () => {
+            try {
+                const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/home`, { withCredentials: true });
+                if (response.status === 200) {
+                    setReporterId(response.data.user_id);
+                }
+            } catch (error) {
+                console.error("Error fetching reporter ID:", error);
+            }
+        };
+
+        fetchReporterId();
+    }, []);
+
     const addDefendant = () => {
+        const lastIndex = defendants.length - 1;
+        if (!defendants[lastIndex] || !defendantAddresses[lastIndex]) {
+            setErrorMessage("Please fill in all required fields for the current defendant before adding another.");
+            return;
+        }
+
         setDefendants([...defendants, ""]);
         setDefendantAddresses([...defendantAddresses, ""]);
         setDefendantContacts([...defendantContacts, ""]);
+        setErrorMessage(null);
     };
-
     const handleDefendantChange = (index, field, value) => {
         if (field === "name") {
             const newDefendants = [...defendants];
@@ -110,6 +108,7 @@ const AddIncidentReportPage = () => {
         setDefendants((prev) => prev.filter((_, i) => i !== index));
         setDefendantAddresses((prev) => prev.filter((_, i) => i !== index));
         setDefendantContacts((prev) => prev.filter((_, i) => i !== index));
+        setErrorMessage(null);
     };
 
     const handleComplaintTypeChange = (selectedValue) => {
@@ -122,6 +121,14 @@ const AddIncidentReportPage = () => {
         setComplainantAddress(`${resident.address || ""} ${resident.purok}, ${resident.barangay}`);
         setComplainantContact(resident.contact_number || "");
         setIsComplainantModalOpen(false);
+    }
+
+    const handleAddWitnessesChange = (item) => {
+        setSelectedWitnesses((witness) => [...witness, item]);
+    }
+
+    const handleRemoveWitnessesChange = (item) => {
+        setSelectedWitnesses((witness) => witness.filter((i) => i !== item));
     }
 
     const validateForm = () => {
@@ -140,9 +147,11 @@ const AddIncidentReportPage = () => {
             return;
         }
 
+        if (!reporterId) return;
+
         const payload = {
             incident_date: selectedIncidentDate,
-            reporter_id: 13,
+            reporter_id: reporterId,
             complainant_id: complainantId,
             complainant_name: complainantName,
             complainant_address: complainantAddress,
@@ -150,7 +159,7 @@ const AddIncidentReportPage = () => {
             defendants: defendants.filter(Boolean),
             defendantAddresses: defendantAddresses.filter(Boolean),
             defendantContacts: defendantContacts.filter(Boolean),
-            witnesses: "Sample Witnesses",
+            witnesses: selectedWitnesses,
             incident_type: selectedComplaintType?.title,
             incident_location: selectedIncidentLocation,
             incident_description: "Sample Description",
@@ -160,6 +169,7 @@ const AddIncidentReportPage = () => {
         };
 
         setIsLoading(true);
+
         try {
             const response = await axios.post(`http://${cfg.domainname}:${cfg.serverport}/blotter/add`, payload, { withCredentials: true });
             if (response.status === 201) {
@@ -175,6 +185,9 @@ const AddIncidentReportPage = () => {
                 setDefendantAddresses([]);
                 setDefendantContacts([]);
                 setStatement("");
+
+                //Navigate
+                navigate('/blotter-report', { state: { toastMessage: 'Blotter added successfully!' } });
             }
         } catch (error) {
             console.error(error);
@@ -244,7 +257,6 @@ const AddIncidentReportPage = () => {
                                 {/* Defendant Details */}
                                 <div className="grid grid-cols-1 gap-6 mb-8">
                                     {defendants.map((defendant, index) => (
-
                                         <div key={index} className="relative grid grid-cols-1 md:grid-cols-3 gap-6 mb-2">
                                             <div className="flex-1">
                                                 <label className="block mb-2 text-sm font-medium text-gray-500">
@@ -320,6 +332,19 @@ const AddIncidentReportPage = () => {
                                     </div>
                                 </div>
 
+                                {/* Witnesses */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                    <div className="flex-1">
+                                        <label className="block mb-2 text-base font-medium text-gray-500">Witnesses</label>
+                                        <InputDropdown
+                                            title="Add Witnesses"
+                                            placeholder="Type Witnesses Name"
+                                            options={selectedWitnesses}
+                                            onAddValue={handleAddWitnessesChange}
+                                            onRemoveValue={handleRemoveWitnessesChange} />
+                                    </div>
+                                </div>
+
                                 {/* Statement */}
                                 <div className="mb-8">
                                     <label className="block mb-2 text-sm font-medium text-gray-500">Statement<span className="text-red-600">*</span></label>
@@ -342,15 +367,12 @@ const AddIncidentReportPage = () => {
                                         {isLoading ? 'Submitting...' : 'Submit'}
                                     </button>
                                 </div>
-
-
                             </div>
                         </div>
                     </div>
                 </main>
             </div>
         </div>
-
     );
 }
 

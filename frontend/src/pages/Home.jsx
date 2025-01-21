@@ -43,7 +43,7 @@ const Home = () => {
                     console.error("Error Message:", error.message);
                 }
             });
-    }, []);
+    }, [barangayId]);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -94,10 +94,9 @@ const Home = () => {
         };
 
         fetchPopulationData();
-    }, []);
+    }, [barangayId]);
 
     if (error) return <div>{error}</div>;
-    console.log(barangayId);
 
     return (
         <div className="flex flex-col h-screen">

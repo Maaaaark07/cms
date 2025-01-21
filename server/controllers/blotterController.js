@@ -49,7 +49,6 @@ export const getBlottersById = async (req, res) => {
     }
 };
 
-
 // export const addBlotter = async (req, res) => {
 //     const {
 //         incident_date,
@@ -174,7 +173,7 @@ export const addBlotter = async (req, res) => {
             complainant_name || null,
             complainant_address || null,
             complainant_contact || null,
-            witnesses || null,
+            JSON.stringify(witnesses) || null,
             incident_type || null,
             incident_location || null,
             incident_description || null,
@@ -265,7 +264,6 @@ export const updateBlotter = async (req, res) => {
 export const deleteBlotter = async (req, res) => {
 
     const { id } = req.params;
-    console.log("Blotter Id:", id);
     try {
         const query = "CALL DeleteBlotter(?)";
 
@@ -314,7 +312,6 @@ export const getAllBlotterHearing = async (req, res) => {
 
 export const getBlotterHearingById = async (req, res) => {
     const { id } = req.params;
-    console.log(id);
     const sql = "SELECT * FROM cbs_blotter_hearings WHERE iid = ?;"
 
     try {
