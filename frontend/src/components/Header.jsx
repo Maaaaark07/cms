@@ -57,7 +57,22 @@ const Header = () => {
                     aria-haspopup="true"
                     aria-expanded={isDropdownOpen}
                 >
-                    <img src={userData.profile_image} alt="Logo" className="h-10 w-10 rounded-full object-contain mr-2" />
+                    {/* <img src={userData.profile_image} alt="Logo" className="h-10 w-10 rounded-full object-contain mr-2" /> */}
+                    <div
+                        className="w-10 h-10 rounded-full mr-2 shadow-lg"
+                        style={{
+                            backgroundImage: `url(http://${cfg.domainname}:${cfg.serverport}${userData.profile_image})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat',
+                            height: '2.5rem',
+                            width: '2.5rem',
+                            borderRadius: '50%',
+                            overflow: 'hidden',
+                        }}
+                        role="img"
+                        aria-label="Resident"
+                    />
 
                     <div className='flex flex-col items-start'>
                         {userData.user && (
