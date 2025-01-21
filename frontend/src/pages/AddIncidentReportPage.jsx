@@ -12,6 +12,7 @@ import Search from '../components/Search';
 import SearchDropdown from "../components/SearchDropdown";
 import SearchModal from "../components/SearchModal";
 import InputDropdown from "../components/InputDropdown";
+import AlertDialog from "../components/AlertDialog.jsx";
 
 import { IoSearch } from "react-icons/io5";
 import { IoCloseCircleOutline } from "react-icons/io5";
@@ -44,6 +45,9 @@ const AddIncidentReportPage = () => {
 
     const [statement, setStatement] = useState("");
     const [selectedWitnesses, setSelectedWitnesses] = useState("");
+
+    //Alert
+    const [isAlertSubmitOpen, setIsAlertSubmitOpen] = useState(false);
 
     // Modify the initial state to include the first defendant
     const addInitialDefendant = () => {
@@ -140,15 +144,19 @@ const AddIncidentReportPage = () => {
         return null;
     };
 
-    const handleSubmit = async () => {
+    const handleAlertSubmit = async () => {
+        if (!reporterId) return;
+
         const error = validateForm();
         if (error) {
             setErrorMessage(error);
             return;
         }
 
-        if (!reporterId) return;
+        setIsAlertSubmitOpen(true);
+    };
 
+    const handleSubmit = async () => {
         const payload = {
             incident_date: selectedIncidentDate,
             reporter_id: reporterId,
@@ -362,7 +370,7 @@ const AddIncidentReportPage = () => {
                                         type="submit"
                                         disabled={isLoading}
                                         className={`bg-blue-500 text-white py-2 px-4 rounded-md ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                        onClick={handleSubmit}
+                                        onClick={handleAlertSubmit}
                                     >
                                         {isLoading ? 'Submitting...' : 'Submit'}
                                     </button>
@@ -372,6 +380,28 @@ const AddIncidentReportPage = () => {
                     </div>
                 </main>
             </div>
+
+            <AlertDialog
+                isOpen={isAlertSubmitOpen}
+                message={"Are you sure you want to submit this record? This action will process the record."}
+                title="Submit Confirmation"
+                buttonConfig={[
+                    {
+                        label: "Cancel",
+                        color: "bg-gray-200 text-gray-600",
+                        action: () => setIsAlertSubmitOpen(false),
+                    },
+                    {
+                        label: "Yes, Submit",
+                        color: "bg-emerald-500 text-white",
+                        action: async () => {
+                            await handleSubmit();
+                            setIsAlertSubmitOpen(false);
+                        },
+                    },
+                ]}
+            />
+
         </div>
     );
 }
