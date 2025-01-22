@@ -103,7 +103,9 @@ const App = () => {
                     path="/blotter-report/add-complaint"
                     element={
                         <ProtectedRoute>
-                            <AddIncidentReportPage />
+                            <AppLayout>
+                                <AddIncidentReportPage />
+                            </AppLayout>
                         </ProtectedRoute>
                     }
                 />
