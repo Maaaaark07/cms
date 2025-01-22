@@ -134,7 +134,25 @@ function CardList({ children }) {
 function Card({ resident, onClick }) {
     return (
         <li className="flex items-center gap p-4 border rounded-md hover:bg-blue-50 border-gray-300 hover:border-blue-500 shadow-sm transition-colors cursor-pointer" onClick={onClick}>
-            <RxAvatar className='w-12 h-12 text-gray-400' />
+            {resident?.profile_image ? (
+                <div
+                    className="w-12 h-12 rounded-full"
+                    style={{
+                        backgroundImage: `url(http://${cfg.domainname}:${cfg.serverport}${resident?.profile_image})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat',
+                        height: '2.5rem',
+                        width: '2.5rem',
+                        borderRadius: '50%',
+                        overflow: 'hidden',
+                    }}
+                    role="img"
+                    aria-label="Resident"
+                />
+            ) : (
+                <RxAvatar className="w-10 h-10 text-gray-400" />
+            )}
             <div className="ml-4">
                 <h3 className="font-bold text-gray-800">{`${resident.first_name} ${resident.last_name}`}</h3>
                 <p className="text-sm text-gray-600">{`${resident.address}${resident.address ? "," : ""} ${resident.purok}, ${resident.barangay}`}</p>

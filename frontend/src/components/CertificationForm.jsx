@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { PDFViewer } from '@react-pdf/renderer';
+import { pdf } from '@react-pdf/renderer';
 
 import SearchDropdown from '../components/SearchDropdown';
 import CertificatePreview from '../components/CertificatePreview';
@@ -43,13 +44,43 @@ const CertificationForm = () => {
     const [isGenerating, setIsGenerating] = useState(false);
     const [isGenerateButtonDisabled, setIsGenerateButtonDisabled] = useState(false);
     const [isPreview, setIsPreview] = useState(false);
+    const [isMessageGenerated, setIsMessageGenerated] = useState(false);
     const textareaRef = useRef(null);
+
+
+    const handleOpenPreviewInNewTab = async () => {
+        if (!isMessageGenerated || !finalMessage) return;
+
+        // Generate the PDF document as a blob
+        const blob = await pdf(
+            <CertificatePreview
+                message={finalMessage}
+                brgyOfficials={brgyOfficials}
+                certificateTitle={selectedCertificateType?.iname || ''}
+                date={formData.issuanceDate
+                    ? new Date(formData.issuanceDate).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                    })
+                    : new Date().toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                    })
+                }
+            />
+        ).toBlob();
+
+        // Create a URL for the blob and open it in a new tab
+        const blobUrl = URL.createObjectURL(blob);
+        console.log(blobUrl);
+        window.open(blobUrl, '_blank');
+    };
 
     const handleGenerateTextContent = () => {
         if (renderCertificateMessage && renderCertificateMessage.length > 0) {
-
             setShowCustomPurpose(true);
-
             setIsGenerateButtonDisabled(true);
             setIsGenerating(true);
 
@@ -60,35 +91,36 @@ const CertificationForm = () => {
             const typeText = () => {
                 if (currentIndex < initialMessages.length) {
                     const currentMessage = initialMessages[currentIndex];
-
-                    // If this message is bold, wrap it in strong tags
                     const messageText = currentMessage.isBold
                         ? `<strong>${currentMessage.text}</strong>`
                         : currentMessage.text;
 
                     currentText += messageText + ' ';
 
-                    // Create a temp div to safely render HTML
                     const tempDiv = document.createElement('div');
                     tempDiv.innerHTML = currentText;
                     setCustomPurpose(tempDiv.innerText);
 
                     currentIndex++;
 
-                    // Randomize typing speed within 3-second total generation time
                     const delay = 5000 / initialMessages.length;
                     setTimeout(typeText, delay);
                 } else {
-                    // Set the final message with original bold formatting
                     setIsGenerating(false);
                     setOverrideMessage(initialMessages);
                     setIsGenerateButtonDisabled(false);
+                    setIsMessageGenerated(true); // Set this to true when generation is complete
+                    setIsPreview(false); // Automatically show preview when generation is complete
                 }
             };
 
-            // Start typing
             typeText();
         }
+    };
+
+    const handleSubmit = () => {
+        // Add your submit logic here
+        alert('Form submitted successfully!');
     };
 
     const handleEditTextContent = (e) => {
@@ -96,12 +128,9 @@ const CertificationForm = () => {
         setCustomPurpose(newValue);
     };
 
-    // Auto-resize textarea
     useEffect(() => {
         if (textareaRef.current) {
-            // Reset height to auto to correctly calculate the scroll height
             textareaRef.current.style.height = 'auto';
-            // Set height based on scroll height
             textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
         }
     }, [customPurpose]);
@@ -121,6 +150,7 @@ const CertificationForm = () => {
                     </label>
                     <SearchDropdown
                         onSelect={handleCertificateTypeChange}
+                        selectedValue={selectedCertificateType?.iname}
                         options={certificateTypes}
                         uniqueKey={'iname'}
                     />
@@ -214,7 +244,7 @@ const CertificationForm = () => {
                             />
                             {isGenerating && (
                                 <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="animate-pulse text-gray-400">
+                                    <div className="animate-pulse text-gray-800">
                                         Generating text...
                                     </div>
                                 </div>
@@ -223,8 +253,7 @@ const CertificationForm = () => {
                     </>
                 )}
 
-                {isPreview && (
-
+                {/* {isMessageGenerated && isPreview && (
                     <PDFViewer style={{ width: '100%', height: '100vh' }}>
                         <CertificatePreview
                             message={finalMessage}
@@ -244,24 +273,24 @@ const CertificationForm = () => {
                             }
                         />
                     </PDFViewer>
+                )} */}
 
+                {isMessageGenerated && (
+                    <div className="flex justify-end space-x-2 mt-4 mb-4">
+                        <button
+                            onClick={handleOpenPreviewInNewTab}
+                            className="bg-gray-500 text-white px-4 py-2 rounded-md text-sm hover:bg-gray-600"
+                        >
+                            Preview
+                        </button>
+                        <button
+                            onClick={handleSubmit}
+                            className="bg-blue-500 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-600"
+                        >
+                            Submit
+                        </button>
+                    </div>
                 )}
-
-
-                <div className="flex justify-end space-x-2 mb-4">
-                    <button
-                        onClick={() => setIsPreview(true)}
-                        className="bg-gray-500 text-white px-4 py-2 rounded-md text-sm hover:bg-gray-600"
-                    >
-                        Preview
-                    </button>
-                    {/* <button
-                        onClick={() => alert('Form submitted!')} // Replace with actual submit logic
-                        className="bg-green-500 text-white px-4 py-2 rounded-md text-sm hover:bg-green-600"
-                    >
-                        Submit
-                    </button> */}
-                </div>
             </div>
         </div>
     );

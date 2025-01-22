@@ -99,7 +99,7 @@ export const useCertificationForm = () => {
     };
 
     const handleCertificateTypeChange = (selectedValue) => {
-        const selectedCertificate = certificateTypes.find(cert => cert.iid === selectedValue.iid);
+        const selectedCertificate = certificateTypes.find(cert => cert?.iid === selectedValue?.iid);
         
         setFormData(prev => ({
             ...initialFormData,
@@ -107,6 +107,7 @@ export const useCertificationForm = () => {
         }));
 
         setSelectedCertificateType(selectedCertificate);
+        console.log(selectedCertificate);
     };
 
     const handleInputChange = (e) => {
