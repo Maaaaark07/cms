@@ -1,25 +1,31 @@
-import React from "react";
-
 const statusStyles = {
     New: {
-        backgroundColor: "#FFA80380",
-        color: "#664301",
+        backgroundColor: "#34ACFF",
+        color: "#fff",
     },
     "On going": {
-        backgroundColor: "#3F83F880",
-        color: "#1E429F",
-    },
-    Settled: {
-        backgroundColor: "#00A6AE80",
-        color: "#004246",
-    },
-    Reconciled: {
-        backgroundColor: "#00B83380",
-        color: "#004a14",
+        backgroundColor: "#FFAB00BF",
+        color: "#fff",
     },
     "Moved to higher court": {
-        backgroundColor: "#E7003680",
-        color: "#5c0016",
+        backgroundColor: "#E5553C",
+        color: "#fff",
+    },
+    Settled: {
+        backgroundColor: "#36B37E",
+        color: "#fff",
+    },
+    Closed: {
+        backgroundColor: "#acacac",
+        color: "#fff",
+    },
+    Hearing: {
+        backgroundColor: "#5D5BB4",
+        color: "#fff",
+    },
+    Reconciled: {
+        backgroundColor: "#0078D4",
+        color: "#fff",
     },
 };
 
