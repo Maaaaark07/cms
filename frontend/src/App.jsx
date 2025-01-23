@@ -16,6 +16,7 @@ import AddResidentPage from "./pages/AddResidentPage";
 import AddCertificationPage from "./pages/AddCertificationPage";
 import EditBlotterReportPage from "./pages/EditBlotterReportPage";
 import AppLayout from "./components/AppLayout";
+import MasterDataPage from "./pages/MasterDataPage";
 
 const App = () => {
     return (
@@ -77,6 +78,16 @@ const App = () => {
                         <ProtectedRoute>
                             <AppLayout>
                                 <BlotterReport />
+                            </AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/master-data"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout>
+                                <MasterDataPage />
                             </AppLayout>
                         </ProtectedRoute>
                     }
