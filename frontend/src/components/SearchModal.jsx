@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import ReactDOM from 'react-dom';
 import axios from 'axios';
+import cfg from '../../../server/config/domain.js';
 import { useAuth } from './AuthContext';
 import { IoClose } from "react-icons/io5";
 import { IoIosArrowBack } from "react-icons/io";
 import { RxAvatar } from "react-icons/rx";
-import cfg from '../../../server/config/domain.js';
 
 export default function SearchModal({
     isOpen,
@@ -78,7 +79,7 @@ export default function SearchModal({
 
     if (!isOpen) return null;
 
-    return (
+    return ReactDOM.createPortal(
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div className="bg-white w-full max-w-md rounded-lg shadow-lg p-6 max-h-[560px] min-h-[560px]">
                 <div className='flex justify-between'>
@@ -119,7 +120,7 @@ export default function SearchModal({
                     />
                 </div>
             </div>
-        </div>
+        </div>, document.body
     );
 }
 
