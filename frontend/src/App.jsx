@@ -8,7 +8,7 @@ import ResidentManagement from "./pages/ResidentManagement";
 import ApplicationRequest from "./pages/ApplicationRequest";
 import BlotterReport from "./pages/BlotterReportPage";
 import IncidentReportViewPage from "./pages/BlotterReportViewPage";
-import AddIncidentReportPage from "./pages/AddIncidentReportPage";
+import AddBlotterReportPage from "./pages/AddBlotterReportPage";
 import UserManagement from "./pages/UserManagement";
 import Reports from "./pages/Reports";
 import EditResidentPage from "./pages/EditResidentPage ";
@@ -115,7 +115,7 @@ const App = () => {
                     element={
                         <ProtectedRoute>
                             <AppLayout>
-                                <AddIncidentReportPage />
+                                <AddBlotterReportPage />
                             </AppLayout>
                         </ProtectedRoute>
                     }

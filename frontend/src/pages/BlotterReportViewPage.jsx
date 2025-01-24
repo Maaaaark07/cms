@@ -1060,7 +1060,7 @@ function ViewRecordModal({ isOpen, onClose, hearing_id, setBlotterHearingId }) {
                             <div className="mb-2">
                                 <label className="font-medium text-gray-500">1.
                                     {selectedBarangayOfficial ? (
-                                        <span className="text-gray-400">{selectedBarangayOfficial?.full_name}</span>
+                                        <span className="text-gray-400">{" " + selectedBarangayOfficial?.full_name}</span>
                                     ) : (
                                         <span className="text-gray-400"> No official assigned</span>
                                     )}</label>

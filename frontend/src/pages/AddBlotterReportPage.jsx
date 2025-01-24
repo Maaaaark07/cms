@@ -1,17 +1,17 @@
 import axios from "axios";
 import cfg from '../../../server/config/domain.js';
 import React, { useEffect, useState } from "react";
-import { useAuth } from "../components/AuthContext";
+import { useAuth } from "../components/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 
-import Header from "../components/Header";
-import Sidebar from "../components/Sidebar";
-import Breadcrumbs from "../components/Breadcrumbs";
-import Pagination from '../components/Pagination';
-import Search from '../components/Search';
-import SearchDropdown from "../components/SearchDropdown";
-import SearchModal from "../components/SearchModal";
-import InputDropdown from "../components/InputDropdown";
+import Header from "../components/Header.jsx";
+import Sidebar from "../components/Sidebar.jsx";
+import Breadcrumbs from "../components/Breadcrumbs.jsx";
+import Pagination from '../components/Pagination.jsx';
+import Search from '../components/Search.jsx';
+import SearchDropdown from "../components/SearchDropdown.jsx";
+import SearchModal from "../components/SearchModal.jsx";
+import InputDropdown from "../components/InputDropdown.jsx";
 import AlertDialog from "../components/AlertDialog.jsx";
 
 import { IoSearch } from "react-icons/io5";
@@ -326,7 +326,12 @@ const AddIncidentReportPage = () => {
                                         }
                                     />
                                 </div>
-                                <IoCloseCircleOutline className="w-5 h-5 absolute right-2 top-0 transform translate-x-1/2 text-red-500 cursor-pointer" onClick={() => removeDefendant(index)} />
+                                {defendants.length > 1 && (
+                                    <IoCloseCircleOutline
+                                        className="w-5 h-5 absolute right-2 top-0 transform translate-x-1/2 text-red-500 cursor-pointer"
+                                        onClick={() => removeDefendant(index)}
+                                    />
+                                )}
                             </div>
 
                         ))}
