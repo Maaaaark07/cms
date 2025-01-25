@@ -228,7 +228,7 @@ const IncidentReport = () => {
             />
 
             <ToastMessage
-                message="Blotter record added successfully!"
+                message={`Blotter record ${location.state?.type === "Update" ? "updated" : "added"} successfully!`}
                 variant="default"
                 isVisible={showSuccessToast}
                 duration={3000}

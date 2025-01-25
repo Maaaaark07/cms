@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import cfg from '../../../server/config/domain.js';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useDateFormatter } from '../hooks/useDateFormatter';
 
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -17,8 +17,11 @@ import { IoCloseCircleOutline } from "react-icons/io5";
 const EditBlotterReportPage = () => {
 
     const location = useLocation();
+    const navigate = useNavigate();
+
     const { formatIncidentDate } = useDateFormatter();
 
+    const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState(null);
 
     const [blotterId, setBlotterId] = useState(null);
@@ -35,6 +38,7 @@ const EditBlotterReportPage = () => {
     const [complainantContact, setComplainantContact] = useState("");
 
     const [currentDefendantIndex, setCurrentDefendantIndex] = useState(null);
+    const [removeCurrentDefendantIndex, setRemoveCurrentDefendantIndex] = useState(null);
     const [defendants, setDefendants] = useState([{
         name: '',
         address: '',
@@ -47,6 +51,10 @@ const EditBlotterReportPage = () => {
     //Modal States
     const [isComplainantModalOpen, setIsComplainantModalOpen] = useState(false);
     const [isDefendantModalOpen, setIsDefendantModalOpen] = useState(false);
+
+    //Alert
+    const [isAlertUpdateOpen, setIsAlertUpdateOpen] = useState(false);
+    const [isAlertRemoveDefendantOpen, setIsAlertRemoveDefendantOpen] = useState(false);
 
     useEffect(() => {
         if (location.state?.blotter_id) {
@@ -178,7 +186,6 @@ const EditBlotterReportPage = () => {
                 ...updatedDefendants[index],
                 [field]: value
             };
-            console.log(updatedDefendants);
             return updatedDefendants;
         });
     };
@@ -229,10 +236,65 @@ const EditBlotterReportPage = () => {
 
     const prepareDefendantsForSubmission = () => {
         return {
-            defendants: JSON.stringify(defendants.map(d => d.name)),
-            def_addresses: JSON.stringify(defendants.map(d => d.address)),
-            def_contacts: JSON.stringify(defendants.map(d => d.contact))
+            defendants: defendants.map(d => d.name),
+            def_addresses: defendants.map(d => d.address),
+            def_contacts: defendants.map(d => d.contact)
         };
+    };
+
+    const validateForm = () => {
+        if (!selectedComplaintType) return "Complaint type is required.";
+        if (!complainantName || !complainantAddress) return "Complainant details are incomplete.";
+        if (defendants.some(d => !d.name || !d.address)) return "Defendant details are incomplete.";
+        if (!statement.trim()) return "Statement is required.";
+        return null;
+    };
+
+    const handleAlertUpdateBlotterReport = () => {
+        const error = validateForm();
+        if (error) {
+            setErrorMessage(error);
+            return;
+        }
+
+        setIsAlertUpdateOpen(true);
+    }
+
+    const handleUpdateBlotterReport = async () => {
+
+        setIsLoading(true);
+
+        try {
+            const defendantData = prepareDefendantsForSubmission();
+
+            const payload = {
+                complainant_name: complainantName,
+                complainant_address: complainantAddress,
+                complainant_contact: complainantContact,
+                witnesses: selectedWitnesses,
+                incident_date: selectedIncidentDate,
+                incident_type: selectedComplaintType,
+                incident_location: selectedIncidentLocation,
+                incident_description: "Sample Description",
+                resolution: "Sample Resolution",
+                notes: statement,
+                ...defendantData
+            };
+
+            const response = await axios.put(`http://${cfg.domainname}:${cfg.serverport}/blotter/update/` + blotterId, payload, { withCredentials: true });
+
+            if (response.status === 200) {
+                setErrorMessage(null);
+
+                navigate('/blotter-report', { state: { toastMessage: 'Blotter updated successfully!', type: "Update" } });
+            }
+
+        } catch (error) {
+            console.error("Error updating blotter report:", error);
+            setErrorMessage("Error updating blotter report:", error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -240,11 +302,15 @@ const EditBlotterReportPage = () => {
             <Breadcrumbs />
             <div className="mx-auto bg-white p-10 rounded-lg">
                 <div className="mb-6 leading-3">
+                    <div className="mb-4 leading-3">
+                        <p className="text-lg font-semibold text-blue-500">
+                            CR-#{blotterId || "N/A"}
+                        </p>
+                    </div>
                     <h1 className="text-xl font-semibold text-gray-500">Edit Complaint</h1>
                     {blotterId ? (
-                        <p className="text-sm text-gray-400 mt-2">
-                            Editing blotter report with ID: {blotterId}
-                        </p>
+                        <p className="text-sm text-gray-400 mt-2">Fill out the form below to edit the details of an existing complaint in the system.</p>
+
                     ) : (
                         <p className="text-red-500 text-sm mb-4 mt-2">
                             No blotter report selected.
@@ -370,7 +436,10 @@ const EditBlotterReportPage = () => {
                                 {defendants.length > 1 && (
                                     <IoCloseCircleOutline
                                         className="w-5 h-5 absolute right-2 top-0 transform translate-x-1/2 text-red-500 cursor-pointer"
-                                        onClick={() => removeDefendant(index)}
+                                        onClick={() => {
+                                            setIsAlertRemoveDefendantOpen(true);
+                                            setRemoveCurrentDefendantIndex(index);
+                                        }}
                                     />
                                 )}
                             </div>
@@ -409,6 +478,17 @@ const EditBlotterReportPage = () => {
                             onChange={handleStatementChange}
                         ></textarea>
                     </div>
+
+                    <div className="col-span-1 md:col-span-3 flex justify-end mt-4 space-x-4">
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className={`bg-emerald-500 text-white py-2 px-4 rounded-md ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            onClick={() => handleAlertUpdateBlotterReport()}
+                        >
+                            {isLoading ? 'Updating...' : 'Update'}
+                        </button>
+                    </div>
                 </div>
             </div>
             <SearchModal
@@ -428,6 +508,49 @@ const EditBlotterReportPage = () => {
                         setCurrentDefendantIndex(null);
                     }
                 }}
+            />
+
+            <AlertDialog
+                isOpen={isAlertUpdateOpen}
+                message={"Are you sure you want to update this record? This action will process the record."}
+                title="Update Confirmation"
+                buttonConfig={[
+                    {
+                        label: "Cancel",
+                        color: "bg-gray-200 text-gray-600",
+                        action: () => setIsAlertUpdateOpen(false),
+                    },
+                    {
+                        label: "Yes, Update",
+                        color: "bg-emerald-500 text-white",
+                        action: async () => {
+                            await handleUpdateBlotterReport();
+                            setIsAlertUpdateOpen(false);
+                        },
+                    },
+                ]}
+            />
+
+            <AlertDialog
+                isOpen={isAlertRemoveDefendantOpen}
+                message={"Are you sure you want to remove this record? This action cannot be undone, and the record will be permanently removed."}
+                title="Delete Confirmation"
+                buttonConfig={[
+                    {
+                        label: "Cancel",
+                        color: "bg-gray-200 text-gray-600",
+                        action: () => setIsAlertRemoveDefendantOpen(false),
+                    },
+                    {
+                        label: "Yes, Delete",
+                        color: "bg-red-600 text-white",
+                        action: async () => {
+                            await removeDefendant(removeCurrentDefendantIndex);
+                            setIsAlertRemoveDefendantOpen(false);
+                            setRemoveCurrentDefendantIndex(null);
+                        },
+                    },
+                ]}
             />
         </div>
     );
