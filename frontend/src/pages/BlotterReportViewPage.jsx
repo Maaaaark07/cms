@@ -25,7 +25,7 @@ import { FaRegEye, FaRegTrashAlt } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import AlertDialog from "../components/AlertDialog.jsx";
 
-const IncidentRepotViewPage = () => {
+const BlotterReportViewPage = () => {
     const location = useLocation();
     const { formatIncidentDate } = useDateFormatter();
 
@@ -126,171 +126,166 @@ const IncidentRepotViewPage = () => {
     const contacts = JSON.parse(blotterDetails?.def_contacts || "[]");
 
     return (
-        <div className="flex flex-col h-screen">
-            <Header />
-            <div className="flex flex-row flex-grow">
-                <Sidebar />
-                <main className="flex-grow p-4 bg-gray-100">
-                    <div className="flex-grow p-6 bg-gray-100">
-                        <Breadcrumbs />
-                        {error && <div className="text-red-500 text-center mb-4">{error}</div>}
-                        {
-                            detailsLoading ? (<div className="text-center">Loading...</div>
-                            ) : (
-                                <>
-                                    <div className="mx-auto bg-white p-10 rounded-lg mb-12">
-                                        <div className="mb-6 leading-3">
-                                            <h1 className="text-lg font-semibold text-blue-500">
-                                                CR-#{blotterDetails?.blotter_id}
-                                            </h1>
+        <div className="flex-grow p-6 bg-gray-100">
+            <Breadcrumbs />
+            {error && <div className="text-red-500 text-center mb-4">{error}</div>}
+            {
+                detailsLoading ? (<div className="text-center">Loading...</div>
+                ) : (
+                    <>
+                        <div className="mx-auto bg-white p-10 rounded-lg mb-12">
+                            <div className="mb-6 leading-3">
+                                <h1 className="text-lg font-semibold text-blue-500">
+                                    CR-#{blotterDetails?.blotter_id}
+                                </h1>
+                            </div>
+                            <div className="col-span-1">
+                                {/* Complainants Details */}
+                                <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-6 border-b-2 pb-6">
+                                    <h2 className='text-lg font-bold text-gray-500'>Complainant</h2>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div className='flex-1'>
+                                            <label className="mb-1 font-medium text-gray-500">Name: </label>
+                                            <span className="text-gray-400">{blotterDetails?.complainant ?? "N/A"}</span>
                                         </div>
-                                        <div className="col-span-1">
-                                            {/* Complainants Details */}
-                                            <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-6 border-b-2 pb-6">
-                                                <h2 className='text-lg font-bold text-gray-500'>Complainant</h2>
-                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                    <div className='flex-1'>
-                                                        <label className="mb-1 font-medium text-gray-500">Name: </label>
-                                                        <span className="text-gray-400">{blotterDetails?.complainant ?? "N/A"}</span>
-                                                    </div>
-                                                    <div className='flex-1'>
-                                                        <label className="mb-1 font-medium text-gray-500">Nature of Complaint: </label>
-                                                        <span className="text-gray-400">{blotterDetails?.incident_type ?? "N/A"}</span>
-                                                    </div>
-                                                    <div className='flex-1'>
-                                                        <label className="mb-1 font-medium text-gray-500">Address: </label>
-                                                        <span className="text-gray-400">{blotterDetails?.address ?? "N/A"}</span>
-                                                    </div>
-                                                    <div className='flex-1'>
-                                                        <label className="mb-1 font-medium text-gray-500">Date of Filling: </label>
-                                                        <span className="text-gray-400">{formatIncidentDate(blotterDetails?.report_date) ?? "N/A"}</span>
-                                                    </div>
-                                                    <div className='flex-1'>
-                                                        <label className="mb-1 font-medium text-gray-500">Contact Number: </label>
-                                                        <span className="text-gray-400">{blotterDetails?.contact ?? "N/A"}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Defendants Details */}
-                                            <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-6">
-                                                <div className="flex justify-between items-center">
-                                                    <h2 className="text-lg font-bold text-gray-500">Defendants/Respondents</h2>
-                                                    <div className="select-none" onClick={() => setIsSingleColumn((prev) => !prev)}>
-                                                        {
-                                                            isSingleColumn
-                                                                ? <LuLayoutList className="w-6 h-6  text-gray-500 cursor-pointer" />
-                                                                : <LuLayoutGrid className="w-6 h-6 text-gray-500 cursor-pointer" />
-                                                        }
-                                                    </div>
-                                                </div>
-                                                {defendants.map((defendant, index) => (
-                                                    <div
-                                                        key={index}
-                                                        className={`grid grid-cols-1 ${!isSingleColumn ? 'md:grid-cols-1' : 'md:grid-cols-3'} gap-4 border-b-2 pb-4`}
-                                                    >
-                                                        <div>
-                                                            <label className="mb-1 font-medium text-gray-500">Name: </label>
-                                                            <span className="text-gray-400">{defendant}</span>
-                                                        </div>
-                                                        <div>
-                                                            <label className="mb-1 font-medium text-gray-500">Address: </label>
-                                                            <span className="text-gray-400">
-                                                                {addresses[index] ?? "N/A"}
-                                                            </span>
-                                                        </div>
-                                                        <div>
-                                                            <label className="mb-1 font-medium text-gray-500">Contact Number: </label>
-                                                            <span className="text-gray-400">
-                                                                {contacts[index] ?? "N/A"}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-
-                                            {/* Witnesses */}
-                                            <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-6 border-b-2 pb-4">
-                                                <h2 className="text-lg font-bold text-gray-500">Witnesses</h2>
-                                                <div>
-                                                    {selectedWitnesses?.length > 0 ? (
-                                                        selectedWitnesses?.map((witnesses, index) => (
-                                                            <div key={index} className="mb-2">
-                                                                <label className="font-medium text-gray-500" key={index}>{index + 1}. </label>
-                                                                <span className="text-gray-400">{witnesses}</span>
-                                                            </div>
-                                                        ))) : (
-                                                        <p className="text-gray-400">No witnesses available</p>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            {/* Statement Details */}
-                                            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-                                                <h2 className="text-lg font-bold text-gray-500">Statements</h2>
-                                                <p className="text-gray-400 max-w-screen-lg">
-                                                    {blotterDetails?.notes ?? "N/A"}
-                                                </p>
-                                            </div>
+                                        <div className='flex-1'>
+                                            <label className="mb-1 font-medium text-gray-500">Nature of Complaint: </label>
+                                            <span className="text-gray-400">{blotterDetails?.incident_type ?? "N/A"}</span>
+                                        </div>
+                                        <div className='flex-1'>
+                                            <label className="mb-1 font-medium text-gray-500">Address: </label>
+                                            <span className="text-gray-400">{blotterDetails?.address ?? "N/A"}</span>
+                                        </div>
+                                        <div className='flex-1'>
+                                            <label className="mb-1 font-medium text-gray-500">Date of Filling: </label>
+                                            <span className="text-gray-400">{formatIncidentDate(blotterDetails?.report_date) ?? "N/A"}</span>
+                                        </div>
+                                        <div className='flex-1'>
+                                            <label className="mb-1 font-medium text-gray-500">Contact Number: </label>
+                                            <span className="text-gray-400">{blotterDetails?.contact ?? "N/A"}</span>
                                         </div>
                                     </div>
-                                    <div>
-                                        <div className='flex items-center justify-end mb-6'>
-                                            <button className='bg-blue-600 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full' onClick={() => setIsAddRecordModalOpen(true)}>
-                                                <IoDocumentText className='w-4 h-4 text-white font-bold' />
-                                                Record Session
-                                            </button>
+                                </div>
+
+                                {/* Defendants Details */}
+                                <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-6">
+                                    <div className="flex justify-between items-center">
+                                        <h2 className="text-lg font-bold text-gray-500">Defendants/Respondents</h2>
+                                        <div className="select-none" onClick={() => setIsSingleColumn((prev) => !prev)}>
+                                            {
+                                                isSingleColumn
+                                                    ? <LuLayoutList className="w-6 h-6  text-gray-500 cursor-pointer" />
+                                                    : <LuLayoutGrid className="w-6 h-6 text-gray-500 cursor-pointer" />
+                                            }
                                         </div>
-                                        <div className="overflow-x-auto rounded-lg mt-4">
-                                            {hearingLoading ? (<div className="text-center">Loading... </div>
-                                            ) : (
-                                                <table className="min-w-full bg-white shadow-md  overflow-hidden text-sm">
-                                                    <thead className='bg-gray-200'>
-                                                        <tr>
-                                                            <th className="text-left p-3 font-semibold text-gray-700">Hearing Date</th>
-                                                            <th className="text-left p-3 font-semibold text-gray-700">Attendees</th>
-                                                            <th className="text-left p-3 font-semibold text-gray-700">Resolution Remarks</th>
-                                                            <th className="text-left p-3 font-semibold text-gray-700">Status</th>
-                                                            <th className="text-center p-3 font-semibold text-gray-700">Action</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {blotterHearingDetails && blotterHearingDetails?.length > 0 ? (
-                                                            blotterHearingDetails?.map((hearing, index) => {
-                                                                const isLatest = index === blotterHearingDetails.length - 1; // 
-                                                                const isDefault = blotterHearingDetails?.length === 1;
-                                                                return (
-                                                                    <tr
-                                                                        key={hearing.hearing_id}
-                                                                        className="border-b hover:bg-gray-100 even:bg-gray-50"
-                                                                    >
-                                                                        <td className="p-4 text-sm text-gray-500">
-                                                                            {formatIncidentDate(hearing.hearing_date)}
-                                                                        </td>
-                                                                        <td className="p-4 text-sm text-gray-500">
-                                                                            {hearing?.attendees && JSON.parse(hearing.attendees).length > 0
-                                                                                ? JSON.parse(hearing.attendees).join(", ")
-                                                                                : "N/A"}
-                                                                        </td>
-                                                                        <td className="p-4 text-sm text-gray-500">
-                                                                            {hearing.remarks ?? "N/A"}
-                                                                        </td>
-                                                                        <td className="p-4 text-sm text-gray-500">
-                                                                            <StatusBadge status={hearing.status} />
-                                                                        </td>
-                                                                        <td className="p-3 text-gray-500 flex items-center justify-center gap-2">
-                                                                            {isLatest ? (
-                                                                                <>
-                                                                                    <div
-                                                                                        className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer"
-                                                                                        onClick={() => {
-                                                                                            setBlotterHearingId(hearing.hearing_id);
-                                                                                            setIsEditRecordModalOpen(true);
-                                                                                        }}
-                                                                                    >
-                                                                                        <GrEdit className="w-5 h-5 text-gray-500" />
-                                                                                    </div>
-                                                                                    {/* {isDefault ? (
+                                    </div>
+                                    {defendants.map((defendant, index) => (
+                                        <div
+                                            key={index}
+                                            className={`grid grid-cols-1 ${!isSingleColumn ? 'md:grid-cols-1' : 'md:grid-cols-3'} gap-4 border-b-2 pb-4`}
+                                        >
+                                            <div>
+                                                <label className="mb-1 font-medium text-gray-500">Name: </label>
+                                                <span className="text-gray-400">{defendant}</span>
+                                            </div>
+                                            <div>
+                                                <label className="mb-1 font-medium text-gray-500">Address: </label>
+                                                <span className="text-gray-400">
+                                                    {addresses[index] ?? "N/A"}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <label className="mb-1 font-medium text-gray-500">Contact Number: </label>
+                                                <span className="text-gray-400">
+                                                    {contacts[index] ?? "N/A"}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Witnesses */}
+                                <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-6 border-b-2 pb-4">
+                                    <h2 className="text-lg font-bold text-gray-500">Witnesses</h2>
+                                    <div>
+                                        {selectedWitnesses?.length > 0 ? (
+                                            selectedWitnesses?.map((witnesses, index) => (
+                                                <div key={index} className="mb-2">
+                                                    <label className="font-medium text-gray-500" key={index}>{index + 1}. </label>
+                                                    <span className="text-gray-400">{witnesses}</span>
+                                                </div>
+                                            ))) : (
+                                            <p className="text-gray-400">No witnesses available</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Statement Details */}
+                                <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                                    <h2 className="text-lg font-bold text-gray-500">Statements</h2>
+                                    <p className="text-gray-400 max-w-screen-lg">
+                                        {blotterDetails?.notes ?? "N/A"}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div className='flex items-center justify-end mb-6'>
+                                <button className='bg-blue-600 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full' onClick={() => setIsAddRecordModalOpen(true)}>
+                                    <IoDocumentText className='w-4 h-4 text-white font-bold' />
+                                    Record Session
+                                </button>
+                            </div>
+                            <div className="overflow-x-auto rounded-lg mt-4">
+                                {hearingLoading ? (<div className="text-center">Loading... </div>
+                                ) : (
+                                    <table className="min-w-full bg-white shadow-md  overflow-hidden text-sm">
+                                        <thead className='bg-gray-200'>
+                                            <tr>
+                                                <th className="text-left p-3 font-semibold text-gray-700">Hearing Date</th>
+                                                <th className="text-left p-3 font-semibold text-gray-700">Attendees</th>
+                                                <th className="text-left p-3 font-semibold text-gray-700">Resolution Remarks</th>
+                                                <th className="text-left p-3 font-semibold text-gray-700">Status</th>
+                                                <th className="text-center p-3 font-semibold text-gray-700">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {blotterHearingDetails && blotterHearingDetails?.length > 0 ? (
+                                                blotterHearingDetails?.map((hearing, index) => {
+                                                    const isLatest = index === blotterHearingDetails.length - 1; // 
+                                                    const isDefault = blotterHearingDetails?.length === 1;
+                                                    return (
+                                                        <tr
+                                                            key={hearing.hearing_id}
+                                                            className="border-b hover:bg-gray-100 even:bg-gray-50"
+                                                        >
+                                                            <td className="p-4 text-sm text-gray-500">
+                                                                {formatIncidentDate(hearing.hearing_date)}
+                                                            </td>
+                                                            <td className="p-4 text-sm text-gray-500">
+                                                                {hearing?.attendees && JSON.parse(hearing.attendees).length > 0
+                                                                    ? JSON.parse(hearing.attendees).join(", ")
+                                                                    : "N/A"}
+                                                            </td>
+                                                            <td className="p-4 text-sm text-gray-500">
+                                                                {hearing.remarks ?? "N/A"}
+                                                            </td>
+                                                            <td className="p-4 text-sm text-gray-500">
+                                                                <StatusBadge status={hearing.status} />
+                                                            </td>
+                                                            <td className="p-3 text-gray-500 flex items-center justify-center gap-2">
+                                                                {isLatest ? (
+                                                                    <>
+                                                                        <div
+                                                                            className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer"
+                                                                            onClick={() => {
+                                                                                setBlotterHearingId(hearing.hearing_id);
+                                                                                setIsEditRecordModalOpen(true);
+                                                                            }}
+                                                                        >
+                                                                            <GrEdit className="w-5 h-5 text-gray-500" />
+                                                                        </div>
+                                                                        {/* {isDefault ? (
                                                                                         <div className="bg-gray-200 p-2 w-max rounded-lg cursor-not-allowed opacity-50">
                                                                                             <FaRegTrashAlt className="w-5 h-5 text-red-500" />
                                                                                         </div>
@@ -303,104 +298,101 @@ const IncidentRepotViewPage = () => {
                                                                                             <FaRegTrashAlt className="w-5 h-5 text-red-500" />
                                                                                         </div>
                                                                                     )} */}
-                                                                                </>
-                                                                            ) : (
-                                                                                <>
-                                                                                    <div className="bg-gray-200 p-2 w-max rounded-lg cursor-not-allowed opacity-50">
-                                                                                        <GrEdit className="w-5 h-5 text-gray-500" />
-                                                                                    </div>
-                                                                                    {/* <div className="bg-gray-200 p-2 w-max rounded-lg cursor-not-allowed opacity-50">
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <div className="bg-gray-200 p-2 w-max rounded-lg cursor-not-allowed opacity-50">
+                                                                            <GrEdit className="w-5 h-5 text-gray-500" />
+                                                                        </div>
+                                                                        {/* <div className="bg-gray-200 p-2 w-max rounded-lg cursor-not-allowed opacity-50">
                                                                                         <FaRegTrashAlt className="w-5 h-5 text-red-500" />
                                                                                     </div> */}
-                                                                                </>
-                                                                            )}
+                                                                    </>
+                                                                )}
 
-                                                                            <div className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer" onClick={() => {
-                                                                                setViewBlotterHearingId(hearing?.hearing_id);
-                                                                                setIsViewRecordModalOpen(true);
-                                                                            }}>
-                                                                                <FaRegEye className="w-5 h-5 text-gray-500" />
-                                                                            </div>
-                                                                        </td>
-                                                                    </tr>
-                                                                );
-                                                            })
-                                                        ) : (
-                                                            <tr>
-                                                                <td
-                                                                    colSpan={6}
-                                                                    className="p-4 text-center text-sm text-gray-500"
-                                                                >
-                                                                    No Data Available.
-                                                                </td>
-                                                            </tr>
-                                                        )}
-                                                    </tbody>
-                                                </table>
+                                                                <div className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer" onClick={() => {
+                                                                    setViewBlotterHearingId(hearing?.hearing_id);
+                                                                    setIsViewRecordModalOpen(true);
+                                                                }}>
+                                                                    <FaRegEye className="w-5 h-5 text-gray-500" />
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })
+                                            ) : (
+                                                <tr>
+                                                    <td
+                                                        colSpan={6}
+                                                        className="p-4 text-center text-sm text-gray-500"
+                                                    >
+                                                        No Data Available.
+                                                    </td>
+                                                </tr>
                                             )}
-                                        </div>
-                                    </div>
-                                </>
-                            )
+                                        </tbody>
+                                    </table>
+                                )}
+                            </div>
+                        </div>
+                    </>
+                )
 
-                        }
-                        {/* <Pagination
+            }
+            {/* <Pagination
                            currentPage={currentPage}
                            totalPages={totalFilteredPages}
                            onPageChange={handlePageChange}
                            itemsPerPage={itemsPerPage}
                            onItemsPerPageChange={handleItemsPerPageChange} /> */}
 
-                        <ToastMessage
-                            message="Blotter hearing successfully added!"
-                            variant="default"
-                            isVisible={showAddToast}
-                            duration={3000}
-                            onClose={() => setShowAddToast(false)}
-                        />
-                        <ToastMessage
-                            message="Blotter hearing successfully updated!"
-                            variant="default"
-                            isVisible={showUpdateToast}
-                            duration={3000}
-                            onClose={() => setShowUpdateToast(false)}
-                        />
-                        <ToastMessage
-                            message="Blotter hearing successfully deleted!"
-                            variant="delete"
-                            isVisible={showDeleteToast}
-                            duration={3000}
-                            onClose={() => setShowDeleteToast(false)}
-                        />
-                        <AddRecordModal
-                            isOpen={isAddRecordModalOpen}
-                            onClose={() => setIsAddRecordModalOpen(false)}
-                            blotter_id={blotter_id}
-                            onSuccess={() => {
-                                fetchBlotterHearings();
-                                setShowAddToast(true);
-                            }} />
-                        <EditRecordModal
-                            isOpen={isEditRecordModalOpen}
-                            onClose={() => setIsEditRecordModalOpen(false)}
-                            hearing_id={blotterHearingId}
-                            onSuccess={() => {
-                                fetchBlotterHearings();
-                                setShowUpdateToast(true);
-                            }} />
-                        <ViewRecordModal
-                            isOpen={isViewRecordModalOpen}
-                            onClose={() => setIsViewRecordModalOpen(false)}
-                            hearing_id={viewBlotterHearingId}
-                            setBlotterHearingId={setBlotterHearingId} />
-                    </div>
-                </main>
-            </div >
-        </div >
+            <ToastMessage
+                message="Blotter hearing successfully added!"
+                variant="default"
+                isVisible={showAddToast}
+                duration={3000}
+                onClose={() => setShowAddToast(false)}
+            />
+            <ToastMessage
+                message="Blotter hearing successfully updated!"
+                variant="default"
+                isVisible={showUpdateToast}
+                duration={3000}
+                onClose={() => setShowUpdateToast(false)}
+            />
+            <ToastMessage
+                message="Blotter hearing successfully deleted!"
+                variant="delete"
+                isVisible={showDeleteToast}
+                duration={3000}
+                onClose={() => setShowDeleteToast(false)}
+            />
+            <AddRecordModal
+                isOpen={isAddRecordModalOpen}
+                onClose={() => setIsAddRecordModalOpen(false)}
+                blotter_id={blotter_id}
+                onSuccess={() => {
+                    fetchBlotterHearings();
+                    setShowAddToast(true);
+                }} />
+            <EditRecordModal
+                isOpen={isEditRecordModalOpen}
+                onClose={() => setIsEditRecordModalOpen(false)}
+                hearing_id={blotterHearingId}
+                onSuccess={() => {
+                    fetchBlotterHearings();
+                    setShowUpdateToast(true);
+                }} />
+            <ViewRecordModal
+                isOpen={isViewRecordModalOpen}
+                onClose={() => setIsViewRecordModalOpen(false)}
+                hearing_id={viewBlotterHearingId}
+                setBlotterHearingId={setBlotterHearingId} />
+        </div>
     );
 };
 
-export default IncidentRepotViewPage;
+export default BlotterReportViewPage;
 
 
 function AddRecordModal({ isOpen, onClose, blotter_id, onSuccess, }) {
