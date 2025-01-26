@@ -39,6 +39,8 @@ const AddIncidentReportPage = () => {
     const [complainantAddress, setComplainantAddress] = useState("");
     const [complainantContact, setComplainantContact] = useState("");
 
+    const [currentDefendantIndex, setCurrentDefendantIndex] = useState(null);
+    const [removeCurrentDefendantIndex, setRemoveCurrentDefendantIndex] = useState(null);
     const [defendants, setDefendants] = useState([]);
     const [defendantAddresses, setDefendantAddresses] = useState([]);
     const [defendantContacts, setDefendantContacts] = useState([]);
@@ -48,6 +50,7 @@ const AddIncidentReportPage = () => {
 
     //Alert
     const [isAlertSubmitOpen, setIsAlertSubmitOpen] = useState(false);
+    const [isAlertRemoveDefendantOpen, setIsAlertRemoveDefendantOpen] = useState(false);
 
     // Modify the initial state to include the first defendant
     const addInitialDefendant = () => {
@@ -275,19 +278,13 @@ const AddIncidentReportPage = () => {
                                                 handleDefendantChange(index, "name", e.target.value)
                                             }
                                         />
-                                        <div className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md" onClick={() => setIsDefendantModalOpen((prev) => !prev)}>
+                                        <div className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md"
+                                            onClick={() => {
+                                                setCurrentDefendantIndex(index);
+                                                setIsDefendantModalOpen(true);
+                                            }}>
                                             <IoSearch className="w-5 h-5 text-white" />
                                         </div>
-                                        <SearchModal
-                                            title="Select Defendant"
-                                            isOpen={isDefendantModalOpen}
-                                            onClose={() => setIsDefendantModalOpen(false)}
-                                            onSelect={(resident) => {
-                                                handleDefendantChange(index, "name", `${resident.first_name} ${resident.last_name}`);
-                                                handleDefendantChange(index, "address", `${resident.address || ""} ${resident.purok}, ${resident.barangay}`);
-                                                handleDefendantChange(index, "contact", resident.contact_number);
-                                            }}
-                                        />
                                     </div>
                                 </div>
                                 <div className="flex-1">
@@ -329,7 +326,10 @@ const AddIncidentReportPage = () => {
                                 {defendants.length > 1 && (
                                     <IoCloseCircleOutline
                                         className="w-5 h-5 absolute right-2 top-0 transform translate-x-1/2 text-red-500 cursor-pointer"
-                                        onClick={() => removeDefendant(index)}
+                                        onClick={() => {
+                                            setIsAlertRemoveDefendantOpen(true);
+                                            setRemoveCurrentDefendantIndex(index);
+                                        }}
                                     />
                                 )}
                             </div>
@@ -378,6 +378,23 @@ const AddIncidentReportPage = () => {
                 </div>
             </div>
 
+            <SearchModal
+                title="Select Defendant"
+                isOpen={isDefendantModalOpen}
+                onClose={() => {
+                    setIsDefendantModalOpen(false);
+                    setCurrentDefendantIndex(null);
+                }}
+                onSelect={(resident) => {
+                    handleDefendantChange(currentDefendantIndex, "name", `${resident.first_name} ${resident.last_name}`);
+                    handleDefendantChange(currentDefendantIndex, "address", `${resident.address || ""} ${resident.purok}, ${resident.barangay}`);
+                    handleDefendantChange(currentDefendantIndex, "contact", resident.contact_number);
+
+                    setIsDefendantModalOpen(false);
+                    setCurrentDefendantIndex(null);
+                }}
+            />
+
             <AlertDialog
                 isOpen={isAlertSubmitOpen}
                 message={"Are you sure you want to submit this record? This action will process the record."}
@@ -398,9 +415,29 @@ const AddIncidentReportPage = () => {
                     },
                 ]}
             />
+
+            <AlertDialog
+                isOpen={isAlertRemoveDefendantOpen}
+                message={"Are you sure you want to remove this record? This action cannot be undone, and the record will be permanently removed."}
+                title="Delete Confirmation"
+                buttonConfig={[
+                    {
+                        label: "Cancel",
+                        color: "bg-gray-200 text-gray-600",
+                        action: () => setIsAlertRemoveDefendantOpen(false),
+                    },
+                    {
+                        label: "Yes, Delete",
+                        color: "bg-red-600 text-white",
+                        action: async () => {
+                            await removeDefendant(removeCurrentDefendantIndex);
+                            setIsAlertRemoveDefendantOpen(false);
+                            setRemoveCurrentDefendantIndex(null);
+                        },
+                    },
+                ]}
+            />
         </div>
-
-
     );
 }
 

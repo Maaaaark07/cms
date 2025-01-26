@@ -7,7 +7,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ResidentManagement from "./pages/ResidentManagement";
 import ApplicationRequest from "./pages/ApplicationRequest";
 import BlotterReport from "./pages/BlotterReportPage";
-import IncidentReportViewPage from "./pages/BlotterReportViewPage";
+import BlotterReportViewPage from "./pages/BlotterReportViewPage";
 import AddBlotterReportPage from "./pages/AddBlotterReportPage";
 import UserManagement from "./pages/UserManagement";
 import Reports from "./pages/Reports";
@@ -106,7 +106,9 @@ const App = () => {
                     path="/Blotter-Report/Blotter-Report-View"
                     element={
                         <ProtectedRoute>
-                            <IncidentReportViewPage />
+                            <AppLayout>
+                                <BlotterReportViewPage />
+                            </AppLayout>
                         </ProtectedRoute>
                     }
                 />
