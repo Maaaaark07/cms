@@ -71,3 +71,26 @@ export const getHouseholdCount = (req, res) => {
         }
     });
 };
+
+export const getPwdCount = (req, res) => {
+    const { id } = req.params; 
+    const sql = "CALL GetPopulationStats(?)";
+
+    db.query(sql, [id], (err, results) => {
+        if (err) {
+            console.error("Database error:", err);
+            return res.status(500).json({ Error: "Database error" });
+        }
+
+        // MySQL stored procedures return results in a specific format
+        // First element is the result set, second element is the affected rows info
+        if (results && Array.isArray(results) && results[0] && Array.isArray(results[0])) {
+            const stats = results[0][0]; // Get the first row of the first result set
+            const NumberOfPWD = stats?.NumberOfPWD ?? 0; // Use nullish coalescing for safety
+            return res.json({ NumberOfPWD });
+        } else {
+            console.warn("Invalid results format:", results);
+            return res.json({ NumberOfPWD: 0 });
+        }
+    });
+};

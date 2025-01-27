@@ -8,6 +8,7 @@ import { LuUsers } from 'react-icons/lu';
 import { HiDocumentReport } from 'react-icons/hi';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { GoDatabase, GoReport } from "react-icons/go";
+import { MdOutlineNotificationImportant } from "react-icons/md";
 
 
 const Sidebar = () => {
@@ -105,6 +106,18 @@ const Sidebar = () => {
                         >
                             <GoReport className={`h-6 w-6 ${!isOpen ? 'h-8 w-8' : ''} transition-transform`} />
                             {isOpen && <span className="ml-3">Report</span>}
+                        </NavLink>
+                    </li>
+                    <hr />
+                    <li className="my-3">
+                        <NavLink
+                            to="/notification-advisory"
+                            className={({ isActive }) =>
+                                `flex items-center p-2 rounded transition-colors duration-200 ${isActive ? 'bg-blue-100 text-blue-500' : 'hover:bg-blue-100 hover:text-blue-500'}`
+                            }
+                        >
+                            <MdOutlineNotificationImportant className={`h-6 w-6 ${!isOpen ? 'h-8 w-8' : ''} transition-transform`} />
+                            {isOpen && <span className="ml-3">Notification Advisory</span>}
                         </NavLink>
                     </li>
                 </ul>

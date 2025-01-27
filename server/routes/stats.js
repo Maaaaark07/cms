@@ -3,7 +3,8 @@ import {
     getRegisteredVoters,
     getPopulationStats,
     getResidentCount,
-    getHouseholdCount
+    getHouseholdCount,
+    getPwdCount
 } from '../controllers/statsController.js';
 import { verifyUser } from '../middleware/authMiddleware.js';
 
@@ -13,5 +14,6 @@ router.get('/registered-voters/:id', verifyUser, getRegisteredVoters);
 router.get('/population/:id', verifyUser, getPopulationStats);
 router.get('/count/:id', verifyUser, getResidentCount);
 router.get('/household/:id', verifyUser, getHouseholdCount)
+router.get('/pwd/:id', verifyUser, getPwdCount)
 
 export default router;

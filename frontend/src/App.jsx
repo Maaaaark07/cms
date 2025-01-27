@@ -17,6 +17,7 @@ import AddCertificationPage from "./pages/AddCertificationPage";
 import EditBlotterReportPage from "./pages/EditBlotterReportPage";
 import AppLayout from "./components/AppLayout";
 import MasterDataPage from "./pages/MasterDataPage";
+import NotificationAdvisoryPage from "./pages/NotificationAdvisoryPage";
 
 const App = () => {
     return (
@@ -128,6 +129,16 @@ const App = () => {
                         <ProtectedRoute>
                             <AppLayout>
                                 <UserManagement />
+                            </AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/notification-advisory"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout>
+                                <NotificationAdvisoryPage />
                             </AppLayout>
                         </ProtectedRoute>
                     }

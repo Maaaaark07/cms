@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import { Doughnut } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip } from 'chart.js';
 import "chart.js/auto";
 import axios from "axios";
 import Breadcrumbs from "../components/Breadcrumbs";
@@ -11,15 +12,22 @@ import BlotterList from "../components/BlotterList";
 import { useAuth } from '../components/AuthContext';
 import cfg from '../../../server/config/domain.js';
 
+ChartJS.register(ArcElement, Tooltip);
+
 const Home = () => {
     const [user, setUser] = useState(null);
     const [error, setError] = useState("");
+    const [hoverData, setHoverData] = useState(null);
     const [chartData, setChartData] = useState({
+        labels: ['Male', 'Female', 'Senior Citizens', 'Youth'],
         datasets: [
             {
-                data: [],
+                data: [/* data */],
                 backgroundColor: ["#0F3D3E", "#8E0553", "#F86151", "#FFBA42"],
                 borderWidth: 0,
+                hoverOffset: 4,
+                hoverBorderWidth: 2,
+                hoverBorderColor: "#ffffff",
             },
         ],
     });
@@ -29,19 +37,50 @@ const Home = () => {
 
     const navigate = useNavigate();
     const { barangayId } = useAuth();
+    const chartOptions = {
+        maintainAspectRatio: false, // Allow responsive resizing
+        cutout: "70%",
+        plugins: {
+            tooltip: {
+                enabled: true,
+                callbacks: {
+                    label: (context) => {
+                        const value = context.raw;
+                        const percentage = ((value / totalPopulation) * 100).toFixed(1);
+                        return `${context.label}: ${value.toLocaleString()} (${percentage}%)`;
+                    },
+                },
+            },
+            legend: {
+                display: false,
+            },
+        },
+        onHover: (event, elements) => {
+            if (elements && elements.length > 0) {
+                const chartElement = elements[0];
+                const dataIndex = chartElement.index;
+                const value = chartData.datasets[0].data[dataIndex];
+                const label = chartData.labels[dataIndex];
+                const percentage = ((value / totalPopulation) * 100).toFixed(1);
+                setHoverData({ label, value, percentage });
+                event.native.target.style.cursor = "pointer";
+            } else {
+                setHoverData(null);
+                event.native.target.style.cursor = "default";
+            }
+        },
+        hover: {
+            mode: "nearest",
+            intersect: true,
+        },
+    };
+
     useEffect(() => {
         axios
-            .get(`http://${cfg.domainname}:${cfg.serverport}/blotter/` + barangayId, { withCredentials: true })
+            .get(`http://${cfg.domainname}:${cfg.serverport}/blotter/${barangayId}`, { withCredentials: true })
             .then((response) => setBlotterData(response.data))
             .catch((error) => {
                 console.error("Error fetching blotter data:", error);
-                if (error.response) {
-                    console.error("Error data:", error.response.data);
-                    console.error("Status:", error.response.status);
-                    console.error("Headers:", error.response.headers);
-                } else {
-                    console.error("Error Message:", error.message);
-                }
             });
     }, [barangayId]);
 
@@ -69,7 +108,7 @@ const Home = () => {
         const fetchPopulationData = async () => {
             try {
                 const response = await axios.get(
-                    `http://${cfg.domainname}:${cfg.serverport}/stats/population/` + barangayId,
+                    `http://${cfg.domainname}:${cfg.serverport}/stats/population/${barangayId}`,
                     { withCredentials: true }
                 );
                 const { male, female, seniorCitizens, youth, totalPopulation } =
@@ -121,11 +160,34 @@ const Home = () => {
                                         className="relative flex items-center justify-center"
                                         style={{ height: "484px" }}
                                     >
-                                        <Doughnut data={chartData} options={{ cutout: "70%" }} />
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <p className="text-2xl font-bold text-gray-700">
-                                                {totalPopulation || "N/A"}
-                                            </p>
+                                        <Doughnut
+                                            data={chartData}
+                                            options={chartOptions}
+                                        />
+                                        {/* Overlay with pointer-events: none */}
+                                        <div
+                                            className="absolute inset-0 flex items-center justify-center"
+                                            style={{ pointerEvents: "none" }}
+                                        >
+                                            {hoverData ? (
+                                                <div className="text-center transition-all duration-200">
+                                                    <p className="text-2xl font-bold text-gray-700">
+                                                        {hoverData.value.toLocaleString()}
+                                                    </p>
+                                                    <p className="text-lg text-gray-600 font-medium">
+                                                        {hoverData.label}
+                                                    </p>
+                                                    <p className="text-sm text-gray-500">
+                                                        {hoverData.percentage}% of total
+                                                    </p>
+                                                </div>
+                                            ) : (
+                                                <div className="text-center">
+                                                    <p className="text-2xl font-bold text-gray-700">
+                                                        {totalPopulation?.toLocaleString() || "N/A"}
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="flex flex-wrap justify-center mt-4 gap-4">
@@ -147,6 +209,8 @@ const Home = () => {
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* Second column with BlotterList */}
                                 <BlotterList blotterData={blotterData} />
                             </div>
                         )}

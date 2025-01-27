@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { GrGroup } from 'react-icons/gr';
 import { BsHouseDoor } from 'react-icons/bs';
 import { IoFingerPrint } from 'react-icons/io5';
-import { FaRegBuilding } from 'react-icons/fa';
+import { PiWheelchair } from "react-icons/pi";
 import { useAuth } from './AuthContext';
 import Card from './Card';
 import cfg from '../../../server/config/domain.js';
@@ -11,17 +11,17 @@ const DashboardCard = () => {
     const [registeredVoters, setRegisteredVoters] = useState(0);
     const [residentCount, setResidentCount] = useState(0);
     const [householdCount, setHouseholdCount] = useState(0); // Placeholder value
-    const [establishmentCount, setEstablishmentCount] = useState(5682); // Placeholder value
+    const [pwdCount, setPwdCount] = useState(5682); // Placeholder value
 
     const [displayedVoters, setDisplayedVoters] = useState(0);
     const [displayedResidents, setDisplayedResidents] = useState(0);
     const [displayedHousehold, setDisplayedHousehold] = useState(0);
-    const [displayedEstablishment, setDisplayedEstablishment] = useState(0);
+    const [displayedPwd, setDisplayedPwd] = useState(0);
 
     const [loadingVoters, setLoadingVoters] = useState(true);
     const [loadingResidents, setLoadingResidents] = useState(true);
     const [loadingHousehold, setLoadingHousehold] = useState(true);
-    const [loadingEstablishment, setLoadingEstablishment] = useState(true);
+    const [loadingPwd, setLoadingPwd] = useState(true);
 
     const { barangayId } = useAuth();
 
@@ -29,15 +29,17 @@ const DashboardCard = () => {
         registeredVoters: `http://${cfg.domainname}:${cfg.serverport}/stats/registered-voters/` + barangayId,
         residentCount: `http://${cfg.domainname}:${cfg.serverport}/stats/count/` + barangayId,
         householdCount: `http://${cfg.domainname}:${cfg.serverport}/stats/household/` + barangayId,
+        pwdCount: `http://${cfg.domainname}:${cfg.serverport}/stats/pwd/` + barangayId,
     };
 
 
     const fetchData = async () => {
         try {
-            const [votersResponse, residentsResponse, householdResponse] = await Promise.all([
+            const [votersResponse, residentsResponse, householdResponse, pwdResponse] = await Promise.all([
                 fetch(API_URLS.registeredVoters, { credentials: 'include' }),
                 fetch(API_URLS.residentCount, { credentials: 'include' }),
                 fetch(API_URLS.householdCount, { credentials: 'include' }),
+                fetch(API_URLS.pwdCount, { credentials: 'include' }),
             ]);
 
             if (votersResponse.ok) {
@@ -65,13 +67,23 @@ const DashboardCard = () => {
                 console.error('Household API Error:', errorData);
             }
 
+            if (pwdResponse.ok) {
+                const pwdData = await pwdResponse.json();
+                // Make sure we're accessing the correct property
+                setPwdCount(pwdData.NumberOfPWD || 0);
+            } else {
+                const errorData = await pwdResponse.json();
+                console.error('PWD API Error:', errorData);
+                setPwdCount(0);
+            }
+
         } catch (error) {
             console.error('Error fetching data:', error);
         } finally {
             setLoadingVoters(false);
             setLoadingResidents(false);
             setLoadingHousehold(false);
-            setLoadingEstablishment(false);
+            setLoadingPwd(false);
         }
     };
 
@@ -124,11 +136,11 @@ const DashboardCard = () => {
     }, [householdCount, loadingHousehold]);
 
     useEffect(() => {
-        if (!loadingEstablishment) {
+        if (!loadingPwd) {
             const interval = setInterval(() => {
-                setDisplayedEstablishment((prev) => {
-                    if (prev < establishmentCount) {
-                        return Math.min(prev + Math.ceil(establishmentCount / 100), establishmentCount);
+                setDisplayedPwd((prev) => {
+                    if (prev < pwdCount) {
+                        return Math.min(prev + Math.ceil(pwdCount / 100), pwdCount);
                     } else {
                         clearInterval(interval);
                         return prev;
@@ -137,7 +149,7 @@ const DashboardCard = () => {
             }, 20);
             return () => clearInterval(interval);
         }
-    }, [establishmentCount, loadingEstablishment]);
+    }, [pwdCount, loadingPwd]);
 
     useEffect(() => {
         fetchData();
@@ -166,14 +178,14 @@ const DashboardCard = () => {
                 txtContent="Household"
             />
             <Card
-                icon={<FaRegBuilding className='text-green-600 w-5 h-5' />}
-                title="Establishment"
-                count={displayedEstablishment}
-                loading={loadingEstablishment}
+                icon={<PiWheelchair className='text-green-600 w-5 h-5' />}
+                title="PWD"
+                count={displayedPwd}
+                loading={loadingPwd}
                 borderColor="border-green-500"
                 bgColor="rgba(34, 197, 94, 0.1)"
                 txtColor="text-green-600"
-                txtContent="Establishments"
+                txtContent="PWD"
             />
             <Card
                 icon={<IoFingerPrint className='text-orange-600 w-5 h-5' />}
