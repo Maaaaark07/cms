@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../components/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDateFormatter } from "../hooks/useDateFormatter";
+import { encryptId } from "../utils/encryption.js";
 
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
@@ -102,7 +103,8 @@ const IncidentReport = () => {
 
 
     const handleEditBlotter = (id) => {
-        navigate("/blotter-report/edit-complaint", { state: { blotter_id: id } });
+        const encryptedId = encryptId(id);
+        navigate(`/blotter-report/edit-complaint/${encryptedId}`);
     }
 
     const handleDeleteBlotter = async () => {

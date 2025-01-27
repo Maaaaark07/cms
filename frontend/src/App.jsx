@@ -94,7 +94,7 @@ const App = () => {
                     }
                 />
                 <Route
-                    path="/blotter-report/edit-complaint"
+                    path="/blotter-report/edit-complaint/:encryptedId"
                     element={
                         <ProtectedRoute>
                             <AppLayout>
