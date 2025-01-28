@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import cfg from '../../../server/config/domain.js';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { encryptId, decryptId } from '../utils/encryption.js';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useDateFormatter } from '../hooks/useDateFormatter';
 
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -18,6 +19,9 @@ const EditBlotterReportPage = () => {
 
     const location = useLocation();
     const navigate = useNavigate();
+    const { encryptedId } = useParams();
+
+    const decryptedId = decryptId(encryptedId);
 
     const { formatIncidentDate } = useDateFormatter();
 
@@ -57,15 +61,11 @@ const EditBlotterReportPage = () => {
     const [isAlertRemoveDefendantOpen, setIsAlertRemoveDefendantOpen] = useState(false);
 
     useEffect(() => {
-        if (location.state?.blotter_id) {
-            const id = location.state.blotter_id;
-            setBlotterId(id);
-
-            fetchBlotterReport(id);
-
-            window.history.replaceState({}, document.title, location.pathname);
+        if (encryptedId) {
+            setBlotterId(decryptedId);
+            fetchBlotterReport(decryptedId);
         }
-    }, [location]);
+    }, []);
 
     const fetchBlotterReport = async (id) => {
         try {
@@ -125,8 +125,6 @@ const EditBlotterReportPage = () => {
                 }
 
                 setStatement(blotterData.notes || "");
-
-                console.log(blotterData);
             }
         } catch (error) {
             console.error("Error fetching blotter report:", error);
@@ -159,7 +157,7 @@ const EditBlotterReportPage = () => {
     };
 
     const handleComplaintTypeChange = (selectedValue) => {
-        updateBlotterDetails('incident_type', selectedValue.title);
+        updateBlotterDetails('incident_type', selectedValue ? selectedValue.title : "");
     };
 
     const handleIncidentLocationChange = (e) => {
@@ -281,7 +279,7 @@ const EditBlotterReportPage = () => {
                 ...defendantData
             };
 
-            const response = await axios.put(`http://${cfg.domainname}:${cfg.serverport}/blotter/update/` + blotterId, payload, { withCredentials: true });
+            const response = await axios.put(`http://${cfg.domainname}:${cfg.serverport}/blotter/update/` + decryptedId, payload, { withCredentials: true });
 
             if (response.status === 200) {
                 setErrorMessage(null);

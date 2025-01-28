@@ -5,10 +5,16 @@ const Breadcrumbs = () => {
     const location = useLocation();
     const pathnames = location.pathname.split("/").filter(x => x);
 
+    const isEncryptedId = (str) => {
+        return str && str.startsWith('U2') && str.length > 30;
+    };
+
+    const filteredPathnames = pathnames.filter(value => !isEncryptedId(value));
+
     return (
         <nav className="breadcrumb mb-5">
             <ul className="flex space-x-2">
-                {pathnames[0] === "home" ? (
+                {filteredPathnames[0] === "home" ? (
                     <li>
                         <Link to="/home" className="text-blue-500 hover:underline">
                             Dashboard
@@ -21,11 +27,11 @@ const Breadcrumbs = () => {
                                 Dashboard
                             </Link>
                         </li>
-                        {pathnames.length > 0 && <span className="mx-2">/</span>}
+                        {filteredPathnames.length > 0 && <span className="mx-2">/</span>}
 
-                        {pathnames.map((value, index) => {
-                            const routeTo = `/${pathnames.slice(0, index + 1).join("/")}`;
-                            const isLast = index === pathnames.length - 1;
+                        {filteredPathnames.map((value, index) => {
+                            const routeTo = `/${filteredPathnames.slice(0, index + 1).join("/")}`;
+                            const isLast = index === filteredPathnames.length - 1;
 
                             return (
                                 <li key={index}>

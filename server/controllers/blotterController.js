@@ -133,11 +133,11 @@ export const updateBlotter = async (req, res) => {
     try {
         const values = [
             id,
+            incident_date,
             complainant_name,
             complainant_address,
             complainant_contact,
             JSON.stringify(witnesses) || null,
-            incident_date,
             incident_type || null,
             incident_location,
             incident_description,

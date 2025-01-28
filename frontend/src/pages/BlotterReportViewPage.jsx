@@ -504,6 +504,7 @@ function AddRecordModal({ isOpen, onClose, blotter_id, onSuccess, }) {
     };
 
     const handleSelectedHearingStatusesChange = (selectedValue) => {
+        console.log(selectedValue);
         setSelectedHearingStatus(selectedValue);
     };
 
