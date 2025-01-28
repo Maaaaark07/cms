@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 import cfg from '../../../server/config/domain.js';
@@ -36,13 +36,15 @@ export default function SearchModal({
         }
     };
 
-    const filteredResidents = residents?.filter((resident) => {
-        const residentFullName = `${resident?.first_name} ${resident?.last_name}`.toLowerCase();
-        const residentAddress = `${resident?.purok}`.toLowerCase();
-        return residentFullName.includes(searchTerm.toLowerCase())
-            || residentAddress.includes(searchTerm.toLowerCase())
-            || resident?.barangay.toLowerCase().includes(searchTerm.toLowerCase());
-    });
+    const filteredResidents = useMemo(() => {
+        return residents.filter((resident) => {
+            const residentFullName = `${resident?.first_name} ${resident?.last_name}`.toLowerCase();
+            const residentAddress = `${resident?.purok}`.toLowerCase();
+            return residentFullName.includes(searchTerm.toLowerCase())
+                || residentAddress.includes(searchTerm.toLowerCase())
+                || resident?.barangay.toLowerCase().includes(searchTerm.toLowerCase());
+        });
+    }, [residents, searchTerm]);
 
     const paginatedResidents = filteredResidents?.slice(
         currentPage * itemsPerPage,
@@ -81,7 +83,7 @@ export default function SearchModal({
 
     return ReactDOM.createPortal(
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white w-full max-w-md rounded-lg shadow-lg p-6 max-h-[560px] min-h-[560px]">
+            <div className="bg-white w-full max-w-md select-none rounded-lg shadow-lg p-6 max-h-[560px] min-h-[560px]">
                 <div className='flex justify-between'>
                     <h2 className="text-xl font-semibold mb-4">{title}</h2>
                     <IoClose
@@ -134,7 +136,7 @@ function CardList({ children }) {
 
 function Card({ resident, onClick }) {
     return (
-        <li className="flex items-center gap p-4 border rounded-md hover:bg-blue-50 border-gray-300 hover:border-blue-500 shadow-sm transition-colors cursor-pointer" onClick={onClick}>
+        <li className="flex items-center gap p-4 border rounded-md hover:bg-blue-50 border-gray-300 hover:border-blue-500 shadow-sm transition-colors cursor-pointer select-none" onClick={onClick}>
             {resident?.profile_image ? (
                 <div
                     className="w-12 h-12 rounded-full"
@@ -156,7 +158,7 @@ function Card({ resident, onClick }) {
             )}
             <div className="ml-4">
                 <h3 className="font-bold text-gray-800">{`${resident.first_name} ${resident.last_name}`}</h3>
-                <p className="text-sm text-gray-600">{`${resident.address}${resident.address ? "," : ""} ${resident.purok}, ${resident.barangay}`}</p>
+                <p className="text-sm text-gray-600">{`${resident.address}${resident.address.trim() ? "," : ""} ${resident.purok}, ${resident.barangay}`}</p>
             </div>
         </li>
     );

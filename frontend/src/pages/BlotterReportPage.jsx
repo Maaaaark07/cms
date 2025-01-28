@@ -101,10 +101,8 @@ const IncidentReport = () => {
         navigate("/Blotter-Report/Blotter-Report-View", { state: { blotter_id: id } });
     };
 
-
     const handleEditBlotter = (id) => {
-        const encryptedId = encryptId(id);
-        navigate(`/blotter-report/edit-complaint/${encryptedId}`);
+        navigate("/blotter-report/edit-complaint", { state: { blotter_id: id } });
     }
 
     const handleDeleteBlotter = async () => {

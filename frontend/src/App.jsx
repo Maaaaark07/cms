@@ -94,7 +94,7 @@ const App = () => {
                     }
                 />
                 <Route
-                    path="/blotter-report/edit-complaint/:encryptedId"
+                    path="/blotter-report/edit-complaint"
                     element={
                         <ProtectedRoute>
                             <AppLayout>
@@ -104,7 +104,7 @@ const App = () => {
                     }
                 />
                 <Route
-                    path="/Blotter-Report/Blotter-Report-View"
+                    path="/blotter-report/blotter-report-view"
                     element={
                         <ProtectedRoute>
                             <AppLayout>
