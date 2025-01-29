@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import cfg from '../../../server/config/domain.js';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { encryptId, decryptId } from '../utils/encryption.js';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useDateFormatter } from '../hooks/useDateFormatter';
 
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -60,10 +61,7 @@ const EditBlotterReportPage = () => {
         if (location.state?.blotter_id) {
             const id = location.state.blotter_id;
             setBlotterId(id);
-
             fetchBlotterReport(id);
-
-            window.history.replaceState({}, document.title, location.pathname);
         }
     }, [location]);
 
@@ -125,8 +123,6 @@ const EditBlotterReportPage = () => {
                 }
 
                 setStatement(blotterData.notes || "");
-
-                console.log(blotterData);
             }
         } catch (error) {
             console.error("Error fetching blotter report:", error);
@@ -159,7 +155,7 @@ const EditBlotterReportPage = () => {
     };
 
     const handleComplaintTypeChange = (selectedValue) => {
-        updateBlotterDetails('incident_type', selectedValue.title);
+        updateBlotterDetails('incident_type', selectedValue ? selectedValue.title : "");
     };
 
     const handleIncidentLocationChange = (e) => {

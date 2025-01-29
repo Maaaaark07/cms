@@ -90,18 +90,19 @@ const AddIncidentReportPage = () => {
         setDefendantContacts([...defendantContacts, ""]);
         setErrorMessage(null);
     };
+
     const handleDefendantChange = (index, field, value) => {
         if (field === "name") {
             const newDefendants = [...defendants];
-            newDefendants[index] = value;
+            newDefendants[index] = value || null;
             setDefendants(newDefendants);
         } else if (field === "address") {
             const newAddresses = [...defendantAddresses];
-            newAddresses[index] = value;
+            newAddresses[index] = value || null;
             setDefendantAddresses(newAddresses);
         } else if (field === "contact") {
             const newContacts = [...defendantContacts];
-            newContacts[index] = value;
+            newContacts[index] = value || null;
             setDefendantContacts(newContacts);
         }
     };
@@ -313,7 +314,7 @@ const AddIncidentReportPage = () => {
                                         type="text"
                                         placeholder="Type Defendant Contact Number"
                                         className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        value={defendantContacts[index]}
+                                        value={defendantContacts[index] || ""}
                                         onChange={(e) =>
                                             handleDefendantChange(
                                                 index,
@@ -388,7 +389,7 @@ const AddIncidentReportPage = () => {
                 onSelect={(resident) => {
                     handleDefendantChange(currentDefendantIndex, "name", `${resident.first_name} ${resident.last_name}`);
                     handleDefendantChange(currentDefendantIndex, "address", `${resident.address || ""} ${resident.purok}, ${resident.barangay}`);
-                    handleDefendantChange(currentDefendantIndex, "contact", resident.contact_number);
+                    handleDefendantChange(currentDefendantIndex, "contact", `${resident.contact_number || ""}`);
 
                     setIsDefendantModalOpen(false);
                     setCurrentDefendantIndex(null);
