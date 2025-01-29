@@ -5,7 +5,23 @@ const ComplaintTypes = [
     { title: "Noise Complaints" },
     { title: "Property Disputes" },
     { title: "Public Disorder" },
-    // ... other complaint types
+    { title: "Violation of Barangay Ordinances" },
+    { title: "Domestic Issues" },
+    { title: "Traffic Violations" },
+    { title: "Drug-Related Concerns" },
+    { title: "Health and Sanitation Issues" },
+    { title: "Environmental Concerns" },
+    { title: "Violations of Business Regulations" },
+    { title: "Community or Public Safety Issues" },
+    { title: "Electrical or Utility Issues" },
+    { title: "Disturbance from Animals" },
+    { title: "Illegal Construction" },
+    { title: "Discrimination or Harassment" },
+    { title: "Illegal Gambling" },
+    { title: "Public Health Violations" },
+    { title: "Illegal Logging or Deforestation" },
+    { title: "Electricity or Power Issues" },
+    { title: "Noise from Religious or Public Gatherings" },
 ];
 
 const SearchDropdown = ({
