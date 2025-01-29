@@ -4,10 +4,10 @@ import Breadcrumbs from "../components/Breadcrumbs";
 import { useAuth } from "../components/AuthContext.jsx";
 import Search from "../components/Search.jsx";
 import Pagination from "../components/Pagination.jsx";
+import UserManagementModal from "../components/AddUserModal.jsx";
 import cfg from "../../../server/config/domain.js";
-
 import { GrEdit } from "react-icons/gr";
-import { FaRegEye, FaRegTrashAlt } from "react-icons/fa";
+import { FaRegTrashAlt } from "react-icons/fa";
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
@@ -17,6 +17,7 @@ const UserManagement = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(5);
     const [error, setError] = useState("");
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const { barangayId } = useAuth();
 
     useEffect(() => {
@@ -24,15 +25,15 @@ const UserManagement = () => {
     }, [barangayId]);
 
     useEffect(() => {
-        // Filter users based on the search query whenever `users` or `searchQuery` changes
         const filtered = users.filter((user) =>
             `${user.fullname || ""}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
             `${user.user || ""}`.toLowerCase().includes(searchQuery.toLowerCase())
         );
         setFilteredUsers(filtered);
-        setCurrentPage(1); // Reset to the first page after search
+        setCurrentPage(1);
     }, [users, searchQuery]);
 
+    
     async function fetchUsers() {
         setLoading(true);
         try {
@@ -49,7 +50,6 @@ const UserManagement = () => {
         }
     }
 
-    // Pagination Calculations
     const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const displayedUsers = filteredUsers.slice(startIndex, startIndex + itemsPerPage);
@@ -60,11 +60,30 @@ const UserManagement = () => {
 
     const handleItemsPerPageChange = (newItemsPerPage) => {
         setItemsPerPage(newItemsPerPage);
-        setCurrentPage(1); // Reset to the first page
+        setCurrentPage(1);
     };
 
     const handleSearchChange = (e) => {
         setSearchQuery(e.target.value);
+    };
+
+    const handleAddUser = async (userData) => {
+        try {
+            const response = await axios.post(
+                `http://${cfg.domainname}:${cfg.serverport}/user/add-user`,
+                userData,
+                { withCredentials: true }
+            );
+            if (response.data.status === "success") {
+                fetchUsers();
+                setIsModalOpen(false);
+            } else {
+                setError("Failed to add user. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error adding user:", error);
+            setError("Failed to add user. Please try again.");
+        }
     };
 
     return (
@@ -79,9 +98,12 @@ const UserManagement = () => {
                     </div>
                 )}
 
-                <div className=" mb-6 flex justify-between items-center">
+                <div className="mb-6 flex justify-between items-center">
                     <Search searchQuery={searchQuery} onSearchChange={handleSearchChange} />
-                    <button className="bg-blue-500 text-white rounded-full px-6 py-2 shadow hover:bg-blue-600 transition duration-200">
+                    <button
+                        className="bg-blue-500 text-white rounded-full px-6 py-2 shadow hover:bg-blue-600 transition duration-200"
+                        onClick={() => setIsModalOpen(true)}
+                    >
                         + Add User
                     </button>
                 </div>
@@ -111,16 +133,11 @@ const UserManagement = () => {
                                             </td>
                                             <td className="px-4 py-3 text-gray-700 border-b">{user.role_id}</td>
                                             <td className="p-3 text-gray-500 flex items-center justify-center gap-2">
-                                                <div
-                                                    className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'
-                                                >
-                                                    <GrEdit className='w-5 h-5 text-gray-500' />
+                                                <div className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer">
+                                                    <GrEdit className="w-5 h-5 text-gray-500" />
                                                 </div>
-                                                <div
-                                                    className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'
-                                                    onClick={() => handleDeleteClick(resident.resident_id)}
-                                                >
-                                                    <FaRegTrashAlt className='w-5 h-5 text-red-500' />
+                                                <div className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer">
+                                                    <FaRegTrashAlt className="w-5 h-5 text-red-500" />
                                                 </div>
                                             </td>
                                         </tr>
@@ -136,7 +153,6 @@ const UserManagement = () => {
                             </table>
                         </div>
 
-                        {/* Pagination Controls */}
                         <Pagination
                             currentPage={currentPage}
                             totalPages={totalPages}
@@ -147,6 +163,13 @@ const UserManagement = () => {
                     </div>
                 )}
             </div>
+
+            <UserManagementModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSubmit={handleAddUser}
+                barangayId={5628} // Pass the appropriate barangay ID
+            />
         </div>
     );
 };
