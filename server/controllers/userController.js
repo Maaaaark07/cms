@@ -26,3 +26,58 @@ export const getCbsUsersByBarangay = async (req, res) => {
         });
     }
 };
+
+
+export const addCbsUser = async (req, res) => {
+    const {
+        barangay_id,
+        city_id,
+        province_id,
+        user,
+        password,
+        role_id,
+        lgu_type_id,
+        resident_id,
+        fullname
+    } = req.body;
+
+    const sql = "CALL AddCBSUser(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    try {
+        const results = await new Promise((resolve, reject) => {
+            db.query(
+                sql,
+                [
+                    barangay_id,
+                    city_id,
+                    province_id,
+                    user,
+                    password,
+                    role_id,
+                    lgu_type_id,
+                    resident_id,
+                    fullname
+                ],
+                (err, results) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(results);
+                    }
+                }
+            );
+        });
+
+        // Send success response
+        res.status(201).json({
+            message: "User created successfully",
+            data: results[0], // Assuming the stored procedure returns some data
+        });
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({
+            error: "Failed to create user",
+            details: error.message,
+        });
+    }
+};
