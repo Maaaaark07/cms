@@ -188,16 +188,6 @@ const AddIncidentReportPage = () => {
                 setSuccessMessage("Blotter added successfully!");
                 setErrorMessage(null);
 
-                // Reset form state
-                setSelectedComplaintType(null);
-                setComplainantName("");
-                setComplainantAddress("");
-                setComplainantContact("");
-                setDefendants([]);
-                setDefendantAddresses([]);
-                setDefendantContacts([]);
-                setStatement("");
-
                 //Navigate
                 navigate('/blotter-report', { state: { toastMessage: 'Blotter added successfully!' } });
             }

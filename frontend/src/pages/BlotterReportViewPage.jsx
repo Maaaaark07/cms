@@ -15,6 +15,7 @@ import Search from '../components/Search';
 import StatusBadge from "../components/StatusBadge";
 import SearchDropdown from "../components/SearchDropdown";
 import InputDropdown from "../components/InputDropdown";
+import Loader from "../components/Loader";
 
 import cfg from '../../../server/config/domain.js';
 
@@ -38,7 +39,7 @@ const BlotterReportViewPage = () => {
     const [showAddToast, setShowAddToast] = useState(false);
     const [showUpdateToast, setShowUpdateToast] = useState(false);
     const [showDeleteToast, setShowDeleteToast] = useState(false);
-    const [detailsLoading, setDetailsLoading] = useState(false);
+    const [detailsLoading, setDetailsLoading] = useState(true);
     const [hearingLoading, setHearingLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -119,20 +120,20 @@ const BlotterReportViewPage = () => {
         }
     } */
 
-    if (!blotterDetails) return <p>Loading...</p>;
+    if (!blotterDetails) return <Loader type="block" />;
 
     const defendants = JSON.parse(blotterDetails?.defendants || "[]");
     const addresses = JSON.parse(blotterDetails?.def_addresses || "[]");
     const contacts = JSON.parse(blotterDetails?.def_contacts || "[]");
 
     return (
-        <div className="flex-grow p-6 bg-gray-100">
+        <div className="flex-grow p-6 bg-gray-100 h-full">
             <Breadcrumbs />
             {error && <div className="text-red-500 text-center mb-4">{error}</div>}
             {
-                detailsLoading ? (<div className="text-center">Loading...</div>
-                ) : (
-                    <>
+                detailsLoading
+                    ? (<Loader type="block" />)
+                    : (<>
                         <div className="mx-auto bg-white p-10 rounded-lg mb-12">
                             <div className="mb-6 leading-3">
                                 <h1 className="text-lg font-semibold text-blue-500">
@@ -230,9 +231,16 @@ const BlotterReportViewPage = () => {
                             </div>
                         </div>
                         <div>
-                            <div className='flex items-center justify-end mb-6'>
-                                <button className='bg-blue-600 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full' onClick={() => setIsAddRecordModalOpen(true)}>
-                                    <IoDocumentText className='w-4 h-4 text-white font-bold' />
+                            <div className="flex items-center justify-end mb-6">
+                                <button
+                                    className={`px-5 py-3 text-sm flex items-center gap-2 rounded-full ${blotterHearingDetails?.length > 0 && blotterHearingDetails[blotterHearingDetails.length - 1].status === "Closed"
+                                        ? "bg-gray-400 cursor-not-allowed opacity-50"
+                                        : "bg-blue-600 text-white cursor-pointer"
+                                        }`}
+                                    onClick={() => setIsAddRecordModalOpen(true)}
+                                    disabled={blotterHearingDetails?.length > 0 && blotterHearingDetails[blotterHearingDetails.length - 1].status === "Closed"}
+                                >
+                                    <IoDocumentText className="w-4 h-4 text-white font-bold" />
                                     Record Session
                                 </button>
                             </div>
@@ -274,7 +282,7 @@ const BlotterReportViewPage = () => {
                                                                 <StatusBadge status={hearing.status} />
                                                             </td>
                                                             <td className="p-3 text-gray-500 flex items-center justify-center gap-2">
-                                                                {isLatest ? (
+                                                                {isLatest && hearing.status !== "Closed" ? (
                                                                     <>
                                                                         <div
                                                                             className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer"
@@ -336,8 +344,7 @@ const BlotterReportViewPage = () => {
                             </div>
                         </div>
                     </>
-                )
-
+                    )
             }
             {/* <Pagination
                            currentPage={currentPage}
@@ -388,7 +395,7 @@ const BlotterReportViewPage = () => {
                 onClose={() => setIsViewRecordModalOpen(false)}
                 hearing_id={viewBlotterHearingId}
                 setBlotterHearingId={setBlotterHearingId} />
-        </div>
+        </div >
     );
 };
 
@@ -435,7 +442,9 @@ function AddRecordModal({ isOpen, onClose, blotter_id, onSuccess, }) {
         try {
             const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/blotter/get-hearing-statuses/`, { withCredentials: true });
             if (response.status !== 200) throw new Error("Something went wrong with fetching data");
-            setHearingStatuses(response.data);
+
+            const hearingStatus = response?.data?.filter((status) => status?.iname !== "New");
+            setHearingStatuses(hearingStatus);
         } catch (error) {
             console.error(error.message);
             setError(error.message);
@@ -708,7 +717,7 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
         try {
             const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/blotter/get-hearing-statuses/`, { withCredentials: true });
             if (response.status !== 200) throw new Error("Something went wrong with fetching data");
-            const hearingStatus = response.data;
+            const hearingStatus = response?.data;
             setHearingStatuses(hearingStatus);
 
             if (hearingStatus?.length > 0) {
@@ -723,6 +732,8 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
             resetError();
         }
     }
+
+    const filteredHearingStatuses = hearingStatuses?.filter((status) => status.iname !== "New");
 
     const handleUpdate = async () => {
         if (!selectedAttendess || selectedAttendess.length === 0) {
@@ -861,12 +872,13 @@ function EditRecordModal({ isOpen, onClose, hearing_id, onSuccess, }) {
                         <div className="mb-6">
                             <label className="block mb-2 text-base font-medium text-gray-500">Status<span className="text-red-600">*</span></label>
                             <SearchDropdown
-                                options={hearingStatuses}
+                                options={filteredHearingStatuses}
                                 selectedValue={selectedHearingStatus?.iname}
                                 onSelect={handleSelectedHearingStatusesChange}
                                 uniqueKey={"iname"}
                                 placeholder={"Search Status"}
-                                title="Select Hearing Status" />
+                                title="Select Hearing Status"
+                                disabled={selectedHearingStatus?.iname === "New"} />
                         </div>
                         <div className="col-span-full">
                             <label className="block mb-2 text-base font-medium text-gray-500">Resolution Remarks<span className="text-red-600">*</span></label>
