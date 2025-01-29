@@ -3,6 +3,8 @@ import { Navigate } from 'react-router-dom';
 import axios from 'axios';
 import cfg from '../../../server/config/domain.js';
 
+import Loader from "../components/Loader";
+
 const ProtectedRoute = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -25,7 +27,9 @@ const ProtectedRoute = ({ children }) => {
     }, []);
 
     if (loading) {
-        return <div>Loading...</div>;
+        return <div className='h-screen'>
+            <Loader />
+        </div>;
     }
 
     return isAuthenticated ? children : <Navigate to="/login" />;
