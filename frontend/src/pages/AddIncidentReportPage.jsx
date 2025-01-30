@@ -61,6 +61,7 @@ const AddIncidentReportPage = () => {
     const validateForm = () => {
         if (!selectedIncidentType) return "Incident type is required.";
         if (!selectedIncidentDate) return "Incident date is required.";
+        if (!selectedIncidentLocation) return "Incident location is required.";
         if (!reporterName || !reporterAddress) return "Reporter details are incomplete.";
         if (!incidentStatement.trim()) return "Incident Statement is required.";
         return null;

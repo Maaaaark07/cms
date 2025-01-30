@@ -282,7 +282,7 @@ const EditBlotterReportPage = () => {
             if (response.status === 200) {
                 setErrorMessage(null);
 
-                navigate('/blotter-report', { state: { toastMessage: 'Blotter updated successfully!', type: "Update" } });
+                navigate('/blotter-report', { state: { blotterToastType: "Update" } });
             }
 
         } catch (error) {

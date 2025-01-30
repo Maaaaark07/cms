@@ -189,7 +189,7 @@ const AddIncidentReportPage = () => {
                 setErrorMessage(null);
 
                 //Navigate
-                navigate('/blotter-report', { state: { toastMessage: 'Blotter added successfully!' } });
+                navigate('/blotter-report', { state: { blotterToastType: 'Add' } });
             }
         } catch (error) {
             console.error(error);
