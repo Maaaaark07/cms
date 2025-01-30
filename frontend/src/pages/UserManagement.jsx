@@ -8,6 +8,7 @@ import UserManagementModal from "../components/AddUserModal.jsx";
 import cfg from "../../../server/config/domain.js";
 import { GrEdit } from "react-icons/gr";
 import { FaRegTrashAlt } from "react-icons/fa";
+import ToastMessage from "../components/ToastMessage.jsx";
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
@@ -18,6 +19,7 @@ const UserManagement = () => {
     const [itemsPerPage, setItemsPerPage] = useState(5);
     const [error, setError] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [showToastMessage, setShowToastMessage] = useState(false);
     const { barangayId } = useAuth();
 
     useEffect(() => {
@@ -33,7 +35,7 @@ const UserManagement = () => {
         setCurrentPage(1);
     }, [users, searchQuery]);
 
-    
+
     async function fetchUsers() {
         setLoading(true);
         try {
@@ -63,28 +65,17 @@ const UserManagement = () => {
         setCurrentPage(1);
     };
 
+    const handleOnSubmit = () => {
+        setIsModalOpen(false);
+        fetchUsers(); // Fetch updated user data
+        setShowToastMessage(true)
+    };
+
     const handleSearchChange = (e) => {
         setSearchQuery(e.target.value);
     };
 
-    const handleAddUser = async (userData) => {
-        try {
-            const response = await axios.post(
-                `http://${cfg.domainname}:${cfg.serverport}/user/add-user`,
-                userData,
-                { withCredentials: true }
-            );
-            if (response.data.status === "success") {
-                fetchUsers();
-                setIsModalOpen(false);
-            } else {
-                setError("Failed to add user. Please try again.");
-            }
-        } catch (error) {
-            console.error("Error adding user:", error);
-            setError("Failed to add user. Please try again.");
-        }
-    };
+
 
     return (
         <div className="flex-grow p-6 bg-gray-100">
@@ -120,7 +111,7 @@ const UserManagement = () => {
                                         <th className="text-left p-4 font-semibold text-gray-800">Username</th>
                                         <th className="text-left p-4 font-semibold text-gray-800">Password</th>
                                         <th className="text-left p-4 font-semibold text-gray-800">Role</th>
-                                        <th className="text-left p-4 font-semibold text-gray-800">Action</th>
+                                        <th className="text-center p-4 font-semibold text-gray-800">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -132,7 +123,7 @@ const UserManagement = () => {
                                                 {user.password ? "••••••••" : ""}
                                             </td>
                                             <td className="px-4 py-3 text-gray-700 border-b">{user.role_id}</td>
-                                            <td className="p-3 text-gray-500 flex items-center justify-center gap-2">
+                                            <td className="p-3 text-gray-500 flex items-center border-b justify-center gap-2">
                                                 <div className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer">
                                                     <GrEdit className="w-5 h-5 text-gray-500" />
                                                 </div>
@@ -167,8 +158,16 @@ const UserManagement = () => {
             <UserManagementModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                onSubmit={handleAddUser}
-                barangayId={5628} // Pass the appropriate barangay ID
+                onSubmit={handleOnSubmit} // Correctly pass function reference
+                barangayId={barangayId}
+            />
+
+            <ToastMessage
+                message={`User Added Successfully`}
+                variant="default"
+                isVisible={showToastMessage}
+                duration={3000}
+                onClose={() => setShowToastMessage(false)}
             />
         </div>
     );
