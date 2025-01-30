@@ -31,7 +31,8 @@ const SearchDropdown = ({
     selectedValue = "",
     onSelect,
     uniqueKey,
-    onSelectOption
+    onSelectOption,
+    disabled = false
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
@@ -47,6 +48,7 @@ const SearchDropdown = ({
     };
 
     const handleOptionClick = (option) => {
+        if (disabled) return;
         setSelectedType(uniqueKey && option[uniqueKey] ? option[uniqueKey] : option.title);
         setIsOpen(false);
         setSearchTerm("");
@@ -56,19 +58,23 @@ const SearchDropdown = ({
     };
 
     const handleOptionRemove = (e) => {
-        e.stopPropagation()
+        e.stopPropagation();
+        if (disabled) return;
         setSelectedType("");
         setIsOpen(false);
         setSearchTerm("");
-        onSelect(null);
-    }
+        if (onSelect) {
+            onSelect(null);
+        }
+    };
 
     const filteredOptions = options?.filter((option) => {
         const keyToUse = uniqueKey && option[uniqueKey] ? option[uniqueKey] : option.title;
-        return keyToUse.toLowerCase().includes(searchTerm.toLowerCase())
+        return keyToUse.toLowerCase().includes(searchTerm.toLowerCase());
     });
 
     const toggleDropdown = () => {
+        if (disabled) return;
         setIsOpen(!isOpen);
     };
 
@@ -88,13 +94,19 @@ const SearchDropdown = ({
     return (
         <div className="relative" ref={dropdownRef}>
             <div
-                className="relative border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`relative border text-sm p-2 w-full rounded-md cursor-pointer focus:outline-none 
+                ${disabled ? "bg-gray-200 cursor-not-allowed text-gray-400" : "border-gray-300 text-gray-500 focus:ring-2 focus:ring-blue-500"}`}
                 onClick={toggleDropdown}
             >
                 {selectedType || <span className="text-gray-400">{title}</span>}
-                {selectedType && <IoCloseCircleOutline onClick={handleOptionRemove} className="w-5 h-5 absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500" />}
+                {selectedType && !disabled && (
+                    <IoCloseCircleOutline
+                        onClick={handleOptionRemove}
+                        className="w-5 h-5 absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500"
+                    />
+                )}
             </div>
-            {isOpen && (
+            {isOpen && !disabled && (
                 <div className="absolute bg-white border border-gray-300 px-4 py-6 rounded-md shadow-lg mt-1 w-full z-10">
                     <input
                         type="text"
@@ -102,6 +114,7 @@ const SearchDropdown = ({
                         onChange={handleSearchChange}
                         placeholder={placeholder}
                         className="text-sm border rounded border-gray-300 p-2 mb-4 w-full text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        disabled={disabled} // Disable input when disabled
                     />
                     <ul className="max-h-40 overflow-y-auto">
                         {filteredOptions.length > 0 ? (
@@ -110,8 +123,7 @@ const SearchDropdown = ({
                                     key={option[uniqueKey] || option.title}
                                     onClick={() => handleOptionClick(option)}
                                     className={`p-2 text-sm hover:bg-blue-100 cursor-pointer 
-                                        ${(option[uniqueKey] || option.title) === selectedType ? "bg-blue-100" : ""
-                                        }`}
+                                        ${(option[uniqueKey] || option.title) === selectedType ? "bg-blue-100" : ""}`}
                                 >
                                     {option[uniqueKey] || option.title}
                                 </li>

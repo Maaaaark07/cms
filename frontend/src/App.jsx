@@ -18,6 +18,7 @@ import EditBlotterReportPage from "./pages/EditBlotterReportPage";
 import AppLayout from "./components/AppLayout";
 import MasterDataPage from "./pages/MasterDataPage";
 import NotificationAdvisoryPage from "./pages/NotificationAdvisoryPage";
+import AddIncidentReportPage from "./pages/AddIncidentReportPage";
 
 const App = () => {
     return (
@@ -119,6 +120,16 @@ const App = () => {
                         <ProtectedRoute>
                             <AppLayout>
                                 <AddBlotterReportPage />
+                            </AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/blotter-report/add-incident"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout>
+                                <AddIncidentReportPage />
                             </AppLayout>
                         </ProtectedRoute>
                     }

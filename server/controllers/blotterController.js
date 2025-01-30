@@ -70,11 +70,12 @@ export const addBlotter = async (req, res) => {
             barangay_id,
         } = req.body;
 
-        const sql = `CALL AddBlotter(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        const sql = `CALL AddBlotter(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
         const values = [
             incident_date || null,
             reporter_id,
+            complainant_id || null,
             complainant_name || null,
             complainant_address || null,
             complainant_contact || null,
@@ -84,9 +85,9 @@ export const addBlotter = async (req, res) => {
             incident_description || null,
             resolution || null,
             notes || null,
-            JSON.stringify(defendants),
-            JSON.stringify(defendantAddresses),
-            JSON.stringify(defendantContacts),
+            JSON.stringify(defendants || []),
+            JSON.stringify(defendantAddresses || []),
+            JSON.stringify(defendantContacts || []),
             barangay_id
         ];
 
