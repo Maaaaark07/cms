@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import cfg from '../../../server/config/domain.js';
 import SearchModal from '../components/SearchModal.jsx'
+import SearchModalDynamic from '../components/SearchModalDynamic.jsx'
 import { IoSearch } from "react-icons/io5";
+import { RxAvatar } from 'react-icons/rx';
 
 const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
     const [formData, setFormData] = useState({
@@ -34,6 +36,7 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
     const [residentName, setResidentName] = useState("");
     const [residentAddress, setResidentAddress] = useState("");
     const [residentContact, setResidentContact] = useState("");
+    const [selectedUserBarangayId, setSelectedUserBarangayId] = useState(null)
 
     useEffect(() => {
         if (isOpen) {
@@ -223,6 +226,8 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
         setResidentAddress(`${resident.address || ""} ${resident.purok}, ${resident.barangay}`);
         setResidentContact(resident.contact_number || "");
         setSelectResidentModal(false);
+        setSelectedUserBarangayId(resident.barangay_id)
+
         const fullName = `${resident.first_name} ${resident.last_name}`
         setFormData(prev => ({
             ...prev,
@@ -232,13 +237,16 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
         console.log(resident);
     }
 
-
+    
+    const handleCloseReporterModal = () => {
+        setSelectResidentModal(false);
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         const payload = {
-            barangay_id: barangayId,
+            barangay_id: selectedUserBarangayId,
             city_id: formData.city_id, // Include other form data if needed
             province_id: formData.province_id,
             user: formData.user,
@@ -375,7 +383,27 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
                                         onClose={() => {
                                             setSelectResidentModal(false)
                                         }}
+                                        onSelect={(resident) => (resident)}
+                                    />
+                                    
+                                    <SearchModalDynamic
+                                        isOpen={selectResidentModal}
+                                        title="Select a reporter"
+                                        onClose={() => handleCloseReporterModal()}
                                         onSelect={(resident) => handleSelectResident(resident)}
+                                        options={{
+                                            fetchUrl: `http://${cfg.domainname}:${cfg.serverport}/residents/` + selectedBarangay,
+                                            filterFunction: (user, searchTerm) =>
+                                                `${user.first_name} ${user.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()),
+                                            renderItem: (user) => (
+                                                <>
+                                                    <RxAvatar className="w-10 h-10 text-gray-400" />
+                                                    <div className="ml-4">
+                                                        <h3 className="font-bold text-gray-800">{`${user.first_name} ${user.last_name}`}</h3>
+                                                    </div>
+                                                </>
+                                            )
+                                        }}
                                     />
                                 </div>
                             </div>

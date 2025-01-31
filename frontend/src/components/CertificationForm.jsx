@@ -7,6 +7,7 @@ import SearchDropdown from '../components/SearchDropdown';
 import CertificatePreview from '../components/CertificatePreview';
 import { useCertificationForm } from '../hooks/useCertificationForm';
 import renderAdditionalFields from '../utils/certificateFieldRenderer.jsx';
+import ReportPreview from './ReportPreview.jsx';
 import { useNavigate } from "react-router-dom";
 import cfg from '../../../server/config/origin.js';
 
@@ -337,6 +338,11 @@ const CertificationForm = () => {
                         />
                     </PDFViewer>
                 )} */}
+
+{/* 
+                <PDFViewer style={{ width: '100%', height: '100vh' }}>
+                    <ReportPreview />
+                </PDFViewer> */}
 
                 {isMessageGenerated && (
                     <div className="flex justify-end space-x-2 mt-4 mb-4">
