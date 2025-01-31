@@ -339,10 +339,6 @@ const CertificationForm = () => {
                     </PDFViewer>
                 )} */}
 
-{/* 
-                <PDFViewer style={{ width: '100%', height: '100vh' }}>
-                    <ReportPreview />
-                </PDFViewer> */}
 
                 {isMessageGenerated && (
                     <div className="flex justify-end space-x-2 mt-4 mb-4">
