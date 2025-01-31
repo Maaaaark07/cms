@@ -1,20 +1,42 @@
 import cfg from '../../../server/config/domain.js';
-import React from 'react'
+import React, { Suspense } from 'react';
+const LazyPDFViewer = React.lazy(() => import('@react-pdf/renderer').then(module => ({ default: module.PDFViewer })));
+
 import axios from 'axios';
 import { useState, useEffect } from 'react';
+import ReactDOM from "react-dom";
+import ReportPreview from '../components/ReportPreview.jsx';
+import { pdf } from '@react-pdf/renderer';
 
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
 import Breadcrumbs from '../components/Breadcrumbs.jsx';
 
 import { IoPersonAddOutline, IoDocumentText } from "react-icons/io5";
+import { IoClose } from "react-icons/io5";
 import { useAuth } from '../components/AuthContext.jsx';
+
+const LoadingPDFPreview = () => {
+    return (
+        <div className="w-full h-screen flex flex-col items-center justify-center bg-gray-50">
+            <div className="w-16 h-16 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <div className="text-center">
+                <h3 className="text-lg font-semibold text-gray-700 mb-2">Generating PDF Preview</h3>
+                <p className="text-sm text-gray-500">This may take a few moments...</p>
+            </div>
+        </div>
+    );
+};
+
 
 const Reports = () => {
 
     const { barangayId } = useAuth();
     const [barangayOfficials, setBarangayOfficials] = useState(null);
     const [populationDetails, setPopulationDetails] = useState(null);
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [isLoadingPDF, setIsLoadingPDF] = useState(false);
+    const [reportData, setReportData] = useState(null);
 
     useEffect(() => {
         if (barangayId) {
@@ -49,13 +71,27 @@ const Reports = () => {
         }
     }
 
+    const handleSelectReportData = async (data) => {
+        try {
+            setIsLoadingPDF(true);
+            setReportData(data);
+            console.log(data);
+        } catch (error) {
+            console.error("Error setting report data:", error);
+        } finally {
+            console.log("Tapos na");
+            setIsLoadingPDF(false);
+        }
+    };
+
     return (
         <div className="flex-grow p-6 bg-gray-100">
             <Breadcrumbs />
             <div className="mx-auto bg-white p-10 rounded-lg">
                 <div className="flex gap-5 justify-between items-center mb-8">
                     <h1 className='text-4xl font-bold text-gray-500'>Barangay Overview</h1>
-                    <button className='bg-blue-500 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full'>
+                    <button className='bg-blue-500 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full'
+                        onClick={() => setIsReportModalOpen(true)}>
                         {/* <IoPersonAddOutline className='w-4 h-4 text-white font-bold' /> */}
                         Generate Report
                     </button>
@@ -114,6 +150,20 @@ const Reports = () => {
                     </div>
                 </div>
             </div>
+
+            <ReportModal
+                isOpen={isReportModalOpen}
+                onSubmit={handleSelectReportData}
+                onClose={() => setIsReportModalOpen(false)}
+            />
+
+            {reportData && !isLoadingPDF && (
+                <Suspense fallback={<LoadingPDFPreview />}>
+                    <LazyPDFViewer style={{ width: '100%', height: '100vh' }}>
+                        <ReportPreview data={reportData} />
+                    </LazyPDFViewer>
+                </Suspense>
+            )}
         </div >
     )
 }
@@ -132,4 +182,133 @@ function Row({ title, count }) {
             {count}
         </p>
     </div>
+}
+
+function ReportModal({ isOpen, onClose, onSubmit, }) {
+
+    const { barangayId } = useAuth();
+
+    const [selectedReport, setSelectedReport] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("");
+    const [reportData, setReportData] = useState(null);
+
+    const handleReportChange = (event) => {
+        setSelectedReport(event.target.value);
+    };
+
+    const handleCategoryChange = (event) => {
+        setSelectedCategory(event.target.value);
+    };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (!selectedCategory || !barangayId) return;
+            console.log(selectedCategory)
+            try {
+                let apiUrl = "";
+
+                if (selectedCategory === "Household") {
+                    apiUrl = `/get-household-head/${barangayId}`;
+                } else if (selectedCategory === "Residents") {
+                    apiUrl = `/get-residents/${barangayId}`;
+                } else if (selectedCategory === "PWD") {
+                    apiUrl = `/get-pwd/${barangayId}`;
+                } else if (selectedCategory === "Solo Parent") {
+                    apiUrl = `/get-solo-parent/${barangayId}`;
+                } else if (selectedCategory === "Senior Citizen") {
+                    apiUrl = `/get-senior-citizen/${barangayId}`;
+                } else if (selectedCategory === "Youth") {
+                    apiUrl = `/get-youth/${barangayId}`;
+                } else {
+                    return;
+                }
+
+                // else if (selectedCategory === "Purok Residents Count") {
+                //     apiUrl = `/get-purok-residents-count/${barangayId}`;
+                // } 
+
+                const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/report/${apiUrl}`, { withCredentials: true });
+
+                if (response.status === 200) {
+                    console.log("API Data:", response.data);
+                    setReportData(response.data);
+                } else {
+                    console.error("Error fetching data");
+                }
+
+            } catch (error) {
+                console.error("Error in API call:", error.message);
+            }
+        };
+
+        fetchData();
+    }, [selectedCategory, barangayId]);
+
+    const handleSelectReport = () => {
+        onSubmit(reportData)
+        setSelectedCategory("")
+        setSelectedReport("");
+        onClose();
+    }
+
+    if (!isOpen) return null;
+
+    return ReactDOM.createPortal(
+        <div className="modal-wrapper" role="modal">
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div className="bg-white w-full max-w-lg rounded-lg shadow-lg p-6 min-h-[350px]">
+                    <div className='flex justify-between mb-4'>
+                        <h2 className="text-xl font-semibold">Generate Reports</h2>
+                        <IoClose
+                            className='w-6 h-6 cursor-pointer'
+                            onClick={() => onClose()}
+                        />
+                    </div>
+                    <div className='flex-1'>
+                        <div className='mb-4'>
+                            <label className="block mb-1 text-lg font-medium text-gray-500">Type Of Reports</label>
+                            <select
+                                name="reportType"
+                                className="border text-lg border-gray-300 p-2 w-full rounded-md text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                onChange={handleReportChange}
+                                value={selectedReport}
+                            >
+                                <option value="">Select Report Type</option>
+                                <option value="Residents Reports">Residents Reports</option>
+                                <option value="Blotter Report">Blotter Report</option>
+                            </select>
+                        </div>
+                        <div className='mb-2'>
+                            <label className="block mb-1 text-lg font-medium text-gray-500">Categories</label>
+                            {selectedReport === "Residents Reports" && (
+                                <select
+                                    name="categories"
+                                    value={selectedCategory}
+                                    onChange={handleCategoryChange}
+                                    className="border text-lg border-gray-300 p-2 w-full rounded-md text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="">Categories</option>
+                                    <option value="Household">Household</option>
+                                    <option value="PWD">PWD</option>
+                                    <option value="Residents">Residents</option>
+                                    <option value="Senior Citizen">Senior Citizen</option>
+                                    <option value="Solo Parent">Solo Parent</option>
+                                    <option value="Youth">Youth</option>
+                                </select>
+                            )}
+                        </div>
+                        <div className='flex gap-4'>
+                            <button className='bg-gray-200 w-full text-black px-5 py-3 text-sm flex items-center justify-center mt-4 gap-2 rounded-full' onClick={() => handleSelectReport()}>
+                                Cancel
+                            </button>
+                            <button className='bg-blue-600 w-full text-white px-5 py-3 text-sm flex items-center justify-center mt-4 gap-2 rounded-full' onClick={() => handleSelectReport()}>
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>,
+        document.body
+    );
 }

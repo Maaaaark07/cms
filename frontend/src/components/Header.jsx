@@ -23,6 +23,7 @@ const Header = () => {
                 if (res.data.Status === 'Success') {
                     //setUser(res.data.user);
                     //setRole(res.data.role);
+                    console.log(res.data)
                     setuserData(res.data)
                 } else {
                     setError(res.data.Error || 'Not authorized');
@@ -47,7 +48,7 @@ const Header = () => {
                 <img src={userData.barangay_logo} alt="Logo" className="h-12 w-12 mr-3" />
                 <div className='leading-[1px]'>
                     <h1 className="text-xl font-semibold text-gray-600">{userData.barangay_name}</h1>
-                    <span className='text-xs text-gray-400'>{userData.city_name}, {userData.province_name}</span>
+                    <span className='text-xs text-gray-400'>Resident Management System</span>
                 </div>
             </div>
             <div className="flex items-center relative">
