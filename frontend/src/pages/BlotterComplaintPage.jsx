@@ -39,9 +39,6 @@ const BlotterComplaintPage = () => {
 
     const [selectedDeleteId, setSelectedDeleteId] = useState(null);
 
-    //Toast
-    const [showDeleteToast, setShowDeleteToast] = useState(false);
-
     //Alert
     const [isAlertDeleteOpen, setIsAlertDeleteOpen] = useState(false);
 
@@ -105,10 +102,9 @@ const BlotterComplaintPage = () => {
             });
 
             if (response.status === 200 || response.status === 204) {
-                console.log("Deletion was successful.");
                 fetchBlotters();
-                setShowDeleteToast(true);
                 setSelectedDeleteId(null);
+                navigate('/blotter-report', { state: { blotterToastType: "Delete" } });
             } else {
                 console.warn("Unexpected response status:", response.status);
             }
@@ -245,15 +241,6 @@ const BlotterComplaintPage = () => {
                     },
                 ]}
             />
-
-            <ToastMessage
-                message="Blotter record successfully deleted!"
-                variant="delete"
-                isVisible={showDeleteToast}
-                duration={3000}
-                onClose={() => setShowDeleteToast(false)}
-            />
-
         </>
     )
 }

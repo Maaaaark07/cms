@@ -15,26 +15,35 @@ const IncidentReport = () => {
     const navigate = useNavigate();
 
     //Toast
-    const [showSuccessToast, setShowSuccessToast] = useState(false);
+    const [showSuccessToastComplaint, setShowSuccessToastComplaint] = useState(false);
+    const [showDeleteToastComplaint, setShowDeleteToastComplaint] = useState(false);
     const [showSuccessToastIncident, setShowSuccessToastIncident] = useState(false);
     const [showDeleteToastIncident, setShowDeleteToastIncident] = useState(false);
 
+    const [complaintToastType, setComplaintToastType] = useState("");
+    const [incidentToastType, setIncidentToastType] = useState("");
+
     useEffect(() => {
-        const incidentToastType = location.state?.incidentToastType;
+        const incidentToastType = location.state?.incidentToastType ?? "";
 
         if (incidentToastType) {
-            console.log(incidentToastType);
-            setShowSuccessToastIncident(incidentToastType === "Add");
+            setIncidentToastType(incidentToastType);
+
+            setShowSuccessToastIncident(incidentToastType === "Add" || incidentToastType === "Update");
             setShowDeleteToastIncident(incidentToastType === "Delete");
 
-            // Clear the state after handling it
             navigate(location.pathname, { replace: true, state: {} });
         }
     }, [location, navigate]);
 
     useEffect(() => {
-        if (location.state?.toastMessage) {
-            setShowSuccessToast(true);
+        const blotterToastType = location.state?.blotterToastType ?? "";
+
+        if (blotterToastType) {
+            setComplaintToastType(blotterToastType);
+
+            setShowSuccessToastComplaint(blotterToastType === "Add" || blotterToastType === "Update");
+            setShowDeleteToastComplaint(blotterToastType === "Delete");
 
             navigate(location.pathname, { replace: true, state: {} });
         }
@@ -51,16 +60,24 @@ const IncidentReport = () => {
             ]} />
 
             <ToastMessage
-                message={`Blotter record ${location.state?.type === "Update" ? "updated" : "added"} successfully!`}
+                message={`Blotter record ${complaintToastType === "Add" ? "added" : "updated"} successfully!`}
                 variant="default"
-                isVisible={showSuccessToast}
+                isVisible={showSuccessToastComplaint}
                 duration={3000}
-                onClose={() => setShowSuccessToast(false)}
+                onClose={() => setShowSuccessToastComplaint(false)}
+            />
+
+            <ToastMessage
+                message="Blotter record successfully deleted!"
+                variant="delete"
+                isVisible={showDeleteToastComplaint}
+                duration={3000}
+                onClose={() => setShowDeleteToastComplaint(false)}
             />
 
             {/* Incident Toast Messages */}
             <ToastMessage
-                message={`Incident record ${location.state?.incidentToastType !== "Add" ? "added" : "updated"} successfully!`}
+                message={`Incident record ${incidentToastType === "Add" ? "added" : "updated"} successfully!`}
                 variant="default"
                 isVisible={showSuccessToastIncident}
                 duration={3000}

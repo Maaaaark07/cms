@@ -1,8 +1,9 @@
 import axios from "axios";
 import cfg from '../../../server/config/domain.js';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, } from "react";
 import { useAuth } from "../components/AuthContext.jsx";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useDateFormatter } from '../hooks/useDateFormatter';
 
 import Header from "../components/Header.jsx";
 import Sidebar from "../components/Sidebar.jsx";
@@ -19,13 +20,21 @@ import { IoSearch } from "react-icons/io5";
 import { IoCloseCircleOutline } from "react-icons/io5";
 import { RxAvatar } from "react-icons/rx";
 
-const AddIncidentReportPage = () => {
+const EditIncidentReportPage = () => {
 
     const { barangayId } = useAuth();
+
+    const location = useLocation();
     const navigate = useNavigate();
 
-    const [errorMessage, setErrorMessage] = useState(null);
+    const { formatIncidentDate } = useDateFormatter();
+
     const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState(null);
+
+    const [incidentId, setIncidentId] = useState(null);
+    const [incidentDetails, setIncidentDetails] = useState([]);
+
     const [isReporterModalOpen, setIsReporterModalOpen] = useState(false);
 
     const [selectedIncidentType, setSelectedIncidentType] = useState(null);
@@ -42,8 +51,41 @@ const AddIncidentReportPage = () => {
     //Alert
     const [isAlertSubmitOpen, setIsAlertSubmitOpen] = useState(false);
 
+    useEffect(() => {
+        if (location?.state?.incident_id) {
+            const id = location.state.incident_id;
+            setIncidentId(id);
+            fetchIncident(id);
+        }
+    }, [location])
+
+    const fetchIncident = async (id) => {
+        try {
+            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/incident/get-incident/${id}`, { withCredentials: true });
+
+            if (response.status === 200) {
+                const incidentData = response.data[0];
+
+                setIncidentDetails(incidentData);
+
+                setSelectedIncidentType(incidentData.incident_type);
+                setSelectedIncidentDate(formatIncidentDate(incidentData.incident_date, 'yyyy-mm-dd') || "")
+                setSelectedIncidentLocation(incidentData.incident_location || "");
+                setReporterId(incidentData?.cbs_user_id);
+                setReporterName(incidentData.reporter_name || "");
+                setReporterAddress(incidentData.address || "");
+                setReporterContact(incidentData.contact ?? "");
+                setIncidentStatement(incidentData.incident_statement);
+            }
+
+        } catch (error) {
+            console.error("Error fetching incident report:", error);
+            setErrorMessage("Error fetching incident:", error);
+        }
+    }
+
     const handleIncidentTypeChange = (selectedValue) => {
-        setSelectedIncidentType(selectedValue)
+        setSelectedIncidentType(selectedValue?.title)
     };
 
     const handleSelectReporter = (reporter) => {
@@ -67,7 +109,7 @@ const AddIncidentReportPage = () => {
         return null;
     };
 
-    const handleAlertSubmit = async () => {
+    const handleAlertUpdate = async () => {
         const error = validateForm();
         if (error) {
             setErrorMessage(error);
@@ -78,15 +120,16 @@ const AddIncidentReportPage = () => {
         setIsAlertSubmitOpen(true);
     };
 
-    const handleSubmit = async () => {
+    const handleUpdate = async () => {
 
         const payload = {
+            incident_id: incidentId,
             incident_date: selectedIncidentDate,
             reporter_id: reporterId,
             reporter_name: reporterName,
             reporter_address: reporterAddress,
             reporter_contact: reporterContact,
-            incident_type: selectedIncidentType.title,
+            incident_type: selectedIncidentType,
             incident_location: selectedIncidentLocation,
             incident_statement: incidentStatement,
             barangay_id: barangayId
@@ -95,12 +138,12 @@ const AddIncidentReportPage = () => {
         setIsLoading(true);
 
         try {
-            const response = await axios.post(`http://${cfg.domainname}:${cfg.serverport}/incident/add/incident-report`, payload, { withCredentials: true });
-            if (response.status === 201) {
+            const response = await axios.put(`http://${cfg.domainname}:${cfg.serverport}/incident/update/incident-report/${incidentId}`, payload, { withCredentials: true });
+            if (response.status === 200) {
                 setErrorMessage(null);
 
                 //Navigate
-                navigate('/blotter-report', { state: { incidentToastType: 'Add' } });
+                navigate('/blotter-report', { state: { incidentToastType: 'Update' } });
             }
         } catch (error) {
             console.error(error);
@@ -121,8 +164,20 @@ const AddIncidentReportPage = () => {
             <Breadcrumbs />
             <div className="mx-auto bg-white p-10 rounded-lg">
                 <div className="mb-6 leading-3">
-                    <h1 className="text-xl font-semibold text-gray-500">Add Incident</h1>
-                    <p className="text-sm text-gray-400 mt-2">Fill out the form below to add a new incident to the system.</p>
+                    <div className="mb-4 leading-3">
+                        <p className="text-lg font-semibold text-blue-500">
+                            IR-#{incidentId || "N/A"}
+                        </p>
+                    </div>
+                    <h1 className="text-xl font-semibold text-gray-500">Edit Incident</h1>
+                    {incidentId ? (
+                        <p className="text-sm text-gray-400 mt-2">Fill out the form below to edit the details of an existing complaint in the system.</p>
+
+                    ) : (
+                        <p className="text-red-500 text-sm mb-4 mt-2">
+                            No incident report selected.
+                        </p>
+                    )}
                 </div>
                 {errorMessage && <p className="text-red-500 text-sm mb-4">{errorMessage}</p>}
                 <div className="col-span-1 md:col-span-3 mb-4">
@@ -132,7 +187,7 @@ const AddIncidentReportPage = () => {
                             <SearchDropdown
                                 title="Select Incident Type"
                                 placeholder="Search Incident Type"
-                                selectedValue={selectedIncidentType?.title}
+                                selectedValue={selectedIncidentType}
                                 onSelect={handleIncidentTypeChange} />
                         </div>
                         <div className='flex-1'>
@@ -183,10 +238,9 @@ const AddIncidentReportPage = () => {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className={`bg-blue-500 text-white py-2 px-4 rounded-md ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            onClick={() => handleAlertSubmit()}
-                        >
-                            {isLoading ? 'Submitting...' : 'Submit'}
+                            className={`bg-emerald-500 text-white py-2 px-4 rounded-md ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            onClick={() => handleAlertUpdate()}>
+                            {isLoading ? 'Update...' : 'Update'}
                         </button>
                     </div>
                 </div>
@@ -214,8 +268,8 @@ const AddIncidentReportPage = () => {
 
             <AlertDialog
                 isOpen={isAlertSubmitOpen}
-                message={"Are you sure you want to submit this record? This action will process the record."}
-                title="Submit Confirmation"
+                message={"Are you sure you want to update this record? This action will process the record."}
+                title="Update Confirmation"
                 buttonConfig={[
                     {
                         label: "Cancel",
@@ -223,10 +277,10 @@ const AddIncidentReportPage = () => {
                         action: () => setIsAlertSubmitOpen(false),
                     },
                     {
-                        label: "Yes, Submit",
+                        label: "Yes, Update",
                         color: "bg-emerald-500 text-white",
                         action: async () => {
-                            await handleSubmit();
+                            await handleUpdate();
                             setIsAlertSubmitOpen(false);
                         },
                     },
@@ -236,4 +290,4 @@ const AddIncidentReportPage = () => {
     )
 }
 
-export default AddIncidentReportPage
+export default EditIncidentReportPage

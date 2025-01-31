@@ -110,6 +110,14 @@ const BlotterIncidentPage = () => {
         setCurrentPage(1);
     };
 
+    const handleEditIncident = (id) => {
+        navigate("/blotter-report/edit-incident", { state: { incident_id: id } })
+    }
+
+    const handleViewIncident = (id) => {
+        navigate("/blotter-report/incident-report-view", { state: { incident_id: id } })
+    }
+
     if (loading) return <Loader type="block" />;
 
     return (
@@ -176,10 +184,10 @@ const BlotterIncidentPage = () => {
                                         <td className="p-3 text-gray-500">{formatIncidentDate(incident.incident_date)}</td>
                                         <td className="p-3 text-gray-500 flex items-center justify-center gap-2">
                                             <div
-                                                className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'>
+                                                className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer' onClick={() => handleEditIncident(incident.incident_id)}>
                                                 <GrEdit className='w-5 h-5 text-gray-500' />
                                             </div>
-                                            <div className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'>
+                                            <div className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer' onClick={() => handleViewIncident(incident.incident_id)}>
                                                 <FaRegEye className='w-5 h-5 text-gray-500' />
                                             </div>
                                             <div
