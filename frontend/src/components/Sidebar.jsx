@@ -19,7 +19,7 @@ const Sidebar = () => {
     const toggleSidebar = () => setIsOpen(!isOpen);
 
     return (
-        <div className={`relative flex flex-col h-full ${isOpen ? 'min-w-[300px]' : 'max-w-[100px]'} bg-white text-gray-600 transition-width duration-300 shadow-md`}>
+        <div className={`relative flex flex-col h-full ${isOpen ? 'w-72 min-w-[300px]' : 'min-w-[70px] w-[70px]'} bg-white text-gray-600 transition-width duration-300 shadow-md`}>
             <button
                 onClick={toggleSidebar}
                 className="absolute top-[-15px] -right-3 bg-white border border-gray-300 rounded-xl p-1 shadow-md focus:outline-none"
@@ -31,7 +31,7 @@ const Sidebar = () => {
                 )}
             </button>
 
-            <div className="flex-1">
+            <div className="flex-grow">
                 <ul className="flex flex-col p-4">
                     <li className="my-2">
                         <NavLink
