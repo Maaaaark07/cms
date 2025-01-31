@@ -14,6 +14,7 @@ import locationRoutes from './routes/location.js'
 import certificateRoutes from './routes/certificate.js'
 import brgyOfficialsRoutes from './routes/officials.js';
 import userRoutes from './routes/user.js'
+import reportRoutes from './routes/report.js'
 import cfg from './config/origin.js';
 
 const app = express();
@@ -88,6 +89,7 @@ app.use('/location', locationRoutes)
 app.use('/certificate', certificateRoutes)
 app.use('/official', brgyOfficialsRoutes)
 app.use('/user', userRoutes)
+app.use('/report', reportRoutes)
 
 const PORT = cfg.serverport || 8080;
 app.listen(PORT, () => {
