@@ -21,6 +21,7 @@ import NotificationAdvisoryPage from "./pages/NotificationAdvisoryPage";
 import AddIncidentReportPage from "./pages/AddIncidentReportPage";
 import EditIncidentReportPage from "./pages/EditIncidentReportPage";
 import BlotterIncidentViewPage from "./pages/BlotterIncidentViewPage";
+import BarangayOfficials from "./pages/BarangayOfficials";
 
 const App = () => {
     return (
@@ -73,6 +74,16 @@ const App = () => {
                     element={
                         <ProtectedRoute>
                             <AddCertificationPage />
+                        </ProtectedRoute>
+                    }
+                />
+                 <Route
+                    path="/barangay-official"
+                    element={
+                        <ProtectedRoute>
+                             <AppLayout>
+                                <BarangayOfficials />
+                             </AppLayout>
                         </ProtectedRoute>
                     }
                 />
@@ -180,7 +191,9 @@ const App = () => {
                     path="/reports"
                     element={
                         <ProtectedRoute>
-                            <Reports />
+                            <AppLayout>
+                                <Reports />
+                            </AppLayout>
                         </ProtectedRoute>
                     }
                 />

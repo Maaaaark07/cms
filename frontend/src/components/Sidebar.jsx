@@ -9,6 +9,8 @@ import { HiDocumentReport } from 'react-icons/hi';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { GoDatabase, GoReport } from "react-icons/go";
 import { MdOutlineNotificationImportant } from "react-icons/md";
+import { RiGovernmentLine } from "react-icons/ri";
+
 
 
 const Sidebar = () => {
@@ -17,7 +19,7 @@ const Sidebar = () => {
     const toggleSidebar = () => setIsOpen(!isOpen);
 
     return (
-        <div className={`relative flex flex-col h-full ${isOpen ? 'w-72' : 'w-[70px]'} bg-white text-gray-600 transition-width duration-300 shadow-md`}>
+        <div className={`relative flex flex-col h-full ${isOpen ? 'w-72' : 'w-[70px]'} min-w-[300px] bg-white text-gray-600 transition-width duration-300 shadow-md`}>
             <button
                 onClick={toggleSidebar}
                 className="absolute top-[-15px] -right-3 bg-white border border-gray-300 rounded-xl p-1 shadow-md focus:outline-none"
@@ -84,6 +86,17 @@ const Sidebar = () => {
                         >
                             <LuUsers className={`h-6 w-6 ${!isOpen ? 'h-8 w-8' : ''} transition-transform`} />
                             {isOpen && <span className="ml-3">User Management</span>}
+                        </NavLink>
+                    </li>
+                    <li className="my-2">
+                        <NavLink
+                            to="/barangay-official"
+                            className={({ isActive }) =>
+                                `flex items-center p-2 rounded transition-colors duration-200 ${isActive ? 'bg-blue-100 text-blue-500' : 'hover:bg-blue-100 hover:text-blue-500'}`
+                            }
+                        >
+                            <RiGovernmentLine className={`h-6 w-6 ${!isOpen ? 'h-8 w-8' : ''} transition-transform`} />
+                            {isOpen && <span className="ml-3">Barangay Official</span>}
                         </NavLink>
                     </li>
                     <li className="my-2">
