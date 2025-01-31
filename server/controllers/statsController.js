@@ -1,7 +1,7 @@
 import db from '../config/database.js';
 
 export const getRegisteredVoters = (req, res) => {
-    const { id } = req.params; 
+    const { id } = req.params;
     const sql = "CALL GetRegisteredVoterCount(?)";
 
     db.query(sql, [id], (err, results) => {
@@ -16,7 +16,7 @@ export const getRegisteredVoters = (req, res) => {
 };
 
 export const getPopulationStats = (req, res) => {
-    const { id } = req.params; 
+    const { id } = req.params;
     const sql = "CALL GetPopulationStats(?)";
 
     db.query(sql, [id], (err, results) => {
@@ -36,9 +36,9 @@ export const getPopulationStats = (req, res) => {
 };
 
 export const getResidentCount = (req, res) => {
-    const { id } = req.params; 
+    const { id } = req.params;
     const sql = "CALL GetResidentsCount(?)";
-    
+
     db.query(sql, [id], (err, results) => {
         if (err) {
             console.error("Database error:", err);
@@ -52,7 +52,7 @@ export const getResidentCount = (req, res) => {
 
 
 export const getHouseholdCount = (req, res) => {
-    const { id } = req.params; 
+    const { id } = req.params;
     const sql = "CALL GetHouseholdCount(?)";
 
     db.query(sql, [id], (err, results) => {
@@ -73,7 +73,7 @@ export const getHouseholdCount = (req, res) => {
 };
 
 export const getPwdCount = (req, res) => {
-    const { id } = req.params; 
+    const { id } = req.params;
     const sql = "CALL GetPopulationStats(?)";
 
     db.query(sql, [id], (err, results) => {
@@ -94,3 +94,40 @@ export const getPwdCount = (req, res) => {
         }
     });
 };
+
+export const getAllPopulationStats = async (req, res) => {
+    const { id } = req.params;
+    const sql = "CALL GetPopulationStats(?)";
+
+    try {
+        const results = await new Promise((resolve, reject) => {
+            db.query(sql, [id], (err, result) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+        if (results && Array.isArray(results) && results[0] && Array.isArray(results[0])) {
+            const stats = results[0][0];
+
+            const safeStats = Object.keys(stats).reduce((acc, key) => {
+                acc[key] = stats[key] ?? 0;
+                return acc;
+            }, {});
+
+            return res.json(safeStats);
+        } else {
+            console.warn("Invalid results format:", results);
+            return res.status(500).json({ error: "Invalid data format" });
+        }
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({
+            error: "Failed to retrieve population stats",
+            details: error.message,
+        });
+    }
+}
