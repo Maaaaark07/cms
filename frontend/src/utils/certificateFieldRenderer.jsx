@@ -73,6 +73,34 @@ export default function renderAdditionalFields({
                             />
                         </div>
                     )}
+
+                    <div className='flex-1'>
+                        <label className="block mb-2 text-sm font-medium text-gray-500">
+                            Name<span className="text-red-600">*</span>
+                        </label>
+                        <div className="relative rounded-md">
+                            <input
+                                type="text"
+                                name="complainantName"
+                                placeholder="Type or Search Complainant Name"
+                                className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                                value={formData.complainantName}
+                                onChange={handleInputChange}
+                            />
+                            <div
+                                className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md"
+                                onClick={() => setIsComplainantModalOpen((prev) => !prev)}
+                            >
+                                <IoSearch className="w-5 h-5 text-white" />
+                            </div>
+                            <SearchModal
+                                title="Select Complainant"
+                                isOpen={isComplainantModalOpen}
+                                onClose={() => setIsComplainantModalOpen(false)}
+                                onSelect={handleSelectComplainant}
+                            />
+                        </div>
+                    </div>
                 </div>
             );
         case 'death certification':

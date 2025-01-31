@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { PDFViewer } from '@react-pdf/renderer';
 import { pdf } from '@react-pdf/renderer';
+import axios from 'axios';
 
 import SearchDropdown from '../components/SearchDropdown';
 import CertificatePreview from '../components/CertificatePreview';
 import { useCertificationForm } from '../hooks/useCertificationForm';
 import renderAdditionalFields from '../utils/certificateFieldRenderer.jsx';
+import cfg from '../../../server/config/origin.js';
 
 const CertificationForm = () => {
     let {
@@ -45,7 +47,9 @@ const CertificationForm = () => {
     const [isGenerateButtonDisabled, setIsGenerateButtonDisabled] = useState(false);
     const [isPreview, setIsPreview] = useState(false);
     const [isMessageGenerated, setIsMessageGenerated] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const textareaRef = useRef(null);
+    const [file, setFile] = useState(null);
 
 
     const handleOpenPreviewInNewTab = async () => {
@@ -118,11 +122,70 @@ const CertificationForm = () => {
         }
     };
 
-    const handleSubmit = () => {
-        // Add your submit logic here
-        alert('Form submitted successfully!');
-    };
+    const handleSubmit = async () => {
+        setIsLoading(true);
 
+        if (!isMessageGenerated || !finalMessage) {
+            alert("Please generate the certificate content before submitting.");
+            return;
+        }
+
+        try {
+            // Generate the PDF as a Blob
+            const blob = await pdf(
+                <CertificatePreview
+                    message={finalMessage}
+                    brgyOfficials={brgyOfficials}
+                    certificateTitle={selectedCertificateType?.iname || ''}
+                    date={
+                        formData.issuanceDate
+                            ? new Date(formData.issuanceDate).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                            })
+                            : new Date().toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                            })
+                    }
+                />
+            ).toBlob();
+
+            // Convert blob to a file object for FormData
+            const file = new File([blob], `certificate_${Date.now()}.pdf`, { type: 'application/pdf' });
+
+            // Prepare form data
+            const formDataToSend = new FormData();
+            Object.keys(formData).forEach(key => {
+                formDataToSend.append(key, formData[key]);
+            });
+
+            formDataToSend.append('certificate', file);
+
+            // Make API call
+            const response = await axios.post(
+                `http://${cfg.domainname}:${cfg.serverport}/certificate/add`,
+                formDataToSend,
+                {
+                    withCredentials: true,
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                }
+            );
+
+            if (response.status === 201) {
+                alert('Certificate added successfully!');
+                const blobUrl = URL.createObjectURL(blob);
+                console.log('Blob URL:', blobUrl);
+                navigate('/Application-Request', { state: { certificateToastType: 'Add' } });
+            }
+        } catch (error) {
+            console.error('Error submitting form:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
     const handleEditTextContent = (e) => {
         const newValue = e.target.value;
         setCustomPurpose(newValue);

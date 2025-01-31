@@ -425,15 +425,15 @@ const AddResidentPage = ({ setSuccess }) => {
         return true;
     };
 
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setFormData(prevData => ({
-                ...prevData,
-                Profile_Image: file  // Store the actual file object
-            }));
-        }
-    };
+    // const handleFileChange = (e) => {
+    //     const file = e.target.files[0];
+    //     if (file) {
+    //         setFormData(prevData => ({
+    //             ...prevData,
+    //             Profile_Image: file  // Store the actual file object
+    //         }));
+    //     }
+    // };
 
     const handleAddResident = async (e) => {
         e.preventDefault();

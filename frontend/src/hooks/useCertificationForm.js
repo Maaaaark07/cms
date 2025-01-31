@@ -15,17 +15,22 @@ export const useCertificationForm = () => {
     const [isSelectFatherModalOpen, setIsSelectFatherModalOpen] = useState(false);
     const [isIssuedToModalOpen, setIsIssuedToModalOpen] = useState(false);
     const [isPartnerNameModalOpen, setIsPartnerNameModalOpen] = useState(false);
+    const [reporterId, setReporterId] = useState(null);
 
     const { barangayId } = useAuth();
 
     const initialFormData = {
         certificateType: null,
         birthPlace: '',
+        barangay_id: barangayId,
+        resident_id: '',
         issuanceDate: '',
         amount: '',
+        issued_by: reporterId,
         complainantName: '',
         complainantMiddleName: '',
         complainantAddress: '',
+        certification_type_id: '',
         complainantContact: '',
         complainantAge: '',
         residenceGender: '',
@@ -98,13 +103,32 @@ export const useCertificationForm = () => {
         }
     };
 
+    useEffect(() => {
+        const fetchReporterId = async () => {
+            try {
+                const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/home`, { withCredentials: true });
+                if (response.status === 200) {
+                    setReporterId(response.data.user_id);
+                    console.log(response.data.user_id);
+                }
+            } catch (error) {
+                console.error("Error fetching reporter ID:", error);
+            }
+        };
+
+        fetchReporterId();
+    }, []);
+
     const handleCertificateTypeChange = (selectedValue) => {
         const selectedCertificate = certificateTypes.find(cert => cert?.iid === selectedValue?.iid);
         
         setFormData(prev => ({
             ...initialFormData,
             certificateType: selectedCertificate,
+            certification_type_id: selectedValue.iid,
         }));
+
+        console.log(selectedValue.iid);
 
         setSelectedCertificateType(selectedCertificate);
         console.log(selectedCertificate);
@@ -131,7 +155,10 @@ export const useCertificationForm = () => {
             gender: resident.gender || "",
             birthPlace: resident.birth_place || "",
             birthday: resident.birthday || "",
+            resident_id: resident.resident_id ,
         }));
+
+        console.log(resident);
 
         setIsComplainantModalOpen(false);
     };
@@ -187,6 +214,7 @@ export const useCertificationForm = () => {
         const replacements = {
             '[BARANGAY_CAPTAIN]': brgyOfficials[0]?.full_name || '[BARANGAY_CAPTAIN]',
             '[APPLICANT_NAME]': formData.applicantName || formData.complainantName || '[APPLICANT_NAME]',
+            '[REQUESTOR]': formData.applicantName || formData.complainantName || '[REQUESTOR]',
             '[RESIDENT_NAME]': formData.complainantName || '[RESIDENT_NAME]',
             '[BUSINESS_NAME]': formData.businessName || '[BUSINESS_NAME]',
             '[ADDRESS]': formData.complainantAddress || formData.businessAddress || '[ADDRESS]',

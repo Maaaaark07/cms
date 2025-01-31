@@ -9,10 +9,10 @@ import cfg from "../../../server/config/domain.js";
 import { GrEdit } from "react-icons/gr";
 import { FaRegTrashAlt } from "react-icons/fa";
 import ToastMessage from "../components/ToastMessage.jsx";
+import AlertDialog from "../components/AlertDialog.jsx";
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
-    const [filteredUsers, setFilteredUsers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
@@ -20,30 +20,24 @@ const UserManagement = () => {
     const [error, setError] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showToastMessage, setShowToastMessage] = useState(false);
-    const { barangayId } = useAuth();
+    const [showDeleteToastMessage, setShowDeleteToastMessage] = useState(false);
+    const { barangayId, lguTypeId } = useAuth();
+    const [selectedDeleteId, setSelectedDeleteId] = useState(null);
+    const [isAlertDeleteOpen, setIsAlertDeleteOpen] = useState(false);
 
     useEffect(() => {
         fetchUsers();
     }, [barangayId]);
 
-    useEffect(() => {
-        const filtered = users.filter((user) =>
-            `${user.fullname || ""}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            `${user.user || ""}`.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-        setFilteredUsers(filtered);
-        setCurrentPage(1);
-    }, [users, searchQuery]);
-
-
     async function fetchUsers() {
         setLoading(true);
         try {
             const response = await axios.get(
-                `http://${cfg.domainname}:${cfg.serverport}/user/${barangayId}`,
+                `http://${cfg.domainname}:${cfg.serverport}/user/${1}/${barangayId}`,
                 { withCredentials: true }
             );
             setUsers(response.data || []);
+            console.log(response.data);
         } catch (error) {
             console.error("Error fetching user data:", error);
             setError("Failed to fetch users. Please try again later.");
@@ -52,9 +46,49 @@ const UserManagement = () => {
         }
     }
 
-    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+    const handleDeleteConfirmation = async (id) => {
+        setSelectedDeleteId(id);
+        setIsAlertDeleteOpen(true);
+    }
+
+    const handleDeleteUser = async () => {
+        if (!selectedDeleteId) {
+            console.error("Cannot delete user: User ID is undefined");
+            alert("Error: Cannot delete user due to missing ID");
+            return;
+        }
+
+        try {
+            // Notice the corrected endpoint to match the router configuration
+            const response = await axios.delete(
+                `http://${cfg.domainname}:${cfg.serverport}/user/delete-user/${selectedDeleteId}`,
+                { withCredentials: true }
+            );
+
+            console.log("User data received:", response.data); // Add this line
+            setUsers(response.data || []);
+
+            if (response.status === 200) {
+                setShowDeleteToastMessage(true); // Use toast instead of alert
+                fetchUsers(); // Refresh the user list
+                setSelectedDeleteId(null);
+            }
+        } catch (error) {
+            console.error("Error deleting user data:", error);
+        }
+    };
+
+    const filteredUser = Array.isArray(users)
+        ? users.filter((u) => {
+            const userName = `${u.fullname || ""}`.toLowerCase();
+            const userId = `${u.user || ""}`.toLowerCase();
+            return userName.includes(searchQuery.toLowerCase()) || userId.includes(searchQuery.toLowerCase());
+        })
+        : [];
+
+    const totalFilteredPages = Math.ceil((filteredUser?.length) / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const displayedUsers = filteredUsers.slice(startIndex, startIndex + itemsPerPage);
+    const displayedUsers = filteredUser?.slice(startIndex, startIndex + itemsPerPage);
 
     const handlePageChange = (page) => {
         if (page >= 1 && page <= totalPages) setCurrentPage(page);
@@ -74,7 +108,6 @@ const UserManagement = () => {
     const handleSearchChange = (e) => {
         setSearchQuery(e.target.value);
     };
-
 
 
     return (
@@ -122,12 +155,15 @@ const UserManagement = () => {
                                             <td className="px-4 py-3 text-gray-700 border-b">
                                                 {user.password ? "••••••••" : ""}
                                             </td>
-                                            <td className="px-4 py-3 text-gray-700 border-b">{user.role_id}</td>
+                                            <td className="px-4 py-3 text-gray-700 border-b">{user.rolename}</td>
                                             <td className="p-3 text-gray-500 flex items-center border-b justify-center gap-2">
                                                 <div className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer">
                                                     <GrEdit className="w-5 h-5 text-gray-500" />
                                                 </div>
-                                                <div className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer">
+                                                <div
+                                                    className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer"
+                                                    onClick={() => handleDeleteConfirmation(user.userid)}
+                                                >
                                                     <FaRegTrashAlt className="w-5 h-5 text-red-500" />
                                                 </div>
                                             </td>
@@ -146,7 +182,7 @@ const UserManagement = () => {
 
                         <Pagination
                             currentPage={currentPage}
-                            totalPages={totalPages}
+                            totalPages={totalFilteredPages}
                             onPageChange={handlePageChange}
                             itemsPerPage={itemsPerPage}
                             onItemsPerPageChange={handleItemsPerPageChange}
@@ -160,6 +196,7 @@ const UserManagement = () => {
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleOnSubmit} // Correctly pass function reference
                 barangayId={barangayId}
+                lguTypeId={lguTypeId}
             />
 
             <ToastMessage
@@ -168,6 +205,38 @@ const UserManagement = () => {
                 isVisible={showToastMessage}
                 duration={3000}
                 onClose={() => setShowToastMessage(false)}
+            />
+
+            <ToastMessage
+                message={`User Deleted Successfully`}
+                variant="delete"
+                isVisible={showDeleteToastMessage}
+                duration={3000}
+                onClose={() => setShowDeleteToastMessage(false)}
+            />
+
+            <AlertDialog
+                isOpen={isAlertDeleteOpen}
+                message={"Are you sure you want to delete this record? This action cannot be undone, and the record will be permanently removed."}
+                title="Delete Confirmation"
+                buttonConfig={[
+                    {
+                        label: "Cancel",
+                        color: "bg-gray-200 text-gray-600",
+                        action: () => {
+                            setIsAlertDeleteOpen(false);
+                            setSelectedDeleteId(null);
+                        },
+                    },
+                    {
+                        label: "Yes, Delete",
+                        color: "bg-red-600 text-white",
+                        action: async () => {
+                            await handleDeleteUser();
+                            setIsAlertDeleteOpen(false);
+                        },
+                    },
+                ]}
             />
         </div>
     );

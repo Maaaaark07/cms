@@ -30,6 +30,33 @@ export const getCbsUsersByBarangay = async (req, res) => {
     }
 };
 
+
+export const getAllCbsUsers = async (req, res) => {
+    const {lguTypeId, id } = req.params;
+    const sql = "CALL getAllCBSUsers(?, ?)";
+
+    try {
+        const results = await new Promise((resolve, reject) => {
+            db.query(sql, [lguTypeId, id], (err, results) => { // Pass both parameters
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+
+        res.json(results[0]);
+        console.log("result: ", results); // Assuming the stored procedure returns the results in the first element of the array
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({
+            error: "Failed to retrieve CBS users data",
+            details: error.message,
+        });
+    }
+};
+
 export const getAllLguTypes = async (req, res) => {
     const sql = "SELECT * FROM lgu_types";
 
@@ -149,6 +176,35 @@ export const getUserRolesByLguType = async (req, res) => {
         console.error("Database error:", error);
         res.status(500).json({
             error: "Failed to fetch user roles",
+            details: error.message,
+        });
+    }
+};
+
+export const deleteCbsUser = async (req, res) => {
+    const { id } = req.params;
+    const sql = "CALL DeleteCBSUser(?)";
+
+    try {
+        const result = await new Promise((resolve, reject) => {
+            db.query(sql, [id], (err, result) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+        if (result.affectedRows > 0) {
+            res.status(200).json({ message: "User deleted successfully" });
+        } else {
+            res.status(404).json({ error: "User not found or already deleted" });
+        }
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({
+            error: "Failed to delete user",
             details: error.message,
         });
     }

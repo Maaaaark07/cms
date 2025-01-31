@@ -1,6 +1,6 @@
 import express from "express";
 import {
-    getAllCertifcateRequest,
+    getAllCertificateRequest,
     getAllCertificateTypes,
     addCertificationRequest
 } from "../controllers/certificateController.js";
@@ -11,6 +11,6 @@ const router = express.Router();
 
 router.post("/add", verifyUser, upload.single('certificate'), addCertificationRequest);
 router.get("/", verifyUser, getAllCertificateTypes);
-router.get("/:id", verifyUser, getAllCertifcateRequest);
+router.get("/:id", verifyUser, getAllCertificateRequest);
 
 export default router;

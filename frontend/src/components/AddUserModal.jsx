@@ -270,45 +270,12 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-lg p-6 w-full max-w-xl">
-                <h2 className="text-lg font-bold text-gray-500 mb-6">Add New User</h2>
+                <div className='leading-3 mb-6'>
+                    <h2 className="text-lg font-bold text-gray-500">Add New User</h2>
+                    <p className="text-xs text-gray-400">Fill in the form below to create a new user account with appropriate details.</p>
+                </div>
                 <form onSubmit={handleSubmit}>
                     <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className='flex-1'>
-                                <label className="block mb-2 text-sm font-medium text-gray-500">
-                                    Resident<span className="text-red-600">*</span>
-                                </label>
-                                <div className="relative rounded-md ">
-                                    <input type="text" name="resident_name" placeholder="Select Resident" className="text-sm border h-full border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500" value={formData.resident_name} onChange={handleInputChange} />
-                                    <div className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md" onClick={() => setSelectResidentModal(true)}>
-                                        <IoSearch className="w-5 h-5 text-white" />
-                                    </div>
-                                    <SearchModal
-                                        title="Select Defendant"
-                                        isOpen={selectResidentModal}
-                                        onClose={() => {
-                                            setSelectResidentModal(false)
-                                        }}
-                                        onSelect={(resident) => handleSelectResident(resident)}
-                                    />
-                                </div>
-                            </div>
-                            <div className='flex-1'>
-                                <label className="block mb-2 text-sm font-medium text-gray-500">
-                                    Username<span className="text-red-600">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    name="user"
-                                    placeholder="Username"
-                                    value={formData.user}
-                                    onChange={handleInputChange}
-                                    className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
-                                    required
-                                />
-                            </div>
-                        </div>
-
                         <div className="grid grid-cols-2 gap-4">
                             <div className='flex-1'>
                                 <label className="block mb-2 text-sm font-medium text-gray-500">
@@ -389,6 +356,42 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
                                         </option>
                                     ))}
                                 </select>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className='flex-1'>
+                                <label className="block mb-2 text-sm font-medium text-gray-500">
+                                    Resident<span className="text-red-600">*</span>
+                                </label>
+                                <div className="relative rounded-md ">
+                                    <input type="text" name="resident_name" placeholder="Select Resident" className="text-sm border h-full border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500" value={formData.resident_name} onChange={handleInputChange} />
+                                    <div className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md" onClick={() => setSelectResidentModal(true)}>
+                                        <IoSearch className="w-5 h-5 text-white" />
+                                    </div>
+                                    <SearchModal
+                                        title="Select Resident"
+                                        isOpen={selectResidentModal}
+                                        onClose={() => {
+                                            setSelectResidentModal(false)
+                                        }}
+                                        onSelect={(resident) => handleSelectResident(resident)}
+                                    />
+                                </div>
+                            </div>
+                            <div className='flex-1'>
+                                <label className="block mb-2 text-sm font-medium text-gray-500">
+                                    Username<span className="text-red-600">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    name="user"
+                                    placeholder="Username"
+                                    value={formData.user}
+                                    onChange={handleInputChange}
+                                    className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                                    required
+                                />
                             </div>
                         </div>
 
