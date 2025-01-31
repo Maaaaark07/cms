@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState, useEffect } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../components/AuthContext";
 import axios from 'axios';
 
@@ -10,6 +10,7 @@ import Breadcrumbs from "../components/Breadcrumbs";
 import Pagination from '../components/Pagination';
 import Search from '../components/Search';
 import cfg from '../../../server/config/domain.js';
+import ToastMessage from '../components/ToastMessage.jsx';
 
 import { IoPersonAddOutline, IoDocumentText } from "react-icons/io5";
 import { RxAvatar } from "react-icons/rx";
@@ -21,17 +22,32 @@ import { Link } from "react-router-dom";
 const ApplicationRequest = () => {
     const { barangayId } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(false);
+    const [certificateToastType, setCertificateToastType] = useState(false);
+    const [showCertificateToastType, setShowCertificateToastType] = useState(false);
     const [requests, setRequests] = useState(null);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         fetchCertificateRequest();
     }, [barangayId]);
+
+    useEffect(() => {
+        const certificateToastType = location.state?.certificateToastType ?? "";
+
+        if (certificateToastType) {
+            setCertificateToastType(certificateToastType);
+
+            setShowCertificateToastType(certificateToastType === "Add");
+            navigate(location.pathname, { replace: true, state: {} });
+        }
+    }, [location, navigate]);
+
 
     async function fetchCertificateRequest() {
         setLoading(true);
@@ -133,7 +149,6 @@ const ApplicationRequest = () => {
                                                 <tr>
                                                     <th className="text-left p-3 font-semibold text-gray-700">Applicant Name</th>
                                                     <th className="text-left p-3 font-semibold text-gray-700">Certificate/Permit ID</th>
-                                                    <th className="text-left p-3 font-semibold text-gray-700">Type of request</th>
                                                     <th className="text-left p-3 font-semibold text-gray-700">Issuance Date</th>
                                                     <th className="text-center p-3 font-semibold text-gray-700">Action</th>
                                                 </tr>
@@ -151,22 +166,13 @@ const ApplicationRequest = () => {
                                                                     <span className='text-xs text-gray-400'>{request?.occupation || 'N/A'}</span>
                                                                 </div>
                                                             </td>
-                                                            <td className="p-3 text-gray-500">{request.certification_id}</td>
                                                             <td className="p-3 text-gray-500">{request.certification_type}</td>
                                                             <td className="p-3 text-gray-500">{formatDate(request.date_issued)}</td>
                                                             <td className="p-3 text-gray-500 flex items-center justify-center gap-2">
-                                                                <div
-                                                                    className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'>
-                                                                    <GrEdit className='w-5 h-5 text-gray-500' />
-                                                                </div>
                                                                 <div className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'>
-                                                                    <Link>
+                                                                    <a href={`http://${cfg.domainname}:${cfg.serverport}${request.cert_file_path}`} target='_blank'>
                                                                         <FaRegEye className='w-5 h-5 text-gray-500' />
-                                                                    </Link>
-                                                                </div>
-                                                                <div
-                                                                    className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'>
-                                                                    <FaRegTrashAlt className='w-5 h-5 text-red-500' />
+                                                                    </a>
                                                                 </div>
                                                             </td>
                                                         </tr>
@@ -190,6 +196,15 @@ const ApplicationRequest = () => {
                             onPageChange={handlePageChange}
                             itemsPerPage={itemsPerPage}
                             onItemsPerPageChange={handleItemsPerPageChange} />
+
+
+                        <ToastMessage
+                            message={`Certificate Added successfully!`}
+                            variant="default"
+                            isVisible={showCertificateToastType}
+                            duration={3000}
+                            onClose={() => setShowCertificateToastType(false)}
+                        />
                     </div>
                 </main>
             </div >
@@ -197,4 +212,4 @@ const ApplicationRequest = () => {
     )
 }
 
-export default ApplicationRequest
+export default ApplicationRequest;

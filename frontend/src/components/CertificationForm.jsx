@@ -7,6 +7,7 @@ import SearchDropdown from '../components/SearchDropdown';
 import CertificatePreview from '../components/CertificatePreview';
 import { useCertificationForm } from '../hooks/useCertificationForm';
 import renderAdditionalFields from '../utils/certificateFieldRenderer.jsx';
+import { useNavigate } from "react-router-dom";
 import cfg from '../../../server/config/origin.js';
 
 const CertificationForm = () => {
@@ -50,6 +51,7 @@ const CertificationForm = () => {
     const [isLoading, setIsLoading] = useState(false);
     const textareaRef = useRef(null);
     const [file, setFile] = useState(null);
+    const navigate = useNavigate();
 
 
     const handleOpenPreviewInNewTab = async () => {
@@ -175,10 +177,7 @@ const CertificationForm = () => {
             );
 
             if (response.status === 201) {
-                alert('Certificate added successfully!');
-                const blobUrl = URL.createObjectURL(blob);
-                console.log('Blob URL:', blobUrl);
-                navigate('/Application-Request', { state: { certificateToastType: 'Add' } });
+                navigate('/application-request', { state: { certificateToastType: 'Add' } });
             }
         } catch (error) {
             console.error('Error submitting form:', error);
@@ -186,6 +185,7 @@ const CertificationForm = () => {
             setIsLoading(false);
         }
     };
+
     const handleEditTextContent = (e) => {
         const newValue = e.target.value;
         setCustomPurpose(newValue);

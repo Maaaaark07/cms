@@ -125,10 +125,8 @@ export const useCertificationForm = () => {
         setFormData(prev => ({
             ...initialFormData,
             certificateType: selectedCertificate,
-            certification_type_id: selectedValue.iid,
+            certification_type_id: selectedValue?.iid,
         }));
-
-        console.log(selectedValue.iid);
 
         setSelectedCertificateType(selectedCertificate);
         console.log(selectedCertificate);

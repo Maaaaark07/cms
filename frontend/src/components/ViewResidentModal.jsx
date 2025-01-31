@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FaUser, FaCalendarAlt, FaTransgenderAlt, FaRing, FaBriefcase, FaPhone, FaEnvelope, FaMapMarkerAlt, FaHome, FaIdCard, FaMapMarkedAlt } from 'react-icons/fa';
 import { RxAvatar } from "react-icons/rx";
+import cfg from '../../../server/config/domain';
 
 const ViewResidentModal = ({ isOpen, onClose, residentData }) => {
     const [activeTab, setActiveTab] = useState('Personal');
@@ -17,7 +18,25 @@ const ViewResidentModal = ({ isOpen, onClose, residentData }) => {
                 {/* Resident Header */}
                 <div className="flex items-center mb-4">
                     <div className="bg-gray-200 rounded-full h-16 w-16 flex items-center justify-center mr-4">
-                        <RxAvatar className='w-16 h-16 text-gray-400' />
+                        {residentData.profile_image ? (
+                            <div
+                                className="w-10 h-10 rounded-full"
+                                style={{
+                                    backgroundImage: `url(http://${cfg.domainname}:${cfg.serverport}${residentData.profile_image})`,
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center',
+                                    backgroundRepeat: 'no-repeat',
+                                    height: '100%',
+                                    width: '100%',
+                                    borderRadius: '50%',
+                                    overflow: 'hidden',
+                                }}
+                                role="img"
+                                aria-label="Resident"
+                            />
+                        ) : (
+                            <RxAvatar className="w-10 h-10 text-gray-400" />
+                        )}
                     </div>
                     <div>
                         <h2 className="text-xl font-semibold text-gray-500">

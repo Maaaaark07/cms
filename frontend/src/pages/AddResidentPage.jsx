@@ -547,11 +547,11 @@ const AddResidentPage = ({ setSuccess }) => {
                                         </div>
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">Birth Place</label>
-                                            <input type="text" name="BirthPlace" value={formData.BirthPlace} onChange={handleChange} className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                            <input type="text" name="BirthPlace" placeholder='Birth Place' value={formData.BirthPlace} onChange={handleChange} className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                         </div>
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">Occupation</label>
-                                            <input type="text" name="Occupation" value={formData.Occupation} onChange={handleChange} placeholder="Programmer" className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                            <input type="text" name="Occupation" value={formData.Occupation} onChange={handleChange} placeholder="Occupation" className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                         </div>
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">
@@ -761,7 +761,7 @@ const AddResidentPage = ({ setSuccess }) => {
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">Contact Number</label>
-                                            <input type="text" name="ContactNumber" value={formData.ContactNumber} onChange={handleChange} placeholder='09134567894' required className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                            <input type="text" name="ContactNumber" value={formData.ContactNumber} onChange={handleChange} placeholder='XXXXXXXXXXXX' required className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                         </div>
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">Email</label>
@@ -808,7 +808,7 @@ const AddResidentPage = ({ setSuccess }) => {
                                         </div>
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">Household ID</label>
-                                            <input type="text" name="HouseholdID" value={formData.HouseholdID} onChange={handleChange} placeholder='12345' className="border text-sm text-gray-500 border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                            <input type="text" name="HouseholdID" value={formData.HouseholdID} onChange={handleChange} placeholder='XXX-XX-XX' className="border text-sm text-gray-500 border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-3 mb-4 gap-6">
@@ -843,7 +843,7 @@ const AddResidentPage = ({ setSuccess }) => {
                                         </div>
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">Voter ID</label>
-                                            <input type="text" name="VoterIDNumber" value={formData.VoterIDNumber} onChange={handleChange} placeholder='12345' className="border text-sm text-gray-500 border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                            <input type="text" name="VoterIDNumber" value={formData.VoterIDNumber} onChange={handleChange} placeholder='XXX-XX-XX' className="border text-sm text-gray-500 border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-3 mb-4 gap-6">
@@ -878,7 +878,7 @@ const AddResidentPage = ({ setSuccess }) => {
                                         </div>
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-500">One Bataan ID</label>
-                                            <input type="text" name="JuanBataanID" value={formData.JuanBataanID} onChange={handleChange} placeholder='12345' className="border text-sm text-gray-500 border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                            <input type="text" name="JuanBataanID" value={formData.JuanBataanID} onChange={handleChange} placeholder='XXX-XX-XX' className="border text-sm text-gray-500 border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-3 mb-4 gap-6">

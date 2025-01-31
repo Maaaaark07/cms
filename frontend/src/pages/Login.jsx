@@ -106,7 +106,7 @@ const Login = () => {
                         />
                     </div>
 
-                    <Link to="/register" className="text-blue-500 mb-4">Sign Up</Link>
+                    {/* <Link to="/register" className="text-blue-500 mb-4">Sign Up</Link> */}
                     <button type="submit" className="mt-2 w-full bg-blue-500 text-white py-2 rounded-md">
                         Sign In
                     </button>
