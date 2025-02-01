@@ -9,7 +9,7 @@ import { useCertificationForm } from '../hooks/useCertificationForm';
 import renderAdditionalFields from '../utils/certificateFieldRenderer.jsx';
 import ReportPreview from './ReportPreview.jsx';
 import { useNavigate } from "react-router-dom";
-import cfg from '../../../server/config/origin.js';
+import cfg from '../../../server/config/domain.js';
 
 const CertificationForm = () => {
     let {
