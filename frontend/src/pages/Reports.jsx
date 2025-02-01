@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import ReactDOM from "react-dom";
 import ReportPreview from '../components/ReportPreview.jsx';
 import { pdf } from '@react-pdf/renderer';
+import { usePDF } from '@react-pdf/renderer';
 
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
@@ -37,6 +38,10 @@ const Reports = () => {
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [isLoadingPDF, setIsLoadingPDF] = useState(false);
     const [reportData, setReportData] = useState(null);
+
+    const [instance, updateInstance] = usePDF({
+        document: <ReportPreview />
+    })
 
     useEffect(() => {
         if (barangayId) {
@@ -73,16 +78,17 @@ const Reports = () => {
 
     const handleSelectReportData = async (data) => {
         try {
-            setIsLoadingPDF(true);
+            setIsLoadingPDF(true); // Show loading indicator
             setReportData(data);
-            console.log(data);
+            console.log("Generating PDF...");
+
         } catch (error) {
-            console.error("Error setting report data:", error);
+            console.error("Error generating the PDF:", error);
         } finally {
-            console.log("Tapos na");
-            setIsLoadingPDF(false);
+            setIsLoadingPDF(false); // Hide loading indicator
         }
     };
+
 
     return (
         <div className="flex-grow p-6 bg-gray-100">
@@ -157,7 +163,7 @@ const Reports = () => {
                 onClose={() => setIsReportModalOpen(false)}
             />
 
-            {reportData && !isLoadingPDF && (
+            {!isLoadingPDF && (
                 <Suspense fallback={<LoadingPDFPreview />}>
                     <LazyPDFViewer style={{ width: '100%', height: '100vh' }}>
                         <ReportPreview data={reportData} />
