@@ -6,7 +6,7 @@ export const getAllRegion = (req, res) => {
     db.query(sql, (err, results) => {
         if (err) {
             console.error('Database error:', err);
-            return res.status(500).json({ Error: 'Failed to retrieve blotter data' });
+            return res.status(500).json({ Error: 'Failed to retrieve region data' });
         }
         res.json(results);
     });
