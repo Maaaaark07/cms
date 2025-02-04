@@ -40,3 +40,22 @@ export const insertPuroks = (req, res) => {
         res.status(201).json({ Message: 'Purok data inserted successfully', Data: results });
     });
 };
+
+
+export const deletePurok = (req, res) => {
+    const {id} = req.params;
+    const query = 'CALL DeletePhPurok(?)';
+
+    db.query(query, id, (error, results) => {
+        if (error) {
+            console.error("Error deleting resident:", error);
+            return res.status(500).json({ message: 'Error deleting Purok' });
+        }
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ message: 'Purok not found' });
+        }
+
+        res.status(200).json({ message: 'Purok deleted successfully' });
+    });
+};
