@@ -82,13 +82,6 @@ export const addCertificationRequest = async (req, res) => {
         barangay_id,
     } = req.body;
 
-    console.log(req.body);
-    // Validate required fields
-    // if (!resident_id || !certification_type_id || !status_id || !barangay_id) {
-    //     return res.status(400).json({ error: "Missing required fields" });
-    // }
-
-    // Determine the file path for the certificate if uploaded
     const certificate = req.file
         ? `/uploads/certificates/${req.file.filename}`
         : null; // Set to null if no file is uploaded

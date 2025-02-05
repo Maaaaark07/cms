@@ -100,7 +100,9 @@ export const insertBrgyOfficial = async (req, res) => {
         province_id
     } = req.body;
 
-    const sql = `CALL InsertCBSOfficial(?, ?, ?, ?, ?, ?, ?, ?)`;
+    console.log(req.body);
+
+    const sql = `CALL AddCBSOfficial(?, ?, ?, ?, ?, ?, ?, ?)`;
 
     try {
         const results = await new Promise((resolve, reject) => {
@@ -141,3 +143,69 @@ export const insertBrgyOfficial = async (req, res) => {
     }
 };
 
+export const updateCbsOfficial = async (req, res) => {
+    const { id } = req.params;
+    const {
+        official_type_id,
+        resident_id,
+        full_name,
+        position_rank,
+        committee,
+        barangay_id,
+        city_id,
+        province_id
+    } = req.body;
+
+    console.log(req.body);
+
+    const sql = "CALL UpdateCBSOfficial(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    try {
+        const result = await new Promise((resolve, reject) => {
+            db.query(sql, [id, official_type_id, resident_id, full_name, position_rank, committee, barangay_id, city_id, province_id], (err, result) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+        res.status(200).json({ message: "Official updated successfully", result });
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({
+            message: "Failed to update official",
+            error: error.message,
+        });
+    }
+};
+
+export const deleteCbsOfficial = async (req, res) => {
+    const { id } = req.params;
+    const sql = "CALL DeleteCBSOfficial(?)";
+
+    try {
+        const result = await new Promise((resolve, reject) => {
+            db.query(sql, [id], (err, result) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+
+        if (result.affectedRows > 0) {
+            res.status(200).json({ message: "Official deleted successfully" });
+        } else {
+            res.status(404).json({ error: "Official not found or already deleted" });
+        }
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({
+            error: "Failed to delete official",
+            details: error.message,
+        });
+    }
+}

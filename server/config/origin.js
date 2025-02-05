@@ -1,6 +1,6 @@
 const cfg = {
   domainname: "colo-cms.gov.ph",
-  ipaddress: "192.168.0.184",
+  ipaddress: "192.168.0.71",
   serverport: "8080",
 };
 

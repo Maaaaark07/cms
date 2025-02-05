@@ -239,6 +239,7 @@ const CertificationForm = () => {
                         type='number'
                         name="amount"
                         value={formData.amount}
+                        required
                         onChange={handleInputChange}
                         className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
                     />

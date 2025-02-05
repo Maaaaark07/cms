@@ -114,6 +114,7 @@ const Puroks = () => {
                     <Search
                         searchQuery={searchQuery}
                         onSearchChange={handleSearchChange}
+                        placeholder='Search Purok'
                     />
                 </div>
                 <button
