@@ -18,17 +18,14 @@ const CertificationPermit = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [showToasTmessage, setShowToastMessage] = useState(false);
+    const [showUpdateModal, setShowUpdateModal] = useState(false);
+    const [selectedCertificate, setSelectedCertificate] = useState(null);
     const [selectCertificateDeleteId, setSelectedCertificateDeleteId] = useState(null);
     const [isAlertDeleteCertificate, setIsAlertDeleteCertificate] = useState(false);
     const [showDeleteCertificateToastMessage, setShowDeleteCertificateToastMessage] = useState(false)
-
-    const handleOpenModal = () => setShowModal(true);
-    const handleCloseModal = () => setShowModal(false);
-
-    const handleCertificateAdded = () => {
-        fetchCertificate(); // Refresh certificate list after adding
-        setShowToastMessage(true);
-    };
+    const [isAlertUpdateCertificate, setIsAlertUpdateCertificate] = useState(false);
+    const [showUpdateToastMessage, setShowUpdateToastMessage] = useState(false);
+    const [certificateToUpdate, setCertificateToUpdate] = useState(null);
 
     useEffect(() => {
         fetchCertificate();
@@ -60,6 +57,25 @@ const CertificationPermit = () => {
     const handleDeleteCertificateModal = async () => {
         setIsAlertDeleteCertificate(true);
     }
+
+    const handleOpenModal = () => setShowModal(true);
+    const handleCloseModal = () => setShowModal(false);
+
+    const handleOpenUpdateModal = (certificate) => {
+        setSelectedCertificate(certificate);
+        setIsAlertUpdateCertificate(true);
+    };
+
+    const handleCloseUpdateModal = () => {
+        setShowUpdateModal(false);
+        setSelectedCertificate(null);
+        setCertificateToUpdate(null);
+    };
+
+    const handleCertificateAdded = () => {
+        fetchCertificate(); // Refresh certificate list after adding
+        setShowToastMessage(true);
+    };
 
     const totalPages = Math.ceil(certificates.length / itemsPerPage);
 
@@ -133,7 +149,10 @@ const CertificationPermit = () => {
                                     </td>
                                     <td className="px-4 py-3 border-b">
                                         <div className="flex justify-center gap-2">
-                                            <div className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer">
+                                            <div
+                                                className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer"
+                                                onClick={() => handleOpenUpdateModal(certificate)}
+                                            >
                                                 <GrEdit className="w-5 h-5 text-gray-500" />
                                             </div>
                                             <div
@@ -177,6 +196,14 @@ const CertificationPermit = () => {
                 />
             )}
 
+            {showUpdateModal && (
+                <UpdateCertificateModal
+                    certificate={selectedCertificate}
+                    onClose={handleCloseUpdateModal}
+                    onCertificateUpdated={fetchCertificate}
+                />
+            )}
+
             <ToastMessage
                 message={`Certificate Added Successfully`}
                 variant="default"
@@ -212,6 +239,49 @@ const CertificationPermit = () => {
                         action: async () => {
                             await handleDeleteCertificate();
                             setIsAlertDeleteCertificate(false);
+                        },
+                    },
+                ]}
+            />
+
+            {showUpdateModal && (
+                <UpdateCertificateModal
+                    certificate={selectedCertificate}
+                    onClose={handleCloseUpdateModal}
+                    onCertificateUpdated={() => {
+                        fetchCertificate();
+                        setShowUpdateToastMessage(true);
+                    }}
+                />
+            )}
+
+            <ToastMessage
+                message="Certificate record successfully updated!"
+                variant="default"
+                isVisible={showUpdateToastMessage}
+                duration={3000}
+                onClose={() => setShowUpdateToastMessage(false)}
+            />
+
+            <AlertDialog
+                isOpen={isAlertUpdateCertificate}
+                message={"Are you sure you want to update this record? This action will process the record."}
+                title="Update Certificate"
+                buttonConfig={[
+                    {
+                        label: "Cancel",
+                        color: "bg-gray-200 text-gray-600",
+                        action: () => {
+                            setIsAlertUpdateCertificate(false);
+                            setSelectedCertificate(null);
+                        }
+                    },
+                    {
+                        label: "Yes, Update",
+                        color: "bg-blue-500 text-white",
+                        action: () => {
+                            setIsAlertUpdateCertificate(false);
+                            setShowUpdateModal(true);
                         },
                     },
                 ]}
@@ -256,63 +326,160 @@ const AddCertificateModal = ({ onClose, onCertificateAdded }) => {
 
     return (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white rounded-lg p-6 w-96 shadow-xl">
+            <div className="bg-white rounded-lg p-6 max-w-[500px] w-full shadow-xl">
                 <h2 className="text-xl font-semibold mb-4">Add Certificate</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
-                        <label className="block text-sm font-medium">Document Name</label>
+                        <label className="block text-sm text-gray-500 mb-1 font-medium">Document Name</label>
                         <input
                             type="text"
                             name="iname"
                             value={certificateData.iname}
                             onChange={handleChange}
-                            className="w-full border p-2 rounded"
+                            className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
                         />
                     </div>
                     <div className="mb-4">
-                        <label className="block text-sm font-medium">Comments</label>
+                        <label className="block text-sm  text-gray-500 mb-1 font-medium">Comments</label>
                         <input
                             type="text"
                             name="comments"
                             value={certificateData.comments}
                             onChange={handleChange}
-                            className="w-full border p-2 rounded"
+                            className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
                     <div className="mb-4">
-                        <label className="block text-sm font-medium">Amount</label>
+                        <label className="block  text-gray-500 mb-1  text-sm font-medium">Amount</label>
                         <input
                             type="number"
                             name="amount"
                             value={certificateData.amount}
                             onChange={handleChange}
-                            className="w-full border p-2 rounded"
+                            className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
                         />
                     </div>
                     <div className="mb-4">
-                        <label className="block text-sm font-medium">Body Content</label>
+                        <label className="block  text-gray-500 mb-1 text-sm font-medium">Body Content</label>
                         <textarea
                             name="body_text"
                             value={certificateData.body_text}
                             onChange={handleChange}
-                            className="w-full border p-2 rounded"
+                            className="border text-xs border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            style={{ height: '200px' }}
                         />
                     </div>
                     <div className="flex justify-end space-x-2">
                         <button
                             type="button"
-                            className="bg-gray-400 text-white px-4 py-2 rounded"
+                            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
                             onClick={onClose}
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
-                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                            className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600"
                         >
                             Add
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+const UpdateCertificateModal = ({ certificate, onClose, onCertificateUpdated }) => {
+    const [updatedCertificate, setUpdatedCertificate] = useState({ ...certificate });
+
+    const handleChange = (e) => {
+        setUpdatedCertificate({
+            ...updatedCertificate,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            await axios.put(
+                `http://${cfg.domainname}:${cfg.serverport}/certificate/update-certificate/${updatedCertificate.iid}`,
+                updatedCertificate,
+                { withCredentials: true }
+            );
+            onCertificateUpdated(); // This will now trigger both the data refresh and toast message
+            onClose();
+        } catch (error) {
+            console.error("Error updating certificate:", error);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-[500px] w-full shadow-xl">
+                <h2 className="text-xl font-semibold text-gray-500 mb-4">Update Certificate</h2>
+                <form onSubmit={handleSubmit}>
+                    <div className="mb-4">
+                        <label className="block text-sm  text-gray-500 mb-1 font-medium">Document Name</label>
+                        <input
+                            type="text"
+                            name="iname"
+                            value={updatedCertificate.iname || ''}
+                            onChange={handleChange}
+                            className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label className="block text-sm  text-gray-500 mb-1 font-medium">Comments</label>
+                        <input
+                            type="text"
+                            name="comments"
+                            value={updatedCertificate.comments || ''}
+                            onChange={handleChange}
+                            className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label className="block text-sm  text-gray-500 mb-1 font-medium">Amount</label>
+                        <input
+                            type="number"
+                            name="amount"
+                            value={updatedCertificate.amount || ''}
+                            onChange={handleChange}
+                            className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label className="block text-sm  text-gray-500 mb-1 font-medium">Body content</label>
+                        <textarea
+                            type="text"
+                            name="body_text"
+                            value={updatedCertificate.body_text || ''}
+                            onChange={handleChange}
+                            className="border text-xs border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            style={{ height: '200px' }}
+                            required
+                        />
+                    </div>
+                    <div className="flex justify-end gap-2">
+                        <button
+                            type="button"
+                            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                            onClick={onClose}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600"
+                        >
+                            Update
                         </button>
                     </div>
                 </form>

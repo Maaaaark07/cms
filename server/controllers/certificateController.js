@@ -148,6 +148,45 @@ export const getAllCertificate = async (req, res) => {
     }
 };
 
+export const updateCertificationType = async (req, res) => {
+    const { id } = req.params;
+    const { 
+        iname, 
+        comments, 
+        document_type_id, 
+        amount, 
+        body_text, 
+        lgu_type_id 
+    } = req.body;
+
+    console.log("Request data:", req.body);
+
+    const sql = "CALL UpdateCertificateType(?, ?, ?, ?, ?, ?, ?)";
+
+    try {
+        const result = await new Promise((resolve, reject) => {
+            db.query(
+                sql, 
+                [id, iname, comments, document_type_id, amount, body_text, lgu_type_id],
+                (err, result) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                }
+            );
+        });
+
+        res.status(200).json({ message: "Certification type updated successfully", result });
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({
+            message: "Failed to update certification type",
+            error: error.message,
+        });
+    }
+};
 
 export const addCertificateType = async (req, res) => {
     const { iname, comments, document_type_id, amount, body_text, lgu_type_id } = req.body;
