@@ -24,6 +24,30 @@ export const getAllBrgyOfficials = async (req, res) => {
     }
 }
 
+export const getAllSKOfficials = async (req, res) => {
+    const { id } = req.params;
+    const sql = "CALL GetSKOfficials(?)";
+
+    try {
+        const results = await new Promise((resolve, reject) => {
+            db.query(sql, [id], (err, results) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+        res.json(results[0]);
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({
+            error: "Failed to retrieve SK Officials data",
+            details: error.message,
+        });
+    }
+}
+
 
 export const getCBSOfficials = async (req, res) => {
     const { lguTypeId, barangayId } = req.params;
