@@ -18,9 +18,9 @@ const Login = () => {
     });
 
     const navigate = useNavigate();
-    const { setBarangayId } = useAuth();
+    const { setBarangayId, setCityId, setProvinceId } = useAuth();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!values.users || !values.password) {
             setError("Email and password are required.");
@@ -31,29 +31,28 @@ const Login = () => {
             return;
         }
 
-        axios.post(`http://${cfg.domainname}:${cfg.serverport}/login`, values, { withCredentials: true })
-            .then(res => {
-                if (res.data.Status === 'Success') {
-                    setValues({ users: '', password: '' });
-                    setBarangayId(res.data.Id);
-                    console.log(res.data.Id)
-                    navigate('/home');
-                } else {
-                    setError(res.data.Error || "Login failed. Please try again.");
-                    setValues({ users: '', password: '' });
-                    setTimeout(() => {
-                        setError("");
-                    }, 3000);
-                }
-            })
-            .catch(err => {
-                setError("An error occurred. Please try again.");
+        try {
+            const response = await axios.post(`http://${cfg.domainname}:${cfg.serverport}/login`, values, { withCredentials: true });
+
+            if (response.data.Status === 'Success') {
                 setValues({ users: '', password: '' });
-                setTimeout(() => {
-                    setError("");
-                }, 3000);
-                console.error(err);
-            });
+
+                setBarangayId(response.data.BarangayId);
+                setCityId(response.data.CityId);
+                setProvinceId(response.data.ProvinceId);
+
+                navigate('/home');
+            } else {
+                setError(response.data.Error || "Login failed. Please try again.");
+                setValues({ users: '', password: '' });
+                setTimeout(() => setError(""), 3000);
+            }
+        } catch (err) {
+            setError("An error occurred. Please try again.");
+            setValues({ users: '', password: '' });
+            setTimeout(() => setError(""), 3000);
+            console.error(err);
+        }
     };
 
     return (
