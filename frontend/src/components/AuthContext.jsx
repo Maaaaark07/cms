@@ -7,6 +7,7 @@ export const AuthProvider = ({ children }) => {
     const [barangayId, setBarangayId] = useState(null);
     const [cityId, setCityId] = useState(null);
     const [provinceId, setProvinceId] = useState(null);
+    const [lguId, setLguId] = useState(null);
 
     // Load encrypted data from localStorage on component mount
     useEffect(() => {
@@ -14,6 +15,7 @@ export const AuthProvider = ({ children }) => {
             const storedBarangayId = localStorage.getItem('barangayId');
             const storedCityId = localStorage.getItem('cityId');
             const storedProvinceId = localStorage.getItem('provinceId');
+            const storedLguId = localStorage.getItem('lguId');
 
             if (storedBarangayId) {
                 try {
@@ -35,6 +37,18 @@ export const AuthProvider = ({ children }) => {
                     }
                 } catch (error) {
                     console.error('Error loading city ID:', error);
+                    alert('Failed to load your session data. Please log in again.');
+                }
+            }
+
+            if (storedLguId) {
+                try {
+                    const decryptedLguId = decryptId(storedLguId);
+                    if (decryptedLguId) {
+                        setLguId(decryptedLguId);
+                    }
+                } catch (error) {
+                    console.error('Error loading province ID:', error);
                     alert('Failed to load your session data. Please log in again.');
                 }
             }
@@ -89,13 +103,24 @@ export const AuthProvider = ({ children }) => {
             } else {
                 localStorage.removeItem('provinceId');
             }
+
+            if (lguId) {
+                try {
+                    const encryptedlguId = encryptId(lguId);
+                    localStorage.setItem('lguId', encryptedlguId);
+                } catch (error) {
+                    console.error('Error storing province ID:', error);
+                }
+            } else {
+                localStorage.removeItem('lguId');
+            }
         };
 
         storeEncryptedData();
     }, [barangayId, cityId, provinceId]);
 
     return (
-        <AuthContext.Provider value={{ barangayId, cityId, provinceId, setBarangayId, setCityId, setProvinceId }}>
+        <AuthContext.Provider value={{ barangayId, cityId, provinceId, setBarangayId, setCityId, setProvinceId, lguId, setLguId }}>
             {children}
         </AuthContext.Provider>
     );
