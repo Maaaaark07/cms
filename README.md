@@ -3,8 +3,8 @@
 ## This is a description.
 
 
-## Installation Guide
-# Database setup
+# Installation Guide
+## Database setup
 1. Install MariaDB
 	mariadb-11.6.2-winx64.msi
 	
@@ -31,7 +31,7 @@
 	CACHE 1;
 
 
-# Web server setup
+## Web server setup
 1. Install nodejs
 	node-v20.16.0-x64.msi
 	
@@ -59,6 +59,6 @@
 8. Start server and frontend by running start_cms.bat
 
 
-# Web login
+## Web login
 http://colo-cms.gov.ph:5173/login or
 http://192.168.1.100:5173/login
