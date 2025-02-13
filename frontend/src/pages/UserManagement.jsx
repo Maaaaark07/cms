@@ -21,19 +21,20 @@ const UserManagement = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showToastMessage, setShowToastMessage] = useState(false);
     const [showDeleteToastMessage, setShowDeleteToastMessage] = useState(false);
-    const { barangayId, lguTypeId } = useAuth();
+    const { barangayId, lguId } = useAuth();
     const [selectedDeleteId, setSelectedDeleteId] = useState(null);
     const [isAlertDeleteOpen, setIsAlertDeleteOpen] = useState(false);
 
     useEffect(() => {
         fetchUsers();
+        console.log(barangayId, lguId);
     }, [barangayId]);
 
     async function fetchUsers() {
         setLoading(true);
         try {
             const response = await axios.get(
-                `http://${cfg.domainname}:${cfg.serverport}/user/${1}/${barangayId}`,
+                `http://${cfg.domainname}:${cfg.serverport}/user/${lguId}/${barangayId}`,
                 { withCredentials: true }
             );
             setUsers(response.data || []);
@@ -196,7 +197,7 @@ const UserManagement = () => {
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleOnSubmit} // Correctly pass function reference
                 barangayId={barangayId}
-                lguTypeId={lguTypeId}
+                lguTypeId={lguId}
             />
 
             <ToastMessage

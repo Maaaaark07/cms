@@ -18,7 +18,7 @@ const Login = () => {
     });
 
     const navigate = useNavigate();
-    const { setBarangayId, setCityId, setProvinceId } = useAuth();
+    const { setBarangayId, setCityId, setProvinceId, setLguId } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -40,6 +40,8 @@ const Login = () => {
                 setBarangayId(response.data.BarangayId);
                 setCityId(response.data.CityId);
                 setProvinceId(response.data.ProvinceId);
+                setLguId(response.data.LguId)
+                console.log(response.data);
 
                 navigate('/home');
             } else {

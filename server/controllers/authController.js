@@ -44,7 +44,7 @@ export const login = (req, res) => {
                         sameSite: 'Lax',
                         path: '/',
                     });
-                    return res.json({ Status: "Success", BarangayId: data[0][0].barangay_id, CityId: data[0][0].city_id, ProvinceId: data[0][0].province_id });
+                    return res.json({ Status: "Success", BarangayId: data[0][0].barangay_id, CityId: data[0][0].city_id, ProvinceId: data[0][0].province_id, LguId: data[0][0].lgu_type_id, });
                 }
                 return res.json({ Error: "Invalid password" });
             });
@@ -60,6 +60,7 @@ export const logout = (req, res) => {
 };
 
 export const getHome = (req, res) => {
+    console.log("user",req.user_data);
     return res.json({
         Status: 'Success',
         user: req.user_data.user,
@@ -75,6 +76,7 @@ export const getHome = (req, res) => {
         province_id: req.user_data.province_id,
         province_name: req.user_data.province_name,
         province_logo: req.user_data.province_logo,
+        lgu_type_id: req.user_data.lgu_type_id,
     });
 };
 
