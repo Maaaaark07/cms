@@ -5,4 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
     plugins: [react()],
     envPrefix: 'VITE_',
+    server: {
+    allowedHosts: ['localhost', '127.0.0.1', 'colo-cms.gov.ph']
+  },
 })
