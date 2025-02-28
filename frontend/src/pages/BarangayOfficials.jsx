@@ -10,11 +10,13 @@ const BarangayOfficials = () => {
   const { barangayId } = useAuth();
   const [barangayOfficials, setBarangayOfficials] = useState([]);
   const [SKOfficials, setSKOfficials] = useState([]);
+  const [OtherOfficials, setOtherOfficials] = useState([]);
 
   useEffect(() => {
     if (barangayId) {
       fetchBarangayOfficials();
       fetchSKOfficials();
+      fetchOtherOfficials();
     }
   }, [barangayId]);
 
@@ -50,8 +52,26 @@ const BarangayOfficials = () => {
     }
   };
 
+  const fetchOtherOfficials = async () => {
+    try {
+      const response = await axios.get(
+        `http://${cfg.domainname}:${cfg.serverport}/official/others/` +
+          barangayId,
+        {
+          withCredentials: true,
+        }
+      );
+      if (response.status !== 200)
+        throw new Error("Something went wrong with fetching data");
+      setOtherOfficials(response.data);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
   console.log("Barangay Officilas:", barangayOfficials);
   console.log("SK Officilas:", SKOfficials);
+  console.log("Other Officilas:", OtherOfficials);
 
   const brgyCaptain = barangayOfficials.filter(
     (official) => official.cms_position === "Barangay Chairman"
@@ -282,6 +302,82 @@ const BarangayOfficials = () => {
                         ? null
                         : official.committee}
                     </p>
+                    <p className="mt-2 text-sm text-gray-700">
+                      Contact: {official.contact_number || "N/A"}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-600">No barangay officials found.</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div
+          style={{
+            //border: "1px solid blue",
+            padding: "5px",
+            borderRadius: "5px",
+          }}
+        >
+          <div
+            style={{
+              //border: "1px solid blue",
+              padding: "20px",
+              borderRadius: "15px",
+            }}
+          ></div>
+
+          <div className="mb-10 leading-3 text-center">
+            <h2 className="text-3xl text-gray-500 font-bold mb-2">
+              Other Officials Organizational Chart
+            </h2>
+            <p className="text-sm text-gray-500 mb-2">
+              This is the barangay officials organizational chart other than
+              Barangay and SK council.
+            </p>
+          </div>
+
+          <div
+            style={{
+              //border: "1px solid blue",
+              padding: "5px",
+              borderRadius: "5px",
+            }}
+          >
+            <div
+              style={{
+                //border: "1px solid blue",
+                padding: "7px",
+                borderRadius: "15px",
+              }}
+            ></div>
+
+            <div className="flex flex-wrap justify-center gap-3">
+              {OtherOfficials.length > 0 ? (
+                OtherOfficials.map((official) => (
+                  <div
+                    key={official.official_id}
+                    className="w-64 p-6 bg-blue-50 border border-blue-200 rounded-xl shadow-md text-center"
+                  >
+                    <div className="mb-4">
+                      {official.profile_image ? (
+                        <img
+                          src={`http://${cfg.domainname}:${cfg.serverport}${official.profile_image}`}
+                          alt={`${official.full_name}'s profile`}
+                          className="w-24 h-24 mx-auto rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-24 h-24 mx-auto bg-gray-300 rounded-full flex items-center justify-center">
+                          <span className="text-gray-600">No Image</span>
+                        </div>
+                      )}
+                    </div>
+                    <h3 className="text-lg font-semibold">
+                      {official.full_name}
+                    </h3>
+                    <p className="text-gray-600">{official.cms_position}</p>
                     <p className="mt-2 text-sm text-gray-700">
                       Contact: {official.contact_number || "N/A"}
                     </p>
