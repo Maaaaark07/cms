@@ -26,11 +26,12 @@ export default function renderAdditionalFields({
 }) {
     if (!selectedCertificateType) return null;
 
-    const certificateName = selectedCertificateType.iname.toLowerCase();
+    // const certificateName = selectedCertificateType.iname.toLowerCase();
+    const certificateName = selectedCertificateType.iid;
 
     switch (certificateName) {
-        case 'business closure certification':
-        case 'business permit certification':
+        case 3: //'business closure certification':
+        case 2: //'business permit certification':
             return (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className='flex-1'>
@@ -103,7 +104,7 @@ export default function renderAdditionalFields({
                     </div>
                 </div>
             );
-        case 'death certification':
+        case 5: //'death certification':
             return (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className='flex-1'>
@@ -114,7 +115,7 @@ export default function renderAdditionalFields({
                             <input
                                 type="text"
                                 name="complainantName"
-                                placeholder="Type or Search Complainant Name"
+                                placeholder="Type or Search resident Name"
                                 className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
                                 value={formData.complainantName}
                                 onChange={handleInputChange}
@@ -192,7 +193,7 @@ export default function renderAdditionalFields({
                             <input
                                 type="text"
                                 name="applicantName"
-                                placeholder="Type or Search Complainant Name"
+                                placeholder="Type or Search resident Name"
                                 className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
                                 value={formData.applicantName}
                                 onChange={handleInputChange}
@@ -213,7 +214,7 @@ export default function renderAdditionalFields({
                     </div>
                 </div>
             );
-        case 'relationship certification':
+        case 9: //'relationship certification':
             return (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className='flex-1'>
@@ -224,7 +225,7 @@ export default function renderAdditionalFields({
                             <input
                                 type="text"
                                 name="complainantName"
-                                placeholder="Type or Search Complainant Name"
+                                placeholder="Type or Search resident Name"
                                 className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
                                 value={formData.complainantName}
                                 onChange={handleInputChange}
@@ -272,7 +273,7 @@ export default function renderAdditionalFields({
                     </div>
                 </div>
             );
-        case 'residence certification':
+        case 8: //'residence certification':
             return (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className='flex-1'>
@@ -283,7 +284,7 @@ export default function renderAdditionalFields({
                             <input
                                 type="text"
                                 name="complainantName"
-                                placeholder="Type or Search Complainant Name"
+                                placeholder="Type or Search resident Name"
                                 className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
                                 value={formData.complainantName}
                                 onChange={handleInputChange}
@@ -385,7 +386,7 @@ export default function renderAdditionalFields({
                     </div>
                 </div>
             );
-        case 'psa certification':
+        case 12: //'psa certification':
             return (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className='flex-1'>
@@ -396,7 +397,7 @@ export default function renderAdditionalFields({
                             <input
                                 type="text"
                                 name="complainantName"
-                                placeholder="Type or Search Complainant Name"
+                                placeholder="Type or Search resident Name"
                                 className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
                                 value={formData.complainantName}
                                 onChange={handleInputChange}
@@ -498,7 +499,7 @@ export default function renderAdditionalFields({
                     </div>
                 </div>
             );
-        case 'lot certification':
+        case 7: //'lot certification':
             return (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className='flex-1'>
@@ -509,7 +510,7 @@ export default function renderAdditionalFields({
                             <input
                                 type="text"
                                 name="complainantName"
-                                placeholder="Type or Search Complainant Name"
+                                placeholder="Type or Search resident Name"
                                 className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
                                 value={formData.complainantName}
                                 onChange={handleInputChange}
@@ -556,7 +557,7 @@ export default function renderAdditionalFields({
                     </div>
                 </div>
             );
-        case 'electrical permit':
+        case 15: //'electrical permit':
             return (
                 <div className='flex-1'>
                     <label className="block mb-2 text-sm font-medium text-gray-500">
@@ -575,7 +576,7 @@ export default function renderAdditionalFields({
                     </select>
                 </div>
             );
-        case 'solo parent certification':
+        case 11: //'solo parent certification':
             return (
                 <div className='flex-1'>
                     <label className="block mb-2 text-sm font-medium text-gray-500">
@@ -595,7 +596,7 @@ export default function renderAdditionalFields({
                     </select>
                 </div>
             );
-        case 'calamity certification':
+        case 4: //'calamity certification':
             return (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className='flex-1'>
@@ -606,7 +607,7 @@ export default function renderAdditionalFields({
                             <input
                                 type="text"
                                 name="complainantName"
-                                placeholder="Type or Search Complainant Name"
+                                placeholder="Type or Search resident Name"
                                 className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
                                 value={formData.complainantName}
                                 onChange={handleInputChange}
@@ -690,7 +691,39 @@ export default function renderAdditionalFields({
                     </div>
                 </div>
             );
-        case 'barangay clearance':
+        case 17: //'barangay clearance':
+            return (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className='flex-1'>
+                        <label className="block mb-2 text-sm font-medium text-gray-500">
+                            Name<span className="text-red-600">*</span>
+                        </label>
+                        <div className="relative rounded-md">
+                            <input
+                                type="text"
+                                name="complainantName"
+                                placeholder="Type or Search resident Name"
+                                className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                                value={formData.complainantName}
+                                onChange={handleInputChange}
+                            />
+                            <div
+                                className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md"
+                                onClick={() => setIsComplainantModalOpen((prev) => !prev)}
+                            >
+                                <IoSearch className="w-5 h-5 text-white" />
+                            </div>
+                            <SearchModal
+                                title="Select Complainant"
+                                isOpen={isComplainantModalOpen}
+                                onClose={() => setIsComplainantModalOpen(false)}
+                                onSelect={handleSelectComplainant}
+                            />
+                        </div>
+                    </div>
+                </div>
+            );
+        case 13: //'unemployment certification':
             return (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className='flex-1'>
@@ -722,7 +755,7 @@ export default function renderAdditionalFields({
                     </div>
                 </div>
             );
-        case 'unemployment certification':
+        case 1: //'assistance certification':
             return (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className='flex-1'>
@@ -733,7 +766,7 @@ export default function renderAdditionalFields({
                             <input
                                 type="text"
                                 name="complainantName"
-                                placeholder="Type or Search Complainant Name"
+                                placeholder="Type or Search resident Name"
                                 className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
                                 value={formData.complainantName}
                                 onChange={handleInputChange}
@@ -745,39 +778,7 @@ export default function renderAdditionalFields({
                                 <IoSearch className="w-5 h-5 text-white" />
                             </div>
                             <SearchModal
-                                title="Select Complainant"
-                                isOpen={isComplainantModalOpen}
-                                onClose={() => setIsComplainantModalOpen(false)}
-                                onSelect={handleSelectComplainant}
-                            />
-                        </div>
-                    </div>
-                </div>
-            );
-        case 'assistance certification':
-            return (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div className='flex-1'>
-                        <label className="block mb-2 text-sm font-medium text-gray-500">
-                            Name<span className="text-red-600">*</span>
-                        </label>
-                        <div className="relative rounded-md">
-                            <input
-                                type="text"
-                                name="complainantName"
-                                placeholder="Type or Search Complainant Name"
-                                className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
-                                value={formData.complainantName}
-                                onChange={handleInputChange}
-                            />
-                            <div
-                                className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md"
-                                onClick={() => setIsComplainantModalOpen((prev) => !prev)}
-                            >
-                                <IoSearch className="w-5 h-5 text-white" />
-                            </div>
-                            <SearchModal
-                                title="Select Complainant"
+                                title="Select Resident"
                                 isOpen={isComplainantModalOpen}
                                 onClose={() => setIsComplainantModalOpen(false)}
                                 onSelect={handleSelectComplainant}
@@ -811,7 +812,7 @@ export default function renderAdditionalFields({
                     </div>
                 </div>
             );
-        case 'indigency certification':
+        case 6: //'indigency certification':
             return (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className='flex-1'>
@@ -822,7 +823,7 @@ export default function renderAdditionalFields({
                             <input
                                 type="text"
                                 name="complainantName"
-                                placeholder="Type or Search Complainant Name"
+                                placeholder="Type or Search resident Name"
                                 className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
                                 value={formData.complainantName}
                                 onChange={handleInputChange}
@@ -875,7 +876,7 @@ export default function renderAdditionalFields({
                             <input
                                 type="text"
                                 name="applicantName"
-                                placeholder="Type or Search Complainant Name"
+                                placeholder="Type or Search resident Name"
                                 className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
                                 value={formData.applicantName}
                                 onChange={handleInputChange}
