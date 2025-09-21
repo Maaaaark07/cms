@@ -47,16 +47,23 @@
 	cd c:\maya\cms\frontend\
 	npm i 
 	
-5. Change server ip address to static
+5. Create softlink for uploads directory (server -> frontend)
+
+	mklink /D <cmsdir>\frontend\src\assets\uploads <cmsdir>\server\uploads
+
+	sample:
+	mklink /D C:\maya\cms\frontend\src\assets\uploads C:\maya\cms\server\uploads
+
+6. Change server ip address to static
 	192.168.1.100		--> can be change depends on client
 
-6. Add domain to hosts file
+7. Add domain to hosts file
 	192.168.1.100 	colo-cms.gov.ph		--> can be change depends on client
 
-7. update config.json
+8. update config.json
 	"DomainName": "colo-cms.gov.ph" 	--> can be change depends on client
 
-8. Start server and frontend by running start_cms.bat
+9. Start server and frontend by running start_cms.bat
 
 
 ## Web login

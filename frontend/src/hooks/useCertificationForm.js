@@ -25,7 +25,7 @@ export const useCertificationForm = () => {
         barangay_id: barangayId,
         resident_id: '',
         issuanceDate: '',
-        amount: '',
+        amount: 50,
         issued_by: reporterId,
         complainantName: '',
         complainantMiddleName: '',

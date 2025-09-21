@@ -53,6 +53,8 @@ const CertificationForm = () => {
     const textareaRef = useRef(null);
     const [file, setFile] = useState(null);
     const navigate = useNavigate();
+    const today = new Date().toISOString().split('T')[0];
+    const [currentdate, setcurrentdate] = useState(today);
 
 
     const handleOpenPreviewInNewTab = async () => {
@@ -216,6 +218,8 @@ const CertificationForm = () => {
                         onSelect={handleCertificateTypeChange}
                         selectedValue={selectedCertificateType?.iname}
                         options={certificateTypes}
+                        title = "Select certification type"
+                        placeholder = "Search certification type..."
                         uniqueKey={'iname'}
                     />
                 </div>
@@ -226,7 +230,8 @@ const CertificationForm = () => {
                     <input
                         type='date'
                         name="issuanceDate"
-                        value={formData.issuanceDate}
+                        defaultValue={currentdate}
+                        //value={formData.issuanceDate}
                         onChange={handleInputChange}
                         className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
                     />
@@ -238,7 +243,8 @@ const CertificationForm = () => {
                     <input
                         type='number'
                         name="amount"
-                        value={formData.amount}
+                        defaultValue="50"
+                        //value={formData.amount}
                         required
                         onChange={handleInputChange}
                         className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
