@@ -14,7 +14,7 @@ import TimesRoman from '../../src/assets/fonts/times.ttf';
 import Calibri from '../../src/assets/fonts/calibri.ttf';
 import certificateTemplate from "../assets/templates/ColoCertificateTemplate.jpg";
 
-//const hyphenationCallback = (word) => [word];
+const disableHyphenation = (word) => [word];
 
 const CertificatePreview = ({
   message,
@@ -260,6 +260,7 @@ const CertificatePreview = ({
                       ? styles.firstOfficialName
                       : styles.additionalOfficialName
                   }
+                  hyphenationCallback={disableHyphenation}
                 >
                   {official.full_name}
                 </Text>
@@ -269,6 +270,7 @@ const CertificatePreview = ({
                       ? styles.CaptainPosition
                       : styles.officialPosition
                   }
+                  hyphenationCallback={disableHyphenation}
                 >
                   {official.committee}
                 </Text>
@@ -281,10 +283,11 @@ const CertificatePreview = ({
           </View>
 
           <View style={styles.messageSection}>
-            <Text style={styles.dateText}></Text>
-            <Text style={styles.messageText}>
+            <Text style={styles.dateText} hyphenationCallback={disableHyphenation}></Text>
+            <Text style={styles.messageText} hyphenationCallback={disableHyphenation}>
               {message.map((part, index) => (
                 <Text
+                  hyphenationCallback={disableHyphenation}
                   key={index}
                   style={
                     part.isBold
@@ -296,7 +299,7 @@ const CertificatePreview = ({
                       : {}
                   }
                 >
-                  {part.text}
+                  {part.text.replace('\n\n', '\n\n        ')}
                 </Text>
               ))}
             </Text>
