@@ -6,7 +6,9 @@ import {
     getAllCertificate,
     addCertificateType,
     deleteCertificate,
-    updateCertificationType
+    updateCertificationType,
+    getControlNumber,
+    getIndigencyControlNumber
 } from "../controllers/certificateController.js";
 import { verifyUser } from "../middleware/authMiddleware.js";
 import upload from '../middleware/multerMiddleware.js';
@@ -17,6 +19,8 @@ router.get("/", verifyUser, getAllCertificateTypes);
 router.post("/add", verifyUser, upload.single('certificate'), addCertificationRequest);
 router.post("/add-certificate-type", verifyUser, addCertificateType);
 router.get("/get-certificate-type", verifyUser, getAllCertificate);
+router.get("/controlno", verifyUser, getControlNumber);
+router.get("/indigent-controlno", verifyUser, getIndigencyControlNumber);
 router.delete('/delete-certificate/:id', verifyUser, deleteCertificate);
 router.put('/update-certificate/:id', updateCertificationType);
 router.get("/:id", verifyUser, getAllCertificateRequest);

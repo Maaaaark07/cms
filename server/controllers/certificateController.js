@@ -247,3 +247,52 @@ export const deleteCertificate = (req, res) => {
         res.status(200).json({ message: 'Purok deleted successfully' });
     });
 };
+
+
+export const getControlNumber = async (req, res) => {
+    const sql = "CALL NextControlNumber()";
+
+    try {
+        const results = await new Promise((resolve, reject) => {
+            db.query(sql, (err, results) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+        console.log("Control number" + results[0][0])
+        res.json(results[0][0]);
+    } catch (error) {
+        console.error("Detailed Database error:", error);
+        res.status(500).json({
+            error: "Failed to generate control number",
+            details: error.message,
+        });
+    }
+}
+
+
+export const getIndigencyControlNumber = async (req, res) => {
+    const sql = "CALL NextIndengencyControlNumber()";
+
+    try {
+        const results = await new Promise((resolve, reject) => {
+            db.query(sql, (err, results) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+        res.json(results[0]);
+    } catch (error) {
+        console.error("Detailed Database error:", error);
+        res.status(500).json({
+            error: "Failed to generate control number",
+            details: error.message,
+        });
+    }
+}

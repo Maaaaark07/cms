@@ -20,6 +20,8 @@ const CertificatePreview = ({
   message,
   brgyOfficials,
   certificateTitle,
+  applicant_image,
+  controlnumber,
   date,
 }) => {
   Font.register({
@@ -190,7 +192,7 @@ const CertificatePreview = ({
     esignature_img: {
       position: "absolute",
       left: 420,
-      bottom: -20,
+      bottom: -25,
       width: 115,
     },
     signature_bold: {
@@ -213,7 +215,7 @@ const CertificatePreview = ({
       fontFamily: "Times New Roman",
       color: "#000000ff"
     },
-    controlnumber: {
+    controlNumber: {
       position: "absolute",
       left: 420,
       bottom: -60,
@@ -235,8 +237,9 @@ const CertificatePreview = ({
       left: 225,
       bottom: -60,
       width: 125,
-      fontSize: 12,
+      fontSize: 11,
       textAlign: 'center',
+      fontFamily: "Times New Roman",
     },
 
   });
@@ -299,13 +302,13 @@ const CertificatePreview = ({
                       : {}
                   }
                 >
-                  {part.text.replace('\n\n', '\n\n        ')}
+                  {part.text}
                 </Text>
               ))}
             </Text>
           </View>
           <View style={styles.profilepic}>
-            <Image src="/src/assets/uploads/user_profile/sample.jpg" fixed />
+            <Image src={"/src/assets" + applicant_image} fixed />
           </View>
           <View style={styles.reqsignature}>
             <Text>_____________________</Text>
@@ -318,8 +321,8 @@ const CertificatePreview = ({
             <Text>{brgyOfficials[0].full_name}</Text>
             <Text style={styles.signature}>Punong Barangay</Text>
           </View>
-          <View style={styles.controlnumber}>
-            <Text style={styles.messageText}>CTRL.NO.: 2025-000001{}</Text>
+          <View style={styles.controlNumber}>
+            <Text style={styles.messageText}>CTRL.NO.: {controlnumber}</Text>
           </View>
         </View>
       </Page>
