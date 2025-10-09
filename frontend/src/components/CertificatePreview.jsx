@@ -12,6 +12,8 @@ import CooperBlack from '../../src/assets/fonts/COOPBL.woff';
 import TimesRomanBold from '../../src/assets/fonts/timesbd.ttf';
 import TimesRoman from '../../src/assets/fonts/times.ttf';
 import Calibri from '../../src/assets/fonts/calibri.ttf';
+import Calistoga from '../../src/assets/fonts/Calistoga-Regular.ttf';
+import Arial from '../../src/assets/fonts/arial.ttf';
 //import certificateTemplate from "../assets/templates/ColoCertificateTemplate.jpg";
 
 const disableHyphenation = (word) => [word];
@@ -77,6 +79,18 @@ const CertificatePreview = ({
     hyphenationCallback: (word) => [word],
   });
 
+  Font.register({
+    family: "Calistoga",
+    src: Calistoga,
+    hyphenationCallback: (word) => [word],
+  });
+
+    Font.register({
+    family: "Arial",
+    src: Arial,
+    hyphenationCallback: (word) => [word],
+  });
+
   const styles = StyleSheet.create({
     page: {
       backgroundColor: "#fff",
@@ -130,35 +144,35 @@ const CertificatePreview = ({
       alignItems: "center",
     },
     firstOfficialName: {
-      fontSize: 13,
+      fontSize: 14,
       fontWeight: "bold",
       //fontFamily: "Open Sans",
-      fontFamily: "Cooper Black",
+      fontFamily: "Calistoga",
       color: "#000000ff",
     },
     additionalOfficialName: {
       fontSize: 12,
       fontWeight: "bold",
       //fontFamily: "Open Sans",
-      fontFamily: "Cooper Black",
+      fontFamily: "Calistoga",
       color: "#000000ff",
     },
     CaptainPosition: {
-      fontSize: 11,
+      fontSize: 10,
       color: "#18b7fbff",
       flexDirection: "column",
       alignItems: "center",
       textAlign: "center",
-      fontFamily: "Calibri",
+      fontFamily: "Arial",
       fontWeight: "bold",
     },
     officialPosition: {
-      fontSize: 9,
+      fontSize: 8,
       color: "#18b7fbff",
       flexDirection: "column",
       alignItems: "center",
       textAlign: "center",
-      fontFamily: "Calibri",
+      fontFamily: "Arial",
       fontWeight: "bold",
     },
     mgaKagawadText: {
