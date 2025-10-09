@@ -16,6 +16,7 @@ export const useCertificationForm = () => {
     const [isIssuedToModalOpen, setIsIssuedToModalOpen] = useState(false);
     const [isPartnerNameModalOpen, setIsPartnerNameModalOpen] = useState(false);
     const [reporterId, setReporterId] = useState(null);
+    const [CertificateTemplate, setCertificateTemplate] = useState([]);
 
     const { barangayId } = useAuth();
 
@@ -67,7 +68,8 @@ export const useCertificationForm = () => {
                 setLoading(true);
                 await Promise.all([
                     fetchCertificateType(),
-                    fetchBarangayOfficials()
+                    fetchBarangayOfficials(),
+                    fetchCertificateTemplate()
                 ]);
             } catch (error) {
                 setErrorMessage("Failed to load initial data");
@@ -100,6 +102,19 @@ export const useCertificationForm = () => {
         } catch (error) {
             console.error('Error fetching barangay officials:', error);
             setErrorMessage('Failed to fetch barangay officials');
+        }
+    };
+
+    const fetchCertificateTemplate = async () => {
+        try {
+            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/certificate/barangay-details/` + barangayId, {
+                withCredentials: true,
+            });
+            setCertificateTemplate(response.data[0].doc_template);
+            console.log("Template:" +response.data[0].doc_template)
+        } catch (error) {
+            console.error('Error fetching certificate template:', error);
+            setErrorMessage('Failed to fetch certificate templates');
         }
     };
 
@@ -154,6 +169,7 @@ export const useCertificationForm = () => {
             birthPlace: resident.birth_place || "",
             birthday: resident.birthday || "",
             resident_id: resident.resident_id ,
+            applicant_image: `${resident.profile_image}`,
         }));
 
         console.log(resident);
@@ -164,7 +180,7 @@ export const useCertificationForm = () => {
     const handleSelectApplicant = (resident) => {
         setFormData(prev => ({
             ...prev,
-            applicantName: `${resident.first_name} ${resident.last_name} ${resident.middle_name}`,
+            applicantName: `${resident.first_name} ${resident.middle_name} ${resident.last_name} `,
         }));
         setIsApplicantModalOpen(false);
     };
@@ -172,7 +188,7 @@ export const useCertificationForm = () => {
     const handleSelectMother = (resident) => {
         setFormData(prev => ({
             ...prev,
-            motherName: `${resident.first_name} ${resident.last_name} ${resident.middle_name}`,
+            motherName: `${resident.first_name} ${resident.middle_name} ${resident.last_name}`,
         }));
         setIsSelectMotherModalOpen(false);
     }
@@ -180,7 +196,7 @@ export const useCertificationForm = () => {
     const handleSelectFather = (resident) => {
         setFormData(prev => ({
             ...prev,
-            fatherName: `${resident.first_name} ${resident.last_name} ${resident.middle_name}`,
+            fatherName: `${resident.first_name} ${resident.middle_name} ${resident.last_name}`,
         }));
         setIsSelectFatherModalOpen(false);
     }
@@ -188,7 +204,7 @@ export const useCertificationForm = () => {
     const handleIssuedTo = (resident) => {
         setFormData(prev => ({
             ...prev,
-            issuedTo: `${resident.first_name} ${resident.last_name} ${resident.middle_name}`,
+            issuedTo: `${resident.first_name} ${resident.middle_name} ${resident.last_name}`,
         }));
         setIsIssuedToModalOpen(false);
     }
@@ -196,7 +212,7 @@ export const useCertificationForm = () => {
     const handlePartnerName = (resident) => {
         setFormData(prev => ({
             ...prev,
-            partnerName: `${resident.first_name} ${resident.last_name} ${resident.middle_name}`,
+            partnerName: `${resident.first_name} ${resident.middle_name} ${resident.last_name}`,
         }));
         setIsPartnerNameModalOpen(false);
     }
@@ -266,6 +282,7 @@ export const useCertificationForm = () => {
     return {
         errorMessage,
         certificateTypes,
+        CertificateTemplate,
         brgyOfficials,
         loading,
         selectedCertificateType,

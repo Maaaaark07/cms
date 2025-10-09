@@ -23,9 +23,16 @@
 	
 5. Recreate sequence
 
-	drop table control_number_seq;
+	drop table if exists control_number_seq;
 	
 	CREATE SEQUENCE control_number_seq
+	START WITH 1
+	increment BY 1
+	CACHE 1;
+
+	drop table if exists indengent_control_number_seq;
+	
+	CREATE SEQUENCE indengent_control_number_seq
 	START WITH 1
 	increment BY 1
 	CACHE 1;

@@ -15,6 +15,7 @@ const CertificationForm = () => {
     let {
         errorMessage,
         certificateTypes,
+        CertificateTemplate,
         brgyOfficials,
         loading,
         selectedCertificateType,
@@ -55,7 +56,26 @@ const CertificationForm = () => {
     const navigate = useNavigate();
     const today = new Date().toISOString().split('T')[0];
     const [currentdate, setcurrentdate] = useState(today);
+    const [controlNumber, setcontrolNumber] = useState('');
+    const [indigentControlNumber, setindigentControlNumber] = useState('');
 
+    useEffect(() => {
+       const fetchControlNumber = async () => {
+           try {
+               const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/certificate/controlno`, {
+               withCredentials: true 
+               });
+               if (response.status === 200) {
+                   setcontrolNumber(response.data.control_number);
+                   console.log("CTRL Data:" + response.data.control_number);
+               }
+           } catch (error) {
+               console.error("Error fetching control number:", error);
+           }
+       };
+
+      fetchControlNumber();
+    }, []);
 
     const handleOpenPreviewInNewTab = async () => {
         if (!isMessageGenerated || !finalMessage) return;
@@ -66,6 +86,9 @@ const CertificationForm = () => {
                 message={finalMessage}
                 brgyOfficials={brgyOfficials}
                 certificateTitle={selectedCertificateType?.iname || ''}
+                certificateTemplate={CertificateTemplate}
+                applicant_image={formData.applicant_image}
+                controlnumber={controlNumber}
                 date={formData.issuanceDate
                     ? new Date(formData.issuanceDate).toLocaleDateString('en-US', {
                         year: 'numeric',
@@ -142,6 +165,9 @@ const CertificationForm = () => {
                     message={finalMessage}
                     brgyOfficials={brgyOfficials}
                     certificateTitle={selectedCertificateType?.iname || ''}
+                    certificateTemplate={CertificateTemplate}
+                    applicant_image={formData.applicant_image}
+                    controlnumber={controlNumber}
                     date={
                         formData.issuanceDate
                             ? new Date(formData.issuanceDate).toLocaleDateString('en-US', {

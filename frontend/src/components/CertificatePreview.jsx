@@ -12,7 +12,9 @@ import CooperBlack from '../../src/assets/fonts/COOPBL.woff';
 import TimesRomanBold from '../../src/assets/fonts/timesbd.ttf';
 import TimesRoman from '../../src/assets/fonts/times.ttf';
 import Calibri from '../../src/assets/fonts/calibri.ttf';
-import certificateTemplate from "../assets/templates/ColoCertificateTemplate.jpg";
+import Calistoga from '../../src/assets/fonts/Calistoga-Regular.ttf';
+import Arial from '../../src/assets/fonts/arial.ttf';
+//import certificateTemplate from "../assets/templates/ColoCertificateTemplate.jpg";
 
 const disableHyphenation = (word) => [word];
 
@@ -20,6 +22,9 @@ const CertificatePreview = ({
   message,
   brgyOfficials,
   certificateTitle,
+  certificateTemplate,
+  applicant_image,
+  controlnumber,
   date,
 }) => {
   Font.register({
@@ -74,6 +79,18 @@ const CertificatePreview = ({
     hyphenationCallback: (word) => [word],
   });
 
+  Font.register({
+    family: "Calistoga",
+    src: Calistoga,
+    hyphenationCallback: (word) => [word],
+  });
+
+    Font.register({
+    family: "Arial",
+    src: Arial,
+    hyphenationCallback: (word) => [word],
+  });
+
   const styles = StyleSheet.create({
     page: {
       backgroundColor: "#fff",
@@ -110,7 +127,7 @@ const CertificatePreview = ({
     officialsSection: {
       flexDirection: "column",
       alignItems: "center",
-      marginTop: -10,
+      marginTop: -30,
       width: "30%",
     },
     sangguniangBarangayText: {
@@ -127,35 +144,35 @@ const CertificatePreview = ({
       alignItems: "center",
     },
     firstOfficialName: {
-      fontSize: 13,
+      fontSize: 14,
       fontWeight: "bold",
       //fontFamily: "Open Sans",
-      fontFamily: "Cooper Black",
+      fontFamily: "Calistoga",
       color: "#000000ff",
     },
     additionalOfficialName: {
       fontSize: 12,
       fontWeight: "bold",
       //fontFamily: "Open Sans",
-      fontFamily: "Cooper Black",
+      fontFamily: "Calistoga",
       color: "#000000ff",
     },
     CaptainPosition: {
-      fontSize: 11,
+      fontSize: 10,
       color: "#18b7fbff",
       flexDirection: "column",
       alignItems: "center",
       textAlign: "center",
-      fontFamily: "Calibri",
+      fontFamily: "Arial",
       fontWeight: "bold",
     },
     officialPosition: {
-      fontSize: 9,
+      fontSize: 8,
       color: "#18b7fbff",
       flexDirection: "column",
       alignItems: "center",
       textAlign: "center",
-      fontFamily: "Calibri",
+      fontFamily: "Arial",
       fontWeight: "bold",
     },
     mgaKagawadText: {
@@ -190,7 +207,7 @@ const CertificatePreview = ({
     esignature_img: {
       position: "absolute",
       left: 420,
-      bottom: -20,
+      bottom: -25,
       width: 115,
     },
     signature_bold: {
@@ -213,7 +230,7 @@ const CertificatePreview = ({
       fontFamily: "Times New Roman",
       color: "#000000ff"
     },
-    controlnumber: {
+    controlNumber: {
       position: "absolute",
       left: 420,
       bottom: -60,
@@ -235,8 +252,9 @@ const CertificatePreview = ({
       left: 225,
       bottom: -60,
       width: 125,
-      fontSize: 12,
+      fontSize: 11,
       textAlign: 'center',
+      fontFamily: "Times New Roman",
     },
 
   });
@@ -299,13 +317,13 @@ const CertificatePreview = ({
                       : {}
                   }
                 >
-                  {part.text.replace('\n\n', '\n\n        ')}
+                  {part.text}
                 </Text>
               ))}
             </Text>
           </View>
           <View style={styles.profilepic}>
-            <Image src="/src/assets/uploads/user_profile/sample.jpg" fixed />
+            <Image src={"/src/assets" + applicant_image} fixed />
           </View>
           <View style={styles.reqsignature}>
             <Text>_____________________</Text>
@@ -318,8 +336,8 @@ const CertificatePreview = ({
             <Text>{brgyOfficials[0].full_name}</Text>
             <Text style={styles.signature}>Punong Barangay</Text>
           </View>
-          <View style={styles.controlnumber}>
-            <Text style={styles.messageText}>CTRL.NO.: 2025-000001{}</Text>
+          <View style={styles.controlNumber}>
+            <Text style={styles.messageText}>CTRL.NO.: {controlnumber}</Text>
           </View>
         </View>
       </Page>
