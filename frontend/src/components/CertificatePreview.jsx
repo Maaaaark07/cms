@@ -12,7 +12,7 @@ import CooperBlack from '../../src/assets/fonts/COOPBL.woff';
 import TimesRomanBold from '../../src/assets/fonts/timesbd.ttf';
 import TimesRoman from '../../src/assets/fonts/times.ttf';
 import Calibri from '../../src/assets/fonts/calibri.ttf';
-import certificateTemplate from "../assets/templates/ColoCertificateTemplate.jpg";
+//import certificateTemplate from "../assets/templates/ColoCertificateTemplate.jpg";
 
 const disableHyphenation = (word) => [word];
 
@@ -20,6 +20,7 @@ const CertificatePreview = ({
   message,
   brgyOfficials,
   certificateTitle,
+  certificateTemplate,
   applicant_image,
   controlnumber,
   date,
@@ -112,7 +113,7 @@ const CertificatePreview = ({
     officialsSection: {
       flexDirection: "column",
       alignItems: "center",
-      marginTop: -10,
+      marginTop: -30,
       width: "30%",
     },
     sangguniangBarangayText: {

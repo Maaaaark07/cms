@@ -16,6 +16,7 @@ export const useCertificationForm = () => {
     const [isIssuedToModalOpen, setIsIssuedToModalOpen] = useState(false);
     const [isPartnerNameModalOpen, setIsPartnerNameModalOpen] = useState(false);
     const [reporterId, setReporterId] = useState(null);
+    const [CertificateTemplate, setCertificateTemplate] = useState([]);
 
     const { barangayId } = useAuth();
 
@@ -67,7 +68,8 @@ export const useCertificationForm = () => {
                 setLoading(true);
                 await Promise.all([
                     fetchCertificateType(),
-                    fetchBarangayOfficials()
+                    fetchBarangayOfficials(),
+                    fetchCertificateTemplate()
                 ]);
             } catch (error) {
                 setErrorMessage("Failed to load initial data");
@@ -100,6 +102,19 @@ export const useCertificationForm = () => {
         } catch (error) {
             console.error('Error fetching barangay officials:', error);
             setErrorMessage('Failed to fetch barangay officials');
+        }
+    };
+
+    const fetchCertificateTemplate = async () => {
+        try {
+            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/certificate/barangay-details/` + barangayId, {
+                withCredentials: true,
+            });
+            setCertificateTemplate(response.data[0].doc_template);
+            console.log("Template:" +response.data[0].doc_template)
+        } catch (error) {
+            console.error('Error fetching certificate template:', error);
+            setErrorMessage('Failed to fetch certificate templates');
         }
     };
 
@@ -267,6 +282,7 @@ export const useCertificationForm = () => {
     return {
         errorMessage,
         certificateTypes,
+        CertificateTemplate,
         brgyOfficials,
         loading,
         selectedCertificateType,

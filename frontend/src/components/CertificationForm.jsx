@@ -15,6 +15,7 @@ const CertificationForm = () => {
     let {
         errorMessage,
         certificateTypes,
+        CertificateTemplate,
         brgyOfficials,
         loading,
         selectedCertificateType,
@@ -85,6 +86,7 @@ const CertificationForm = () => {
                 message={finalMessage}
                 brgyOfficials={brgyOfficials}
                 certificateTitle={selectedCertificateType?.iname || ''}
+                certificateTemplate={CertificateTemplate}
                 applicant_image={formData.applicant_image}
                 controlnumber={controlNumber}
                 date={formData.issuanceDate
@@ -163,6 +165,7 @@ const CertificationForm = () => {
                     message={finalMessage}
                     brgyOfficials={brgyOfficials}
                     certificateTitle={selectedCertificateType?.iname || ''}
+                    certificateTemplate={CertificateTemplate}
                     applicant_image={formData.applicant_image}
                     controlnumber={controlNumber}
                     date={

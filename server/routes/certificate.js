@@ -8,7 +8,8 @@ import {
     deleteCertificate,
     updateCertificationType,
     getControlNumber,
-    getIndigencyControlNumber
+    getIndigencyControlNumber,
+    getBarangayDetails,
 } from "../controllers/certificateController.js";
 import { verifyUser } from "../middleware/authMiddleware.js";
 import upload from '../middleware/multerMiddleware.js';
@@ -21,6 +22,7 @@ router.post("/add-certificate-type", verifyUser, addCertificateType);
 router.get("/get-certificate-type", verifyUser, getAllCertificate);
 router.get("/controlno", verifyUser, getControlNumber);
 router.get("/indigent-controlno", verifyUser, getIndigencyControlNumber);
+router.get("/barangay-details/:id", verifyUser, getBarangayDetails);
 router.delete('/delete-certificate/:id', verifyUser, deleteCertificate);
 router.put('/update-certificate/:id', updateCertificationType);
 router.get("/:id", verifyUser, getAllCertificateRequest);

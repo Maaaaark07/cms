@@ -296,3 +296,27 @@ export const getIndigencyControlNumber = async (req, res) => {
         });
     }
 }
+
+export const getBarangayDetails = async (req, res) => {
+    const { id } = req.params;
+    const sql = "CALL GetBarangayDetails(?)";
+
+    try {
+        const results = await new Promise((resolve, reject) => {
+            db.query(sql, [id], (err, results) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+        res.json(results[0]);
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({
+            error: "Failed to retrieve barangay details",
+            details: error.message,
+        });
+    }
+};
