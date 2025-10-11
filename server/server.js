@@ -71,7 +71,7 @@ app.use((err, req, res, next) => {
 app.use('/uploads', express.static('uploads'));
 
 app.use(cors({
-    origin: [`http://localhost:5173`, `http://127.0.0.1:5173`, `http://${cfg.domainname}:5173`, `http://${cfg.ipaddress}:5173`],
+    origin: [`https://localhost:5173`, `https://127.0.0.1:5173`, `https://${cfg.domainname}:5173`, `https://${cfg.ipaddress}:5173`],
 
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
@@ -94,6 +94,7 @@ app.use('/report', reportRoutes)
 app.use('/purok', purokRoutes)
 
 const PORT = cfg.serverport || 8080;
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
