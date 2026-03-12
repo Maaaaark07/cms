@@ -16,18 +16,9 @@ import Calistoga from '../../src/assets/fonts/Calistoga-Regular.ttf';
 import Arial from '../../src/assets/fonts/arial.ttf';
 //import certificateTemplate from "../assets/templates/ColoCertificateTemplate.jpg";
 
-const disableHyphenation = (word) => [word];
+Font.registerHyphenationCallback(word => [word]);
 
-const CertificatePreview = ({
-  message,
-  brgyOfficials,
-  certificateTitle,
-  certificateTemplate,
-  applicant_image,
-  controlnumber,
-  date,
-}) => {
-  Font.register({
+Font.register({
     family: "Arimo",
     fonts: [
       {
@@ -58,38 +49,45 @@ const CertificatePreview = ({
   Font.register({
     family: "Cooper Black",
     src: CooperBlack,
-    hyphenationCallback: (word) => [word],
   });
 
   Font.register({
     family: "Times New Roman Bold",
     src: TimesRomanBold,
-    hyphenationCallback: (word) => [word],
   });
 
   Font.register({
     family: "Times New Roman",
     src: TimesRoman,
-    hyphenationCallback: (word) => [word],
   });
 
   Font.register({
     family: "Calibri",
     src: Calibri,
-    hyphenationCallback: (word) => [word],
   });
 
   Font.register({
     family: "Calistoga",
     src: Calistoga,
-    hyphenationCallback: (word) => [word],
   });
 
     Font.register({
     family: "Arial",
     src: Arial,
-    hyphenationCallback: (word) => [word],
   });
+
+const CertificatePreview = ({
+  message,
+  brgyOfficials,
+  certificateTypeId,
+  certificateTitle,
+  certificateTemplate,
+  applicant_image,
+  controlnumber,
+  date,
+}) => {
+  const withProfilePic = [6,8,11,17].includes(certificateTypeId);
+  const withThumbmak = [17].includes(certificateTypeId);
 
   const styles = StyleSheet.create({
     page: {
@@ -107,13 +105,14 @@ const CertificatePreview = ({
     },
     title: {
       position: "absolute",
-      top: 200,
-      left: 190,
+      top: 190,
+      left: 35,
       right: 0,
-      fontSize: 15,
+      fontSize: 16,
       //fontWeight: "800",
       fontWeight: "bold",
       textAlign: "center",
+      justifyContent: 'center',
       marginBottom: 20,
       //fontFamily: "Arimo",
       fontFamily: "Times New Roman Bold"
@@ -121,77 +120,87 @@ const CertificatePreview = ({
     content: {
       flexDirection: "row",
       justifyContent: "space-between",
-      paddingHorizontal: 25,
-      marginTop: 200,
+      //paddingHorizontal: 10,
+      //marginTop: 200,
+      top: 115,
+      position: "absolute",
+      width: "100%",
+      height: "80%",
     },
-    officialsSection: {
-      flexDirection: "column",
-      alignItems: "center",
-      marginTop: -30,
-      width: "30%",
-    },
-    sangguniangBarangayText: {
-      fontSize: 10,
-      fontWeight: "bold",
-      fontFamily: "Arimo",
-      color: "#7b0d16",
-      marginBottom: 10,
-    },
-    officialItem: {
-      marginTop: 5,
-      marginBottom: 7,
-      flexDirection: "column",
-      alignItems: "center",
-    },
-    firstOfficialName: {
-      fontSize: 14,
-      fontWeight: "bold",
-      //fontFamily: "Open Sans",
-      fontFamily: "Calistoga",
-      color: "#000000ff",
-    },
-    additionalOfficialName: {
-      fontSize: 12,
-      fontWeight: "bold",
-      //fontFamily: "Open Sans",
-      fontFamily: "Calistoga",
-      color: "#000000ff",
-    },
-    CaptainPosition: {
-      fontSize: 10,
-      color: "#18b7fbff",
-      flexDirection: "column",
-      alignItems: "center",
-      textAlign: "center",
-      fontFamily: "Arial",
-      fontWeight: "bold",
-    },
-    officialPosition: {
-      fontSize: 8,
-      color: "#18b7fbff",
-      flexDirection: "column",
-      alignItems: "center",
-      textAlign: "center",
-      fontFamily: "Arial",
-      fontWeight: "bold",
-    },
-    mgaKagawadText: {
-      fontSize: 10,
-      marginTop: 3,
-      fontWeight: "bold",
-      color: "#7b0d16",
-      fontFamily: "Arimo",
-    },
+    //officialsSection: {
+    //  flexDirection: "column",
+    //  alignItems: "center",
+    //  marginTop: -30,
+    //  width: "30%",
+    //},
+    //sangguniangBarangayText: {
+    //  fontSize: 10,
+    //  fontWeight: "bold",
+    //  fontFamily: "Arimo",
+    //  color: "#7b0d16",
+    //  marginBottom: 10,
+    //},
+    //officialItem: {
+    //  marginTop: 5,
+    //  marginBottom: 7,
+    //  flexDirection: "column",
+    //  alignItems: "center",
+    //},
+    //firstOfficialName: {
+    //  fontSize: 14,
+    //  fontWeight: "bold",
+    //  //fontFamily: "Open Sans",
+    //  fontFamily: "Calistoga",
+    //  color: "#000000ff",
+    //},
+    //additionalOfficialName: {
+    //  fontSize: 12,
+    //  fontWeight: "bold",
+    //  //fontFamily: "Open Sans",
+    //  fontFamily: "Calistoga",
+    //  color: "#000000ff",
+    //},
+    //CaptainPosition: {
+    //  fontSize: 10,
+    //  color: "#18b7fbff",
+    //  flexDirection: "column",
+    //  alignItems: "center",
+    //  textAlign: "center",
+    //  fontFamily: "Arial",
+    //  fontWeight: "bold",
+    //},
+    //officialPosition: {
+    //  fontSize: 8,
+    //  color: "#18b7fbff",
+    //  flexDirection: "column",
+    //  alignItems: "center",
+    //  textAlign: "center",
+    //  fontFamily: "Arial",
+    //  fontWeight: "bold",
+    //},
+    //mgaKagawadText: {
+    //  fontSize: 10,
+    //  marginTop: 3,
+    //  fontWeight: "bold",
+    //  color: "#7b0d16",
+    //  fontFamily: "Arimo",
+    //},
     messageSection: {
-      width: "60%",
+      width: "70%",
       fontSize: 12,
       textAlign: "justify",
       lineHeight: 2,
-      marginTop: "30px",
-      marginLeft: "auto",
+      //marginTop: "40px",
+      //marginLeft: "auto",
+      //marginRight: "auto",
       flexDirection: "column",
       alignItems: "flex-end",
       textIndent: 4,
+      position: "absolute",
+      top: 115, 
+      left: 80,
+      right: 70,
+      fontFamily: "Times New Roman"
     },
     dateText: {
       fontSize: 13,
@@ -200,30 +209,38 @@ const CertificatePreview = ({
     },
     messageText: {
       fontFamily: "Times New Roman",
-      fontSize: 11,
+      fontSize: 12,
       textIndent: 4,
-      textAlign: "justify",
+      textAlign: "left",
     },
     esignature_img: {
-      position: "absolute",
-      left: 420,
-      bottom: -25,
-      width: 115,
+      width: 125
+      ,
     },
     signature_bold: {
       position: "absolute",
-      left: 405,
-      bottom: -30,
+      left: 235,
+      bottom: 20,
       width: 150,
       fontSize: 12,
       textAlign: 'center',
       fontFamily: "Times New Roman Bold",
       color: "#000000ff"
     },
-    signature: {
+    signature_right: {
+      position: "absolute",
+      left: 350,
+      bottom: 85,
+      width: 150,
+      fontSize: 12,
+      textAlign: 'center',
+      fontFamily: "Times New Roman Bold",
+      color: "#000000ff"
+    },
+    official_title: {
       position: "absolute",
       left: 405,
-      bottom: -30,
+      bottom: -10,
       width: 150,
       fontSize: 12,
       textAlign: 'center',
@@ -232,30 +249,49 @@ const CertificatePreview = ({
     },
     controlNumber: {
       position: "absolute",
-      left: 420,
-      bottom: -60,
+      left: 440,
+      bottom: 0,
       width: 150,
-      fontSize: 12,
+      fontSize: 11,
       fontFamily: 'Arimo',
       color: "#000000ff",
       fontWeight: 'bold',
     },
     profilepic: {
       position: "absolute",
-      left: 235,
-      bottom: -30,
+      left: 110,
+      bottom: 110,
       width: 110,
       border: '0.5px solid black'
     },
     reqsignature: {
       position: "absolute",
-      left: 225,
-      bottom: -60,
+      left: 100,
+      bottom: 75,
       width: 125,
       fontSize: 11,
       textAlign: 'center',
       fontFamily: "Times New Roman",
     },
+    thumbSection: {
+      position: "absolute",
+      bottom: 85,
+      left: 420,
+      width: 100,
+      height: 100,
+      alignItems: "center",
+    },
+    thumbBox: {
+      width: 80,
+      height: 100,
+      borderWidth: 1,
+      borderColor: "black",
+      marginBottom: 6,
+    },
+    thumbLabel: {
+      fontSize: 11,
+      fontFamily: "Times New Roman"
+   }
 
   });
 
@@ -267,78 +303,74 @@ const CertificatePreview = ({
         <Text style={styles.title}>{certificateTitle}</Text>
 
         <View style={styles.content}>
-          <View style={styles.officialsSection}>
-            <Text style={styles.sangguniangBarangayText}>
-            </Text>
-            {brgyOfficials?.map((official, index) => (
-              <View key={index} style={styles.officialItem}>
-                <Text
-                  style={
-                    index === 0
-                      ? styles.firstOfficialName
-                      : styles.additionalOfficialName
-                  }
-                  hyphenationCallback={disableHyphenation}
-                >
-                  {official.full_name}
-                </Text>
-                <Text
-                  style={
-                    index === 0
-                      ? styles.CaptainPosition
-                      : styles.officialPosition
-                  }
-                  hyphenationCallback={disableHyphenation}
-                >
-                  {official.committee}
-                </Text>
-                {index === 0 && (
-                  //<Text style={styles.mgaKagawadText}>MGA KAGAWAD:</Text>
-                  <Text style={styles.mgaKagawadText}> </Text>
-                )}
-              </View>
-            ))}
-          </View>
-
-          <View style={styles.messageSection}>
-            <Text style={styles.dateText} hyphenationCallback={disableHyphenation}></Text>
-            <Text style={styles.messageText} hyphenationCallback={disableHyphenation}>
+          <View style={[styles.messageSection, styles.indent]}>
+            <Text style={styles.dateText}></Text>
+            <Text style={[styles.messageText, styles.indent]}>
               {message.map((part, index) => (
                 <Text
-                  hyphenationCallback={disableHyphenation}
-                  key={index}
-                  style={
-                    part.isBold
-                      ? {
-                          fontWeight: "bold",
-                          fontFamily: "Times New Roman Bold",
-                          fontSize: 11,
-                        }
-                      : {}
-                  }
-                >
-                  {part.text}
+                key={index}
+                style={
+                  part.isBold
+                    ? {
+                        fontWeight: "bold",
+                        fontFamily: "Times New Roman Bold",
+                        fontSize: 14,
+                      }
+                    : {
+                        fontSize: 14,
+                      }
+                }
+                 >
+                   {(part.text ?? "").toString().split("").map((char, i) => (
+                    <Text
+                      key={i}
+                      style={{
+                        color: char === "_" ? "transparent" : "black",
+                      }}
+                    >
+                      {char}
+                    </Text>
+                  ))}
                 </Text>
               ))}
             </Text>
           </View>
+          {withProfilePic && (
           <View style={styles.profilepic}>
             <Image src={"/src/assets" + applicant_image} fixed />
           </View>
+           )}
+           {withProfilePic && (
           <View style={styles.reqsignature}>
-            <Text>_____________________</Text>
-            <Text>Requestor Signature</Text>
+            <Text>______________________</Text>
+            <Text>SIGNATURE</Text>
           </View>
-          <View style={styles.esignature_img}>
-            <Image src={"/src/assets" + brgyOfficials[0].e_signature} fixed />
-          </View>
+          )}
+          {withThumbmak ? (
           <View style={styles.signature_bold}>
+            <Image src={"/src/assets" + brgyOfficials[0].e_signature} 
+                   style={styles.image} fixed />
             <Text>{brgyOfficials[0].full_name}</Text>
-            <Text style={styles.signature}>Punong Barangay</Text>
+            <Text style={{fontFamily: 'Times New Roman'}}>Punong Barangay</Text>
           </View>
+          ) : (
+          <View style={styles.signature_right}>
+            <Image src={"/src/assets" + brgyOfficials[0].e_signature} 
+                   style={styles.image} fixed />
+            <Text>{brgyOfficials[0].full_name}</Text>
+            <Text style={{fontFamily: 'Times New Roman'}}>Punong Barangay</Text>
+          </View>
+          )
+          }
           <View style={styles.controlNumber}>
             <Text style={styles.messageText}>CTRL.NO.: {controlnumber}</Text>
           </View>
+          {withThumbmak && (
+          <View style={styles.thumbSection}>
+          <View style={styles.thumbBox} />
+            <Text style={styles.thumbLabel}>Right Thumbmark</Text>
+          </View>
+          )}
         </View>
       </Page>
     </Document>
