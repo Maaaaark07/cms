@@ -85,6 +85,7 @@ const CertificationForm = () => {
             <CertificatePreview
                 message={finalMessage}
                 brgyOfficials={brgyOfficials}
+                certificateTypeId={selectedCertificateType?.iid || '1'}
                 certificateTitle={selectedCertificateType?.iname || ''}
                 certificateTemplate={CertificateTemplate}
                 applicant_image={formData.applicant_image}

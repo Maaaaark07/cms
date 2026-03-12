@@ -262,6 +262,7 @@ export const useCertificationForm = () => {
             '[START_DATE]': formData.startDate ? new Date(formData.startDate).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '[START_DATE]',
             '[END_DATE]': formData.endDate ? new Date(formData.endDate).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '[END_DATE]',
             '[DATE_OF_DEATH]': formData.dateOfDeath ? new Date(formData.dateOfDeath).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '[DATE_OF_DEATH]',
+            '[TAB]': "___",
         };
 
         const excludeBoldKeys = [
