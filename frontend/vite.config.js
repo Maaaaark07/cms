@@ -1,10 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import fs from 'fs';
-import path from 'path';
 
-const keyPath = path.resolve(__dirname, 'colo-cms.gov.ph.key');
-const certPath = path.resolve(__dirname, 'colo-cms.gov.ph.crt');
+//const keyPath = path.resolve(__dirname, 'colo-cms.gov.ph.key');
+//const certPath = path.resolve(__dirname, 'colo-cms.gov.ph.crt');
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -12,9 +10,9 @@ export default defineConfig({
     envPrefix: 'VITE_',
     server: {
     allowedHosts: ['localhost', '127.0.0.1', 'colo-cms.gov.ph'],
-    https: {
-      key: fs.readFileSync(keyPath),
-      cert: fs.readFileSync(certPath),
-    },
+    //https: {
+    //  key: fs.readFileSync(keyPath),
+    //  cert: fs.readFileSync(certPath),
+    //},
   },
 })
