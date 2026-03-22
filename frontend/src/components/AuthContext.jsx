@@ -8,6 +8,7 @@ export const AuthProvider = ({ children }) => {
     const [cityId, setCityId] = useState(null);
     const [provinceId, setProvinceId] = useState(null);
     const [lguId, setLguId] = useState(null);
+    const [roleId, setRoleId] = useState(null);
 
     // Load encrypted data from localStorage on component mount
     useEffect(() => {
@@ -16,6 +17,7 @@ export const AuthProvider = ({ children }) => {
             const storedCityId = localStorage.getItem('cityId');
             const storedProvinceId = localStorage.getItem('provinceId');
             const storedLguId = localStorage.getItem('lguId');
+            const storedRoleId = localStorage.getItem('roleId');
 
             if (storedBarangayId) {
                 try {
@@ -48,7 +50,7 @@ export const AuthProvider = ({ children }) => {
                         setLguId(decryptedLguId);
                     }
                 } catch (error) {
-                    console.error('Error loading province ID:', error);
+                    console.error('Error loading lgu ID:', error);
                     alert('Failed to load your session data. Please log in again.');
                 }
             }
@@ -61,6 +63,18 @@ export const AuthProvider = ({ children }) => {
                     }
                 } catch (error) {
                     console.error('Error loading province ID:', error);
+                    alert('Failed to load your session data. Please log in again.');
+                }
+            }
+
+            if (storedRoleId) {
+                try {
+                    const decryptedRoleId = decryptId(storedRoleId);
+                    if (decryptedRoleId) {
+                        setRoleId(decryptedRoleId);
+                    }
+                } catch (error) {
+                    console.error('Error loading role ID:', error);
                     alert('Failed to load your session data. Please log in again.');
                 }
             }
@@ -109,18 +123,35 @@ export const AuthProvider = ({ children }) => {
                     const encryptedlguId = encryptId(lguId);
                     localStorage.setItem('lguId', encryptedlguId);
                 } catch (error) {
-                    console.error('Error storing province ID:', error);
+                    console.error('Error storing lgu ID:', error);
                 }
             } else {
                 localStorage.removeItem('lguId');
             }
+
+            if (roleId) {
+                try {
+                    const encryptedRoleId = encryptId(roleId);
+                    localStorage.setItem('roleId', encryptedRoleId);
+                } catch (error) {
+                    console.error('Error storing role ID:', error);
+                }
+            } else {
+                localStorage.removeItem('roleId');
+            }
         };
 
         storeEncryptedData();
-    }, [barangayId, cityId, provinceId]);
+    }, [barangayId, cityId, provinceId, lguId, roleId]);
 
     return (
-        <AuthContext.Provider value={{ barangayId, cityId, provinceId, setBarangayId, setCityId, setProvinceId, lguId, setLguId }}>
+        <AuthContext.Provider value={{ 
+            barangayId, setBarangayId, 
+            cityId, setCityId, 
+            provinceId, setProvinceId, 
+            lguId, setLguId,
+            roleId, setRoleId
+        }}>
             {children}
         </AuthContext.Provider>
     );

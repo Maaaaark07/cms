@@ -44,7 +44,7 @@ export const login = (req, res) => {
                         sameSite: 'Lax',
                         path: '/',
                     });
-                    return res.json({ Status: "Success", BarangayId: data[0][0].barangay_id, CityId: data[0][0].city_id, ProvinceId: data[0][0].province_id, LguId: data[0][0].lgu_type_id, });
+                    return res.json({ Status: "Success", BarangayId: data[0][0].barangay_id, CityId: data[0][0].city_id, ProvinceId: data[0][0].province_id, LguId: data[0][0].lgu_type_id, RoleId: data[0][0].role_id  });
                 }
                 return res.json({ Error: "Invalid password" });
             });

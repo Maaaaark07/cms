@@ -38,8 +38,8 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
     const [residentAddress, setResidentAddress] = useState("");
     const [residentContact, setResidentContact] = useState("");
     const [selectedUserBarangayId, setSelectedUserBarangayId] = useState(null)
-    const { role } = useAuth();
-    const isCbsAdmin = role === "cbsadmin"; 
+    const { roleId } = useAuth();
+    const isCbsAdmin = Number(roleId) === 1;
 
     useEffect(() => {
         if (isOpen) {
@@ -276,102 +276,105 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
         }
     };
 
+
     if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-lg p-6 w-full max-w-xl">
-                <div className='leading-3 mb-6'>
-                    <h2 className="text-lg font-bold text-gray-500">Add New User</h2>
-                    <p className="text-xs text-gray-400">Fill in the form below to create a new user account with appropriate details.</p>
-                </div>
+                
+                    <div className='leading-3 mb-6'>
+                        <h2 className="text-lg font-bold text-gray-500">Add New User</h2>
+                        <p className="text-xs text-gray-400">Fill in the form below to create a new user account with appropriate details.</p>
+                    </div>
+                
                 <form onSubmit={handleSubmit}>
                     <div className="space-y-4">
                         {isCbsAdmin && (
-                            <>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className='flex-1'>
-                                        <label className="block mb-2 text-sm font-medium text-gray-500">
-                                            Region<span className="text-red-600">*</span>
-                                        </label>
-                                        <select
-                                            value={selectedRegion}
-                                            onChange={handleRegionChange}
-                                            className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
-                                            required
-                                        >
-                                            <option value="">Select Region</option>
-                                            {allRegion.map(region => (
-                                                <option key={region.iid} value={region.iid}>
-                                                    {region.iname}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    <div className='flex-1'>
-                                        <label className="block mb-2 text-sm font-medium text-gray-500">
-                                            Province<span className="text-red-600">*</span>
-                                        </label>
-                                        <select
-                                            value={selectedProvince}
-                                            onChange={handleProvinceChange}
-                                            className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
-                                            disabled={!selectedRegion}
-                                            required
-                                        >
-                                            <option value="">Select Province</option>
-                                            {allProvinces.map(province => (
-                                                <option key={province.iid} value={province.iid}>
-                                                    {province.iname}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
+                        <>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className='flex-1'>
+                                    <label className="block mb-2 text-sm font-medium text-gray-500">
+                                        Region<span className="text-red-600">*</span>
+                                    </label>
+                                    <select
+                                        value={selectedRegion}
+                                        onChange={handleRegionChange}
+                                        className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                                        required
+                                    >
+                                        <option value="">Select Region</option>
+                                        {allRegion.map(region => (
+                                            <option key={region.iid} value={region.iid}>
+                                                {region.iname}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className='flex-1'>
-                                        <label className="block mb-2 text-sm font-medium text-gray-500">
-                                            City<span className="text-red-600">*</span>
-                                        </label>
-                                        <select
-                                            value={selectedCity}
-                                            onChange={handleCityChange}
-                                            className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
-                                            disabled={!selectedProvince}
-                                            required
-                                        >
-                                            <option value="">Select City</option>
-                                            {allCities.map(city => (
-                                                <option key={city.iid} value={city.iid}>
-                                                    {city.iname}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    <div className='flex-1'>
-                                        <label className="block mb-2 text-sm font-medium text-gray-500">
-                                            Barangay<span className="text-red-600">*</span>
-                                        </label>
-                                        <select
-                                            value={selectedBarangay}
-                                            onChange={handleBarangayChange}
-                                            className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
-                                            disabled={!selectedCity}
-                                            required
-                                        >
-                                            <option value="">Select Barangay</option>
-                                            {allBarangay.map(barangay => (
-                                                <option key={barangay.iid} value={barangay.iid}>
-                                                    {barangay.iname}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
+                                <div className='flex-1'>
+                                    <label className="block mb-2 text-sm font-medium text-gray-500">
+                                        Province<span className="text-red-600">*</span>
+                                    </label>
+                                    <select
+                                        value={selectedProvince}
+                                        onChange={handleProvinceChange}
+                                        className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                                        disabled={!selectedRegion}
+                                        required
+                                    >
+                                        <option value="">Select Province</option>
+                                        {allProvinces.map(province => (
+                                            <option key={province.iid} value={province.iid}>
+                                                {province.iname}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
-                            </>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className='flex-1'>
+                                    <label className="block mb-2 text-sm font-medium text-gray-500">
+                                        City<span className="text-red-600">*</span>
+                                    </label>
+                                    <select
+                                        value={selectedCity}
+                                        onChange={handleCityChange}
+                                        className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                                        disabled={!selectedProvince}
+                                        required
+                                    >
+                                        <option value="">Select City</option>
+                                        {allCities.map(city => (
+                                            <option key={city.iid} value={city.iid}>
+                                                {city.iname}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className='flex-1'>
+                                    <label className="block mb-2 text-sm font-medium text-gray-500">
+                                        Barangay<span className="text-red-600">*</span>
+                                    </label>
+                                    <select
+                                        value={selectedBarangay}
+                                        onChange={handleBarangayChange}
+                                        className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                                        disabled={!selectedCity}
+                                        required
+                                    >
+                                        <option value="">Select Barangay</option>
+                                        {allBarangay.map(barangay => (
+                                            <option key={barangay.iid} value={barangay.iid}>
+                                                {barangay.iname}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                        </>
                         )}
                         <div className="grid grid-cols-2 gap-4">
                             <div className='flex-1'>
