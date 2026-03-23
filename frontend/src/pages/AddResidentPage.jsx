@@ -5,6 +5,7 @@ import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import Breadcrumbs from '../components/Breadcrumbs';
 import cfg from '../../../server/config/domain.js';
+import { useAuth } from "../components/AuthContext.jsx";
 
 import { BsFillPersonVcardFill } from "react-icons/bs";
 import { MdContactPhone } from "react-icons/md";
@@ -16,6 +17,9 @@ import { IoCloseCircleOutline } from "react-icons/io5";
 
 const AddResidentPage = ({ setSuccess }) => {
     const navigate = useNavigate();
+    const { barangayId: authBarangayId, cityId: authCityId, provinceId: authProvinceId, regionId: authRegionId, roleId } = useAuth();
+    const isCbsAdmin = Number(roleId) === 1;
+
     const [formData, setFormData] = useState({
         FirstName: '',
         LastName: '',
@@ -64,17 +68,33 @@ const AddResidentPage = ({ setSuccess }) => {
 
     const handleFilesChange = (e) => {
         const file = e.target.files[0];
-        setFileName(file ? file.name : ""); // Update the file name or clear it
+        setFileName(file ? file.name : "");
     };
 
     const handleOptionRemove = () => {
-        setFileName(""); // Reset the file name
+        setFileName("");
     };
-
 
     useEffect(() => {
         fetchAllRegion();
     }, []);
+
+    // Auto-fill location for non-cbsadmin
+    useEffect(() => {
+        if (!isCbsAdmin && authRegionId) {
+            setSelectedRegion(authRegionId);
+            setSelectedProvince(authProvinceId);
+            setSelectedCity(authCityId);
+            setSelectedBarangay(authBarangayId);
+            setFormData(prev => ({
+                ...prev,
+                Region_ID: authRegionId,
+                Province_ID: authProvinceId,
+                City_ID: authCityId,
+                Barangay_ID: authBarangayId
+            }));
+        }
+    }, [isCbsAdmin, authRegionId, authProvinceId, authCityId, authBarangayId]);
 
     useEffect(() => {
         if (selectedRegion) {
@@ -115,23 +135,25 @@ const AddResidentPage = ({ setSuccess }) => {
             const provinces = response.data;
             setAllProvinces(provinces);
 
-            if (provinces.length > 0) {
-                const defaultProvince = provinces[0].iid;
-                setSelectedProvince(defaultProvince);
-                setFormData((prevState) => ({
-                    ...prevState,
-                    Province_ID: defaultProvince,
-                }));
-            } else {
-                setSelectedProvince('');
-                setAllCities([]);
-                setSelectedCity('');
-                setFormData((prevState) => ({
-                    ...prevState,
-                    Province_ID: '',
-                    City_ID: '',
-                    Barangay_ID: '',
-                }));
+            if (isCbsAdmin) {
+                if (provinces.length > 0) {
+                    const defaultProvince = provinces[0].iid;
+                    setSelectedProvince(defaultProvince);
+                    setFormData((prevState) => ({
+                        ...prevState,
+                        Province_ID: defaultProvince,
+                    }));
+                } else {
+                    setSelectedProvince('');
+                    setAllCities([]);
+                    setSelectedCity('');
+                    setFormData((prevState) => ({
+                        ...prevState,
+                        Province_ID: '',
+                        City_ID: '',
+                        Barangay_ID: '',
+                    }));
+                }
             }
         } catch (error) {
             console.error("Error fetching all Provinces:", error);
@@ -144,22 +166,24 @@ const AddResidentPage = ({ setSuccess }) => {
             const cities = response.data;
             setAllCities(cities);
 
-            if (cities.length > 0) {
-                const defaultCity = cities[0].iid;
-                setSelectedCity(defaultCity);
-                setFormData((prevState) => ({
-                    ...prevState,
-                    City_ID: defaultCity,
-                }));
-            } else {
-                setSelectedCity('');
-                setAllBarangay([]);
-                setSelectedBarangay('');
-                setFormData((prevState) => ({
-                    ...prevState,
-                    City_ID: '',
-                    Barangay_ID: '',
-                }));
+            if (isCbsAdmin) {
+                if (cities.length > 0) {
+                    const defaultCity = cities[0].iid;
+                    setSelectedCity(defaultCity);
+                    setFormData((prevState) => ({
+                        ...prevState,
+                        City_ID: defaultCity,
+                    }));
+                } else {
+                    setSelectedCity('');
+                    setAllBarangay([]);
+                    setSelectedBarangay('');
+                    setFormData((prevState) => ({
+                        ...prevState,
+                        City_ID: '',
+                        Barangay_ID: '',
+                    }));
+                }
             }
         } catch (error) {
             console.error("Error fetching all Cities:", error);
@@ -172,19 +196,21 @@ const AddResidentPage = ({ setSuccess }) => {
             const barangays = response.data;
             setAllBarangay(barangays);
 
-            if (barangays.length > 0) {
-                const defaultBarangay = barangays[0].iid;
-                setSelectedBarangay(defaultBarangay);
-                setFormData((prevState) => ({
-                    ...prevState,
-                    Barangay_ID: defaultBarangay,
-                }));
-            } else {
-                setSelectedBarangay('');
-                setFormData((prevState) => ({
-                    ...prevState,
-                    Barangay_ID: '',
-                }));
+            if (isCbsAdmin) {
+                if (barangays.length > 0) {
+                    const defaultBarangay = barangays[0].iid;
+                    setSelectedBarangay(defaultBarangay);
+                    setFormData((prevState) => ({
+                        ...prevState,
+                        Barangay_ID: defaultBarangay,
+                    }));
+                } else {
+                    setSelectedBarangay('');
+                    setFormData((prevState) => ({
+                        ...prevState,
+                        Barangay_ID: '',
+                    }));
+                }
             }
         } catch (error) {
             console.error("Error fetching all Barangays:", error);
@@ -193,7 +219,6 @@ const AddResidentPage = ({ setSuccess }) => {
 
     const fetchAllPurok = async () => {
         try {
-            // Ensure selectedBarangay is not empty
             if (!selectedBarangay) {
                 setAllPuroks([]);
                 return;
@@ -219,7 +244,6 @@ const AddResidentPage = ({ setSuccess }) => {
             }
         } catch (error) {
             console.error("Error fetching all Puroks:", error);
-            // Optionally, set an error state or show a user-friendly message
             setAllPuroks([]);
             setSelectedPurok('');
         }
@@ -286,7 +310,6 @@ const AddResidentPage = ({ setSuccess }) => {
             ...prevData,
             [name]: value,
         }));
-        console.log(name, value);
     };
 
     const handleIsHouseholdHead = (e) => {
@@ -331,13 +354,11 @@ const AddResidentPage = ({ setSuccess }) => {
         }));
     }
 
-
     const handleCancel = () => {
         navigate('/resident-management');
     }
 
     const validateFormData = async () => {
-        // Define required fields
         const requiredFields = [
             'first_name',
             'last_name',
@@ -348,7 +369,6 @@ const AddResidentPage = ({ setSuccess }) => {
             'contact_number'
         ];
 
-        // Check required fields
         for (let field of requiredFields) {
             if (!formData[field] || formData[field].toString().trim() === '') {
                 setErrorMessage(`${field.replace('_', ' ')} is required`);
@@ -356,7 +376,6 @@ const AddResidentPage = ({ setSuccess }) => {
             }
         }
 
-        // Additional validations
         if (formData.age && (isNaN(formData.age) || formData.age <= 0)) {
             setErrorMessage('Age must be a positive number');
             return false;
@@ -405,7 +424,6 @@ const AddResidentPage = ({ setSuccess }) => {
             }
         }
 
-        // Check for duplicate contact number
         try {
             const response = await axios.post('/check-duplicate-contact', {
                 contact_number: formData.ContactNumber
@@ -420,20 +438,9 @@ const AddResidentPage = ({ setSuccess }) => {
             return false;
         }
 
-        // Validation passed
-        setErrorMessage(''); // Clear any existing errors
+        setErrorMessage('');
         return true;
     };
-
-    // const handleFileChange = (e) => {
-    //     const file = e.target.files[0];
-    //     if (file) {
-    //         setFormData(prevData => ({
-    //             ...prevData,
-    //             Profile_Image: file  // Store the actual file object
-    //         }));
-    //     }
-    // };
 
     const handleAddResident = async (e) => {
         e.preventDefault();
@@ -445,18 +452,15 @@ const AddResidentPage = ({ setSuccess }) => {
             return;
         }
 
-        // Create FormData object
         const formDataToSubmit = new FormData();
 
-        // Get the file input element and append file if it exists
         const fileInput = document.querySelector('input[type="file"]');
         if (fileInput && fileInput.files[0]) {
             formDataToSubmit.append('Profile_Image', fileInput.files[0]);
         }
 
-        // Append all other form fields
         Object.keys(formData).forEach(key => {
-            if (key !== 'Profile_Image') {  // Skip the file input
+            if (key !== 'Profile_Image') {
                 if (key === 'birthday' && formData[key]) {
                     formDataToSubmit.append(key, new Date(formData[key]).toISOString().split('T')[0]);
                 } else if (typeof formData[key] === 'boolean') {
@@ -554,9 +558,7 @@ const AddResidentPage = ({ setSuccess }) => {
                                             <input type="text" name="Occupation" value={formData.Occupation} onChange={handleChange} placeholder="Occupation" className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                         </div>
                                         <div>
-                                            <label className="block mb-2 text-sm font-medium text-gray-500">
-                                                Civil Status
-                                            </label>
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">Civil Status</label>
                                             <select name="CivilStatus" value={formData.CivilStatus} onChange={handleChange} className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                                                 <option value="">Select Civil Status</option>
                                                 <option value="Single">Single</option>
@@ -581,9 +583,7 @@ const AddResidentPage = ({ setSuccess }) => {
                                             </select>
                                         </div>
                                         <div className="relative w-full">
-                                            <label className="block mb-2 text-sm font-medium text-gray-500">
-                                                Upload Profile Image
-                                            </label>
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">Upload Profile Image</label>
                                             <div className="relative flex items-center justify-between border-dashed border-2 bg-gray-100 border-gray-300 rounded-md p-2 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
                                                 <input
                                                     type="file"
@@ -625,7 +625,8 @@ const AddResidentPage = ({ setSuccess }) => {
                                                 value={selectedRegion || ''}
                                                 name='Region_ID'
                                                 onChange={handleRegionChange}
-                                                className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                disabled={!isCbsAdmin}
+                                                className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                                             >
                                                 <option value="">Select Region</option>
                                                 {allRegion.map((region) => (
@@ -639,8 +640,8 @@ const AddResidentPage = ({ setSuccess }) => {
                                                 value={selectedProvince || ''}
                                                 name='Province_ID'
                                                 onChange={handleProvinceChange}
-                                                disabled={!selectedRegion}
-                                                className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                disabled={!selectedRegion || !isCbsAdmin}
+                                                className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                                             >
                                                 {allProvinces.length > 0 ? (
                                                     allProvinces.map((province) => (
@@ -657,8 +658,8 @@ const AddResidentPage = ({ setSuccess }) => {
                                                 value={selectedCity || ''}
                                                 name='City_ID'
                                                 onChange={handleCityChange}
-                                                disabled={!selectedProvince}
-                                                className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                disabled={!selectedProvince || !isCbsAdmin}
+                                                className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                                             >
                                                 {allCities.length > 0 ? (
                                                     allCities.map((city) => (
@@ -675,8 +676,8 @@ const AddResidentPage = ({ setSuccess }) => {
                                                 value={selectedBarangay || ''}
                                                 name='Barangay_ID'
                                                 onChange={handleBarangayChange}
-                                                disabled={!selectedCity}
-                                                className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                disabled={!selectedCity || !isCbsAdmin}
+                                                className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                                             >
                                                 {allBarangay.length > 0 ? (
                                                     allBarangay.map((barangay) => (
@@ -694,7 +695,7 @@ const AddResidentPage = ({ setSuccess }) => {
                                                 name='Purok_ID'
                                                 onChange={handlePurokChange}
                                                 disabled={!selectedBarangay}
-                                                className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="border text-sm border-gray-300 p-2 w-full rounded-md text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                                             >
                                                 {allPuroks.length > 0 ? (
                                                     allPuroks.map((purok) => (
@@ -710,9 +711,7 @@ const AddResidentPage = ({ setSuccess }) => {
                                             <input type="text" name="Address" value={formData.Address} onChange={handleChange} placeholder='House No.' required className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                         </div>
                                         <div>
-                                            <label className="block mb-2 text-sm font-medium text-gray-500">
-                                                Resident Type
-                                            </label>
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">Resident Type</label>
                                             <select name="ResidentType" value={formData.ResidentType} onChange={handleChange} className="border text-sm border-gray-300 text-gray-500 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                                                 <option value="">Select Resident Type</option>
                                                 <option value="Permanent">Permanent</option>
@@ -726,25 +725,11 @@ const AddResidentPage = ({ setSuccess }) => {
                                             </div>
                                             <div className="flex items-center space-x-4">
                                                 <label className="flex items-center space-x-2">
-                                                    <input
-                                                        type="radio"
-                                                        name="IsLocalResident"
-                                                        value="yes"
-                                                        checked={formData.IsLocalResident === 1}
-                                                        onChange={handleIsLocalResident}
-                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                                                    />
+                                                    <input type="radio" name="IsLocalResident" value="yes" checked={formData.IsLocalResident === 1} onChange={handleIsLocalResident} className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
                                                     <span className="text-sm text-gray-700">Yes</span>
                                                 </label>
                                                 <label className="flex items-center space-x-2">
-                                                    <input
-                                                        type="radio"
-                                                        name="IsLocalResident"
-                                                        value="no"
-                                                        checked={formData.IsLocalResident === 0}
-                                                        onChange={handleIsLocalResident}
-                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                                                    />
+                                                    <input type="radio" name="IsLocalResident" value="no" checked={formData.IsLocalResident === 0} onChange={handleIsLocalResident} className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
                                                     <span className="text-sm text-gray-700">No</span>
                                                 </label>
                                             </div>
@@ -770,7 +755,7 @@ const AddResidentPage = ({ setSuccess }) => {
                                     </div>
                                 </div>
 
-                                {/* Household Information Section */}
+                                {/* Other Information Section */}
                                 <div className="col-span-1 md:col-span-3 mb-4">
                                     <div className='flex items-center gap-3 mb-4'>
                                         <IoIosInformationCircle className='w-6 h-6 text-gray-400' />
@@ -783,25 +768,11 @@ const AddResidentPage = ({ setSuccess }) => {
                                             </div>
                                             <div className="flex items-center space-x-4">
                                                 <label className="flex items-center space-x-2">
-                                                    <input
-                                                        type="radio"
-                                                        name="IsHouseholdHead"
-                                                        value="yes"
-                                                        checked={formData.IsHouseholdHead === 1}
-                                                        onChange={handleIsHouseholdHead}
-                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                                                    />
+                                                    <input type="radio" name="IsHouseholdHead" value="yes" checked={formData.IsHouseholdHead === 1} onChange={handleIsHouseholdHead} className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
                                                     <span className="text-sm text-gray-700">Yes</span>
                                                 </label>
                                                 <label className="flex items-center space-x-2">
-                                                    <input
-                                                        type="radio"
-                                                        name="IsHouseholdHead"
-                                                        value="no"
-                                                        checked={formData.IsHouseholdHead === 0}
-                                                        onChange={handleIsHouseholdHead}
-                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                                                    />
+                                                    <input type="radio" name="IsHouseholdHead" value="no" checked={formData.IsHouseholdHead === 0} onChange={handleIsHouseholdHead} className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
                                                     <span className="text-sm text-gray-700">No</span>
                                                 </label>
                                             </div>
@@ -818,25 +789,11 @@ const AddResidentPage = ({ setSuccess }) => {
                                             </div>
                                             <div className="flex items-center space-x-4">
                                                 <label className="flex items-center space-x-2">
-                                                    <input
-                                                        type="radio"
-                                                        name="IsRegisteredVoter"
-                                                        value="yes"
-                                                        checked={formData.IsRegisteredVoter === 1}
-                                                        onChange={handleIsRegisteredVoter}
-                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                                                    />
+                                                    <input type="radio" name="IsRegisteredVoter" value="yes" checked={formData.IsRegisteredVoter === 1} onChange={handleIsRegisteredVoter} className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
                                                     <span className="text-sm text-gray-700">Yes</span>
                                                 </label>
                                                 <label className="flex items-center space-x-2">
-                                                    <input
-                                                        type="radio"
-                                                        name="IsRegisteredVoter"
-                                                        value="no"
-                                                        checked={formData.IsRegisteredVoter === 0}
-                                                        onChange={handleIsRegisteredVoter}
-                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                                                    />
+                                                    <input type="radio" name="IsRegisteredVoter" value="no" checked={formData.IsRegisteredVoter === 0} onChange={handleIsRegisteredVoter} className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
                                                     <span className="text-sm text-gray-700">No</span>
                                                 </label>
                                             </div>
@@ -853,25 +810,11 @@ const AddResidentPage = ({ setSuccess }) => {
                                             </div>
                                             <div className="flex items-center space-x-4">
                                                 <label className="flex items-center space-x-2">
-                                                    <input
-                                                        type="radio"
-                                                        name="IsJuanBataanMember"
-                                                        value="yes"
-                                                        checked={formData.IsJuanBataanMember === 1}
-                                                        onChange={handleIsJuanBataanMember}
-                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                                                    />
+                                                    <input type="radio" name="IsJuanBataanMember" value="yes" checked={formData.IsJuanBataanMember === 1} onChange={handleIsJuanBataanMember} className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
                                                     <span className="text-sm text-gray-700">Yes</span>
                                                 </label>
                                                 <label className="flex items-center space-x-2">
-                                                    <input
-                                                        type="radio"
-                                                        name="IsJuanBataanMember"
-                                                        value="no"
-                                                        checked={formData.IsJuanBataanMember === 0}
-                                                        onChange={handleIsJuanBataanMember}
-                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                                                    />
+                                                    <input type="radio" name="IsJuanBataanMember" value="no" checked={formData.IsJuanBataanMember === 0} onChange={handleIsJuanBataanMember} className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
                                                     <span className="text-sm text-gray-700">No</span>
                                                 </label>
                                             </div>
@@ -888,25 +831,11 @@ const AddResidentPage = ({ setSuccess }) => {
                                             </div>
                                             <div className="flex items-center space-x-4">
                                                 <label className="flex items-center space-x-2">
-                                                    <input
-                                                        type="radio"
-                                                        name="IsPWD"
-                                                        value="yes"
-                                                        checked={formData.IsPWD === 1}
-                                                        onChange={handleIsPwd}
-                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                                                    />
+                                                    <input type="radio" name="IsPWD" value="yes" checked={formData.IsPWD === 1} onChange={handleIsPwd} className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
                                                     <span className="text-sm text-gray-700">Yes</span>
                                                 </label>
                                                 <label className="flex items-center space-x-2">
-                                                    <input
-                                                        type="radio"
-                                                        name="IsPWD"
-                                                        value="no"
-                                                        checked={formData.IsPWD === 0}
-                                                        onChange={handleIsPwd}
-                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                                                    />
+                                                    <input type="radio" name="IsPWD" value="no" checked={formData.IsPWD === 0} onChange={handleIsPwd} className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
                                                     <span className="text-sm text-gray-700">No</span>
                                                 </label>
                                             </div>
@@ -923,25 +852,11 @@ const AddResidentPage = ({ setSuccess }) => {
                                             </div>
                                             <div className="flex items-center space-x-4">
                                                 <label className="flex items-center space-x-2">
-                                                    <input
-                                                        type="radio"
-                                                        name="IsSoloParent"
-                                                        value="yes"
-                                                        checked={formData.IsSoloParent === 1}
-                                                        onChange={handleIsSoloParent}
-                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                                                    />
+                                                    <input type="radio" name="IsSoloParent" value="yes" checked={formData.IsSoloParent === 1} onChange={handleIsSoloParent} className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
                                                     <span className="text-sm text-gray-700">Yes</span>
                                                 </label>
                                                 <label className="flex items-center space-x-2">
-                                                    <input
-                                                        type="radio"
-                                                        name="IsSoloParent"
-                                                        value="no"
-                                                        checked={formData.IsSoloParent === 0}
-                                                        onChange={handleIsSoloParent}
-                                                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                                                    />
+                                                    <input type="radio" name="IsSoloParent" value="no" checked={formData.IsSoloParent === 0} onChange={handleIsSoloParent} className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
                                                     <span className="text-sm text-gray-700">No</span>
                                                 </label>
                                             </div>
@@ -963,7 +878,6 @@ const AddResidentPage = ({ setSuccess }) => {
                 </main>
             </div>
         </div>
-
     );
 };
 

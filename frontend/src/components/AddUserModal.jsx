@@ -29,24 +29,73 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
     const [selectedProvince, setSelectedProvince] = useState('');
     const [selectedCity, setSelectedCity] = useState('');
     const [selectedBarangay, setSelectedBarangay] = useState('');
-    const [userRoles, setUserRoles] = useState([]); // State to store user roles
-    const [lguTypes, setLguTypes] = useState([]); // State to store LGU types
+    const [userRoles, setUserRoles] = useState([]);
+    const [lguTypes, setLguTypes] = useState([]);
     const [selectedLguTypeId, setSelectedLguTypeId] = useState(null);
     const [selectResidentModal, setSelectResidentModal] = useState(false);
     const [residentId, setResidentId] = useState(null);
     const [residentName, setResidentName] = useState("");
     const [residentAddress, setResidentAddress] = useState("");
     const [residentContact, setResidentContact] = useState("");
-    const [selectedUserBarangayId, setSelectedUserBarangayId] = useState(null)
-    const { roleId } = useAuth();
+    const [selectedUserBarangayId, setSelectedUserBarangayId] = useState(null);
+    const [error, setError] = useState("");
+
+    const { roleId, barangayId: authBarangayId, cityId: authCityId, provinceId: authProvinceId, regionId: authRegionId } = useAuth();
     const isCbsAdmin = Number(roleId) === 1;
 
     useEffect(() => {
         if (isOpen) {
             fetchAllRegion();
-            fetchAllLguTypes(); // Fetch LGU types
+            fetchAllLguTypes();
         }
     }, [isOpen]);
+
+    // Auto-fill location for non-cbsadmin when modal opens
+    useEffect(() => {
+    if (isOpen && !isCbsAdmin && authRegionId) {
+        const autoFill = async () => {
+            // Set region first
+            setSelectedRegion(authRegionId);
+            setFormData(prev => ({ ...prev, region_id: authRegionId }));
+
+            // Fetch provinces for that region
+            try {
+                const provRes = await axios.get(
+                    `http://${cfg.domainname}:${cfg.serverport}/location/provinces/${authRegionId}`,
+                    { withCredentials: true }
+                );
+                setAllProvinces(provRes.data || []);
+                setSelectedProvince(authProvinceId);
+                setFormData(prev => ({ ...prev, province_id: authProvinceId }));
+            } catch (e) { console.error(e); }
+
+            // Fetch cities for that province
+            try {
+                const cityRes = await axios.get(
+                    `http://${cfg.domainname}:${cfg.serverport}/location/cities/${authProvinceId}`,
+                    { withCredentials: true }
+                );
+                setAllCities(cityRes.data || []);
+                setSelectedCity(authCityId);
+                setFormData(prev => ({ ...prev, city_id: authCityId }));
+            } catch (e) { console.error(e); }
+
+            // Fetch barangays for that city
+            try {
+                const brgyRes = await axios.get(
+                    `http://${cfg.domainname}:${cfg.serverport}/location/barangay/${authCityId}`,
+                    { withCredentials: true }
+                );
+                setAllBarangay(brgyRes.data || []);
+                setSelectedBarangay(authBarangayId);
+                setSelectedUserBarangayId(authBarangayId);
+                setFormData(prev => ({ ...prev, barangay_id: authBarangayId }));
+            } catch (e) { console.error(e); }
+        };
+
+        autoFill();
+        }
+    }, [isOpen, isCbsAdmin, authRegionId, authProvinceId, authCityId, authBarangayId]);
 
     useEffect(() => {
         if (selectedRegion) {
@@ -61,18 +110,11 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
     }, [selectedProvince]);
 
     useEffect(() => {
-        if (selectedLguTypeId) {
-            fetchUserRolesByLguType();
-        }
-    }, [selectedLguTypeId]);
-
-    useEffect(() => {
         if (selectedCity) {
             fetchAllBarangay();
         }
     }, [selectedCity]);
 
-    // Fetch user roles when lgu_type_id changes
     useEffect(() => {
         if (formData.lgu_type_id) {
             fetchUserRolesByLguType(formData.lgu_type_id);
@@ -85,10 +127,10 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
                 `http://${cfg.domainname}:${cfg.serverport}/location/region`,
                 { withCredentials: true }
             );
-            setAllRegion(response.data || []); // Ensure it's always an array
+            setAllRegion(response.data || []);
         } catch (error) {
             console.error("Error fetching regions:", error);
-            setAllRegion([]); // Fallback to empty array
+            setAllRegion([]);
         }
     };
 
@@ -98,10 +140,10 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
                 `http://${cfg.domainname}:${cfg.serverport}/location/provinces/${selectedRegion}`,
                 { withCredentials: true }
             );
-            setAllProvinces(response.data || []); // Ensure it's always an array
+            setAllProvinces(response.data || []);
         } catch (error) {
             console.error("Error fetching provinces:", error);
-            setAllProvinces([]); // Fallback to empty array
+            setAllProvinces([]);
         }
     };
 
@@ -111,10 +153,10 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
                 `http://${cfg.domainname}:${cfg.serverport}/location/cities/${selectedProvince}`,
                 { withCredentials: true }
             );
-            setAllCities(response.data || []); // Ensure it's always an array
+            setAllCities(response.data || []);
         } catch (error) {
             console.error("Error fetching cities:", error);
-            setAllCities([]); // Fallback to empty array
+            setAllCities([]);
         }
     };
 
@@ -124,10 +166,10 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
                 `http://${cfg.domainname}:${cfg.serverport}/location/barangay/${selectedCity}`,
                 { withCredentials: true }
             );
-            setAllBarangay(response.data || []); // Ensure it's always an array
+            setAllBarangay(response.data || []);
         } catch (error) {
             console.error("Error fetching barangays:", error);
-            setAllBarangay([]); // Fallback to empty array
+            setAllBarangay([]);
         }
     };
 
@@ -138,30 +180,25 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
                 { withCredentials: true }
             );
             setLguTypes(response.data?.data || []);
-            console.log("lgu:", response.data);// Use optional chaining and fallback to empty array
         } catch (error) {
             console.error("Error fetching LGU types:", error);
-            setLguTypes([]); // Fallback to empty array
+            setLguTypes([]);
         }
     };
 
-    // Fetch user roles by lgu_type_id
     const fetchUserRolesByLguType = async (lguTypeId) => {
         try {
             const response = await axios.get(
                 `http://${cfg.domainname}:${cfg.serverport}/user/get-user-role/${lguTypeId}`,
                 { withCredentials: true }
             );
-            // Make sure to access the data property of the response
             setUserRoles(response.data?.data || []);
-            // Reset role_id when LGU type changes
             setFormData(prev => ({ ...prev, role_id: "" }));
         } catch (error) {
             console.error("Error fetching user roles:", error);
             setUserRoles([]);
         }
     };
-
 
     const handleRegionChange = (e) => {
         const regionId = e.target.value;
@@ -229,28 +266,26 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
         setResidentAddress(`${resident.address || ""} ${resident.purok}, ${resident.barangay}`);
         setResidentContact(resident.contact_number || "");
         setSelectResidentModal(false);
-        setSelectedUserBarangayId(resident.barangay_id)
+        setSelectedUserBarangayId(resident.barangay_id);
 
-        const fullName = `${resident.first_name} ${resident.last_name}`
+        const fullName = `${resident.first_name} ${resident.last_name}`;
         setFormData(prev => ({
             ...prev,
             resident_id: resident.resident_id,
             resident_name: fullName
-        }))
-        console.log(resident);
-    }
+        }));
+    };
 
-    
     const handleCloseReporterModal = () => {
         setSelectResidentModal(false);
-    }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         const payload = {
             barangay_id: selectedUserBarangayId,
-            city_id: formData.city_id, // Include other form data if needed
+            city_id: formData.city_id,
             province_id: formData.province_id,
             user: formData.user,
             password: formData.password,
@@ -268,7 +303,7 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
             );
             if (response.status === 201) {
                 onSubmit();
-                console.log("User Added Succesfully");
+                console.log("User Added Successfully");
             }
         } catch (error) {
             console.error("Error adding user:", error);
@@ -276,132 +311,141 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
         }
     };
 
+    // Determine the fetchUrl for resident search
+    const residentFetchUrl = isCbsAdmin
+        ? `http://${cfg.domainname}:${cfg.serverport}/residents/${selectedBarangay}`
+        : `http://${cfg.domainname}:${cfg.serverport}/residents/${authBarangayId}`;
 
     if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-lg p-6 w-full max-w-xl">
-                
-                    <div className='leading-3 mb-6'>
-                        <h2 className="text-lg font-bold text-gray-500">Add New User</h2>
-                        <p className="text-xs text-gray-400">Fill in the form below to create a new user account with appropriate details.</p>
-                    </div>
-                
+                <div className='leading-3 mb-6'>
+                    <h2 className="text-lg font-bold text-gray-500">Add New User</h2>
+                    <p className="text-xs text-gray-400">Fill in the form below to create a new user account with appropriate details.</p>
+                </div>
+
+                {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+
                 <form onSubmit={handleSubmit}>
                     <div className="space-y-4">
+                        {/* Location fields - only show for cbsadmin */}
                         {isCbsAdmin && (
-                        <>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className='flex-1'>
-                                    <label className="block mb-2 text-sm font-medium text-gray-500">
-                                        Region<span className="text-red-600">*</span>
-                                    </label>
-                                    <select
-                                        value={selectedRegion}
-                                        onChange={handleRegionChange}
-                                        className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
-                                        required
-                                    >
-                                        <option value="">Select Region</option>
-                                        {allRegion.map(region => (
-                                            <option key={region.iid} value={region.iid}>
-                                                {region.iname}
-                                            </option>
-                                        ))}
-                                    </select>
+                            <>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className='flex-1'>
+                                        <label className="block mb-2 text-sm font-medium text-gray-500">
+                                            Region<span className="text-red-600">*</span>
+                                        </label>
+                                        <select
+                                            value={selectedRegion}
+                                            onChange={handleRegionChange}
+                                            className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                                            required
+                                        >
+                                            <option value="">Select Region</option>
+                                            {allRegion.map(region => (
+                                                <option key={region.iid} value={region.iid}>
+                                                    {region.iname}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div className='flex-1'>
+                                        <label className="block mb-2 text-sm font-medium text-gray-500">
+                                            Province<span className="text-red-600">*</span>
+                                        </label>
+                                        <select
+                                            value={selectedProvince}
+                                            onChange={handleProvinceChange}
+                                            className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                                            disabled={!selectedRegion}
+                                            required
+                                        >
+                                            <option value="">Select Province</option>
+                                            {allProvinces.map(province => (
+                                                <option key={province.iid} value={province.iid}>
+                                                    {province.iname}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
 
-                                <div className='flex-1'>
-                                    <label className="block mb-2 text-sm font-medium text-gray-500">
-                                        Province<span className="text-red-600">*</span>
-                                    </label>
-                                    <select
-                                        value={selectedProvince}
-                                        onChange={handleProvinceChange}
-                                        className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
-                                        disabled={!selectedRegion}
-                                        required
-                                    >
-                                        <option value="">Select Province</option>
-                                        {allProvinces.map(province => (
-                                            <option key={province.iid} value={province.iid}>
-                                                {province.iname}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className='flex-1'>
+                                        <label className="block mb-2 text-sm font-medium text-gray-500">
+                                            City<span className="text-red-600">*</span>
+                                        </label>
+                                        <select
+                                            value={selectedCity}
+                                            onChange={handleCityChange}
+                                            className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                                            disabled={!selectedProvince}
+                                            required
+                                        >
+                                            <option value="">Select City</option>
+                                            {allCities.map(city => (
+                                                <option key={city.iid} value={city.iid}>
+                                                    {city.iname}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className='flex-1'>
-                                    <label className="block mb-2 text-sm font-medium text-gray-500">
-                                        City<span className="text-red-600">*</span>
-                                    </label>
-                                    <select
-                                        value={selectedCity}
-                                        onChange={handleCityChange}
-                                        className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
-                                        disabled={!selectedProvince}
-                                        required
-                                    >
-                                        <option value="">Select City</option>
-                                        {allCities.map(city => (
-                                            <option key={city.iid} value={city.iid}>
-                                                {city.iname}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    <div className='flex-1'>
+                                        <label className="block mb-2 text-sm font-medium text-gray-500">
+                                            Barangay<span className="text-red-600">*</span>
+                                        </label>
+                                        <select
+                                            value={selectedBarangay}
+                                            onChange={handleBarangayChange}
+                                            className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                                            disabled={!selectedCity}
+                                            required
+                                        >
+                                            <option value="">Select Barangay</option>
+                                            {allBarangay.map(barangay => (
+                                                <option key={barangay.iid} value={barangay.iid}>
+                                                    {barangay.iname}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
-
-                                <div className='flex-1'>
-                                    <label className="block mb-2 text-sm font-medium text-gray-500">
-                                        Barangay<span className="text-red-600">*</span>
-                                    </label>
-                                    <select
-                                        value={selectedBarangay}
-                                        onChange={handleBarangayChange}
-                                        className="text-sm border border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
-                                        disabled={!selectedCity}
-                                        required
-                                    >
-                                        <option value="">Select Barangay</option>
-                                        {allBarangay.map(barangay => (
-                                            <option key={barangay.iid} value={barangay.iid}>
-                                                {barangay.iname}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-                        </>
+                            </>
                         )}
+
                         <div className="grid grid-cols-2 gap-4">
                             <div className='flex-1'>
                                 <label className="block mb-2 text-sm font-medium text-gray-500">
                                     Resident<span className="text-red-600">*</span>
                                 </label>
-                                <div className="relative rounded-md ">
-                                    <input type="text" name="resident_name" placeholder="Select Resident" className="text-sm border h-full border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500" value={formData.resident_name} onChange={handleInputChange} />
-                                    <div className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md" onClick={() => setSelectResidentModal(true)}>
+                                <div className="relative rounded-md">
+                                    <input
+                                        type="text"
+                                        name="resident_name"
+                                        placeholder="Select Resident"
+                                        className="text-sm border h-full border-gray-300 p-2 w-full text-gray-500 focus:outline-none rounded-md focus:ring-2 focus:ring-blue-500"
+                                        value={formData.resident_name}
+                                        onChange={handleInputChange}
+                                    />
+                                    <div
+                                        className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md"
+                                        onClick={() => setSelectResidentModal(true)}
+                                    >
                                         <IoSearch className="w-5 h-5 text-white" />
                                     </div>
-                                    <SearchModal
-                                        title="Select Resident"
-                                        isOpen={selectResidentModal}
-                                        onClose={() => {
-                                            setSelectResidentModal(false)
-                                        }}
-                                        onSelect={(resident) => (resident)}
-                                    />
-                                    
+
                                     <SearchModalDynamic
                                         isOpen={selectResidentModal}
-                                        title="Select a reporter"
+                                        title="Select a Resident"
                                         onClose={() => handleCloseReporterModal()}
                                         onSelect={(resident) => handleSelectResident(resident)}
                                         options={{
-                                            fetchUrl: `http://${cfg.domainname}:${cfg.serverport}/residents/` + selectedBarangay,
+                                            fetchUrl: residentFetchUrl,
                                             filterFunction: (user, searchTerm) =>
                                                 `${user.first_name} ${user.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()),
                                             renderItem: (user) => (

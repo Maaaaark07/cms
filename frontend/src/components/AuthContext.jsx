@@ -7,24 +7,23 @@ export const AuthProvider = ({ children }) => {
     const [barangayId, setBarangayId] = useState(null);
     const [cityId, setCityId] = useState(null);
     const [provinceId, setProvinceId] = useState(null);
+    const [regionId, setRegionId] = useState(null);
     const [lguId, setLguId] = useState(null);
     const [roleId, setRoleId] = useState(null);
 
-    // Load encrypted data from localStorage on component mount
     useEffect(() => {
         const loadEncryptedData = () => {
             const storedBarangayId = localStorage.getItem('barangayId');
             const storedCityId = localStorage.getItem('cityId');
             const storedProvinceId = localStorage.getItem('provinceId');
+            const storedRegionId = localStorage.getItem('regionId');
             const storedLguId = localStorage.getItem('lguId');
             const storedRoleId = localStorage.getItem('roleId');
 
             if (storedBarangayId) {
                 try {
-                    const decryptedBarangayId = decryptId(storedBarangayId);
-                    if (decryptedBarangayId) {
-                        setBarangayId(decryptedBarangayId);
-                    }
+                    const decrypted = decryptId(storedBarangayId);
+                    if (decrypted) setBarangayId(decrypted);
                 } catch (error) {
                     console.error('Error loading barangay ID:', error);
                     alert('Failed to load your session data. Please log in again.');
@@ -33,46 +32,48 @@ export const AuthProvider = ({ children }) => {
 
             if (storedCityId) {
                 try {
-                    const decryptedCityId = decryptId(storedCityId);
-                    if (decryptedCityId) {
-                        setCityId(decryptedCityId);
-                    }
+                    const decrypted = decryptId(storedCityId);
+                    if (decrypted) setCityId(decrypted);
                 } catch (error) {
                     console.error('Error loading city ID:', error);
                     alert('Failed to load your session data. Please log in again.');
                 }
             }
 
-            if (storedLguId) {
-                try {
-                    const decryptedLguId = decryptId(storedLguId);
-                    if (decryptedLguId) {
-                        setLguId(decryptedLguId);
-                    }
-                } catch (error) {
-                    console.error('Error loading lgu ID:', error);
-                    alert('Failed to load your session data. Please log in again.');
-                }
-            }
-
             if (storedProvinceId) {
                 try {
-                    const decryptedProvinceId = decryptId(storedProvinceId);
-                    if (decryptedProvinceId) {
-                        setProvinceId(decryptedProvinceId);
-                    }
+                    const decrypted = decryptId(storedProvinceId);
+                    if (decrypted) setProvinceId(decrypted);
                 } catch (error) {
                     console.error('Error loading province ID:', error);
                     alert('Failed to load your session data. Please log in again.');
                 }
             }
 
+            if (storedRegionId) {
+                try {
+                    const decrypted = decryptId(storedRegionId);
+                    if (decrypted) setRegionId(decrypted);
+                } catch (error) {
+                    console.error('Error loading region ID:', error);
+                    alert('Failed to load your session data. Please log in again.');
+                }
+            }
+
+            if (storedLguId) {
+                try {
+                    const decrypted = decryptId(storedLguId);
+                    if (decrypted) setLguId(decrypted);
+                } catch (error) {
+                    console.error('Error loading lgu ID:', error);
+                    alert('Failed to load your session data. Please log in again.');
+                }
+            }
+
             if (storedRoleId) {
                 try {
-                    const decryptedRoleId = decryptId(storedRoleId);
-                    if (decryptedRoleId) {
-                        setRoleId(decryptedRoleId);
-                    }
+                    const decrypted = decryptId(storedRoleId);
+                    if (decrypted) setRoleId(decrypted);
                 } catch (error) {
                     console.error('Error loading role ID:', error);
                     alert('Failed to load your session data. Please log in again.');
@@ -86,69 +87,45 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const storeEncryptedData = () => {
             if (barangayId) {
-                try {
-                    const encryptedBarangayId = encryptId(barangayId);
-                    localStorage.setItem('barangayId', encryptedBarangayId);
-                } catch (error) {
-                    console.error('Error storing barangay ID:', error);
-                }
-            } else {
-                localStorage.removeItem('barangayId');
-            }
+                try { localStorage.setItem('barangayId', encryptId(barangayId)); }
+                catch (error) { console.error('Error storing barangay ID:', error); }
+            } else { localStorage.removeItem('barangayId'); }
 
             if (cityId) {
-                try {
-                    const encryptedCityId = encryptId(cityId);
-                    localStorage.setItem('cityId', encryptedCityId);
-                } catch (error) {
-                    console.error('Error storing city ID:', error);
-                }
-            } else {
-                localStorage.removeItem('cityId');
-            }
+                try { localStorage.setItem('cityId', encryptId(cityId)); }
+                catch (error) { console.error('Error storing city ID:', error); }
+            } else { localStorage.removeItem('cityId'); }
 
             if (provinceId) {
-                try {
-                    const encryptedProvinceId = encryptId(provinceId);
-                    localStorage.setItem('provinceId', encryptedProvinceId);
-                } catch (error) {
-                    console.error('Error storing province ID:', error);
-                }
-            } else {
-                localStorage.removeItem('provinceId');
-            }
+                try { localStorage.setItem('provinceId', encryptId(provinceId)); }
+                catch (error) { console.error('Error storing province ID:', error); }
+            } else { localStorage.removeItem('provinceId'); }
+
+            if (regionId) {
+                try { localStorage.setItem('regionId', encryptId(regionId)); }
+                catch (error) { console.error('Error storing region ID:', error); }
+            } else { localStorage.removeItem('regionId'); }
 
             if (lguId) {
-                try {
-                    const encryptedlguId = encryptId(lguId);
-                    localStorage.setItem('lguId', encryptedlguId);
-                } catch (error) {
-                    console.error('Error storing lgu ID:', error);
-                }
-            } else {
-                localStorage.removeItem('lguId');
-            }
+                try { localStorage.setItem('lguId', encryptId(lguId)); }
+                catch (error) { console.error('Error storing lgu ID:', error); }
+            } else { localStorage.removeItem('lguId'); }
 
             if (roleId) {
-                try {
-                    const encryptedRoleId = encryptId(roleId);
-                    localStorage.setItem('roleId', encryptedRoleId);
-                } catch (error) {
-                    console.error('Error storing role ID:', error);
-                }
-            } else {
-                localStorage.removeItem('roleId');
-            }
+                try { localStorage.setItem('roleId', encryptId(roleId)); }
+                catch (error) { console.error('Error storing role ID:', error); }
+            } else { localStorage.removeItem('roleId'); }
         };
 
         storeEncryptedData();
-    }, [barangayId, cityId, provinceId, lguId, roleId]);
+    }, [barangayId, cityId, provinceId, regionId, lguId, roleId]);
 
     return (
         <AuthContext.Provider value={{ 
             barangayId, setBarangayId, 
             cityId, setCityId, 
-            provinceId, setProvinceId, 
+            provinceId, setProvinceId,
+            regionId, setRegionId,
             lguId, setLguId,
             roleId, setRoleId
         }}>

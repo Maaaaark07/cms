@@ -21,18 +21,17 @@ export const register = (req, res) => {
 
 export const login = (req, res) => {
     const { users, password } = req.body;
-    //const sql = "SELECT * FROM cbs_users WHERE user = ?";
     const sql = "CALL getCBSUser(?)";
 
     db.query(sql, [users], (err, data) => {
         if (err) return res.status(500).json({ Error: "Database error" });
 
         if (data[0].length > 0) {
+            console.log("DB user data:", data[0][0]); // CHECK region_id in terminal
             bcrypt.compare(password.toString(), data[0][0].password, (err, result) => {
                 if (err) return res.status(500).json({ Error: "Password Compare Error" });
                 if (result) {
                     const token = jwt.sign(
-                        //{ user: data[0][0].user, user_id: data[0][0].id, role: data[0][0].role, barangay_id: data[0][0].barangay_id },
                         { user_data: data[0][0] },
                         "jwt-secret-key",
                         { expiresIn: '1d' }
@@ -44,7 +43,16 @@ export const login = (req, res) => {
                         sameSite: 'Lax',
                         path: '/',
                     });
-                    return res.json({ Status: "Success", BarangayId: data[0][0].barangay_id, CityId: data[0][0].city_id, ProvinceId: data[0][0].province_id, LguId: data[0][0].lgu_type_id, RoleId: data[0][0].role_id  });
+
+                    return res.json({
+                        Status: "Success",
+                        BarangayId: data[0][0].barangay_id,
+                        CityId: data[0][0].city_id,
+                        ProvinceId: data[0][0].province_id,
+                        LguId: data[0][0].lgu_type_id,
+                        RoleId: data[0][0].role_id,
+                        RegionId: data[0][0].region_id  // ADDED
+                    });
                 }
                 return res.json({ Error: "Invalid password" });
             });
@@ -60,7 +68,7 @@ export const logout = (req, res) => {
 };
 
 export const getHome = (req, res) => {
-    console.log("user",req.user_data);
+    console.log("user", req.user_data);
     return res.json({
         Status: 'Success',
         user: req.user_data.user,

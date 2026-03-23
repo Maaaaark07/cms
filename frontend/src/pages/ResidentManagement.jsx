@@ -9,7 +9,7 @@ import Pagination from '../components/Pagination';
 import Search from '../components/Search';
 import ActionModal from '../components/ActionModal';
 import SuccessMessage from '../components/SuccessMessage';
-import ViewResidentModal from '../components/ViewResidentModal';
+import ViewResidentPage from '../components/ViewResidentPage.jsx';
 import cfg from '../../../server/config/domain.js';
 
 import { RxAvatar } from "react-icons/rx";
@@ -31,14 +31,13 @@ const ResidentManagement = () => {
     const [currentResident, setCurrentResident] = useState(null);
     const [deleteSuccess, setDeleteSuccess] = useState(false);
     const [success, setSuccess] = useState(false);
-    const [updateSuccess, setupdatedSuccess] = useState(false)
-    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [updateSuccess, setupdatedSuccess] = useState(false);
+    const [isViewPageOpen, setIsViewPageOpen] = useState(false);
     const [successMessageText, setSuccessMessageText] = useState('');
     const navigate = useNavigate();
     const { barangayId } = useAuth();
     const location = useLocation();
     const { setSuccessMessage } = location.state || {};
-
 
     useEffect(() => {
         fetchResidents();
@@ -71,18 +70,17 @@ const ResidentManagement = () => {
 
     const handleAddResidentClick = () => {
         navigate('/resident-management/add-resident');
-    }
+    };
 
     const handleViewClick = (resident) => {
         setCurrentResident(resident);
-        setIsViewModalOpen(true);
+        setIsViewPageOpen(true);
     };
 
     const handleEditClick = (resident) => {
         setCurrentResident(resident);
         navigate('/resident-management/edit-resident', { state: { residentData: resident } });
-        console.log(resident);
-    }
+    };
 
     const fetchTotalResidentCount = async () => {
         try {
@@ -92,7 +90,6 @@ const ResidentManagement = () => {
             console.error("Error fetching residents count:", error);
         }
     };
-
 
     const deleteResident = async (residentId) => {
         try {
@@ -106,7 +103,6 @@ const ResidentManagement = () => {
     };
 
     const handleDeleteClick = (residentId) => {
-        console.log(residentId)
         setResidentToDelete(residentId);
         setActionType('delete');
         setIsModalOpen(true);
@@ -114,7 +110,6 @@ const ResidentManagement = () => {
 
     const handleModalConfirm = async () => {
         if (actionType === 'delete' && residentToDelete) {
-            console.log(residentToDelete);
             await deleteResident(residentToDelete);
             setIsModalOpen(false);
             setResidentToDelete(null);
@@ -154,6 +149,19 @@ const ResidentManagement = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const displayedResidents = filteredResidents.slice(startIndex, startIndex + itemsPerPage);
 
+    // Show ViewResidentPage instead of the list
+    if (isViewPageOpen) {
+        return (
+            <ViewResidentPage
+                residentData={currentResident}
+                onClose={() => {
+                    setIsViewPageOpen(false);
+                    setCurrentResident(null);
+                }}
+            />
+        );
+    }
+
     return (
         <div className="flex flex-col h-screen">
             <Header />
@@ -171,7 +179,10 @@ const ResidentManagement = () => {
                                 />
                             </div>
                             <div>
-                                <button className='bg-blue-600 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full' onClick={handleAddResidentClick}>
+                                <button
+                                    className='bg-blue-600 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full'
+                                    onClick={handleAddResidentClick}
+                                >
                                     <IoPersonAddOutline className='w-4 h-4 text-white font-bold' />
                                     Add Resident
                                 </button>
@@ -244,10 +255,12 @@ const ResidentManagement = () => {
                                                 >
                                                     <GrEdit className='w-5 h-5 text-gray-500' />
                                                 </div>
-                                                <div className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'
+                                                <div
+                                                    className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'
                                                     onClick={() => handleViewClick(resident)}
                                                 >
-                                                    <FaRegEye className='w-5 h-5 text-gray-500' /></div>
+                                                    <FaRegEye className='w-5 h-5 text-gray-500' />
+                                                </div>
                                                 <div
                                                     className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer'
                                                     onClick={() => handleDeleteClick(resident.resident_id)}
@@ -256,15 +269,13 @@ const ResidentManagement = () => {
                                                 </div>
                                             </td>
                                         </tr>
-                                    )) :
-                                        (
-                                            <tr>
-                                                <td colSpan="6" className="p-4 text-center text-sm text-gray-500">
-                                                    No Data Available.
-                                                </td>
-                                            </tr>
-                                        )
-                                    }
+                                    )) : (
+                                        <tr>
+                                            <td colSpan="6" className="p-4 text-center text-sm text-gray-500">
+                                                No Data Available.
+                                            </td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>
@@ -280,11 +291,6 @@ const ResidentManagement = () => {
                             onClose={() => setIsModalOpen(false)}
                             onConfirm={handleModalConfirm}
                             actionType={actionType}
-                        />
-                        <ViewResidentModal
-                            isOpen={isViewModalOpen}
-                            onClose={() => setIsViewModalOpen(false)}
-                            residentData={currentResident}
                         />
                         <SuccessMessage
                             message={successMessageText}
