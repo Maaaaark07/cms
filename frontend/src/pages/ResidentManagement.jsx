@@ -17,6 +17,7 @@ import { GrEdit } from "react-icons/gr";
 import { FaRegEye, FaRegTrashAlt } from "react-icons/fa";
 import { IoFingerPrint } from 'react-icons/io5';
 import { IoPersonAddOutline } from "react-icons/io5";
+import { MdOutlineFileUpload } from "react-icons/md";
 import { useAuth } from '../components/AuthContext';
 
 const ResidentManagement = () => {
@@ -178,7 +179,14 @@ const ResidentManagement = () => {
                                     onSearchChange={handleSearchChange}
                                 />
                             </div>
-                            <div>
+                            <div className='flex gap-3'>
+                                <button
+                                    className='bg-blue-600 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full'
+                                    
+                                >
+                                    <MdOutlineFileUpload  className='w-5 h-5 text-white font-bold' />
+                                    Upload File
+                                </button>
                                 <button
                                     className='bg-blue-600 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full'
                                     onClick={handleAddResidentClick}
