@@ -18,7 +18,7 @@ const Login = () => {
     });
 
     const navigate = useNavigate();
-    const { setBarangayId, setCityId, setProvinceId, setLguId, setRoleId, setRegionId } = useAuth();
+    const { setBarangayId, setCityId, setProvinceId, setLguId, setRoleId, setRegionId, refreshAccessPages } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -43,6 +43,7 @@ const Login = () => {
                 setLguId(response.data.LguId);
                 setRoleId(response.data.RoleId);
                 setRegionId(response.data.RegionId);
+                await refreshAccessPages();
                 console.log(response.data);
 
                 navigate('/home');
@@ -52,7 +53,7 @@ const Login = () => {
                 setTimeout(() => setError(""), 3000);
             }
         } catch (err) {
-            setError("An error occurred. Please try again.");
+            setError(err.response?.data?.Error || "An error occurred. Please try again.");
             setValues({ users: '', password: '' });
             setTimeout(() => setError(""), 3000);
             console.error(err);

@@ -244,7 +244,7 @@ export const deleteCbsOfficial = async (req, res) => {
             });
         });
 
-        if (result.affectedRows > 0) {
+        if (result) {
             res.status(200).json({ message: "Official deleted successfully" });
         } else {
             res.status(404).json({ error: "Official not found or already deleted" });

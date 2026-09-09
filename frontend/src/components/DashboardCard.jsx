@@ -11,7 +11,7 @@ const DashboardCard = () => {
     const [registeredVoters, setRegisteredVoters] = useState(0);
     const [residentCount, setResidentCount] = useState(0);
     const [householdCount, setHouseholdCount] = useState(0); // Placeholder value
-    const [pwdCount, setPwdCount] = useState(5682); // Placeholder value
+    const [pwdCount, setPwdCount] = useState(0);
 
     const [displayedVoters, setDisplayedVoters] = useState(0);
     const [displayedResidents, setDisplayedResidents] = useState(0);
@@ -25,15 +25,16 @@ const DashboardCard = () => {
 
     const { barangayId } = useAuth();
 
-    const API_URLS = {
-        registeredVoters: `http://${cfg.domainname}:${cfg.serverport}/stats/registered-voters/` + barangayId,
-        residentCount: `http://${cfg.domainname}:${cfg.serverport}/stats/count/` + barangayId,
-        householdCount: `http://${cfg.domainname}:${cfg.serverport}/stats/household/` + barangayId,
-        pwdCount: `http://${cfg.domainname}:${cfg.serverport}/stats/pwd/` + barangayId,
-    };
-
-
     const fetchData = async () => {
+        if (!barangayId) return;
+
+        const API_URLS = {
+            registeredVoters: `http://${cfg.domainname}:${cfg.serverport}/stats/registered-voters/` + barangayId,
+            residentCount: `http://${cfg.domainname}:${cfg.serverport}/stats/count/` + barangayId,
+            householdCount: `http://${cfg.domainname}:${cfg.serverport}/stats/household/` + barangayId,
+            pwdCount: `http://${cfg.domainname}:${cfg.serverport}/stats/pwd/` + barangayId,
+        };
+
         try {
             const [votersResponse, residentsResponse, householdResponse, pwdResponse] = await Promise.all([
                 fetch(API_URLS.registeredVoters, { credentials: 'include' }),
@@ -52,7 +53,7 @@ const DashboardCard = () => {
             if (residentsResponse.ok) {
                 const residentsData = await residentsResponse.json();
                 console.log('Residents Response:', residentsData);
-                setResidentCount(residentsData.NumberOfResidents);
+                setResidentCount(residentsData.NumberOfResidents ?? residentsData.count ?? 0);
             } else {
                 const errorData = await residentsResponse.json();
                 console.error('Full error response:', errorData);
@@ -153,7 +154,7 @@ const DashboardCard = () => {
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [barangayId]);
 
     return (
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 md:gap-x-6 md:gap-y-0'>

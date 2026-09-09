@@ -15,11 +15,13 @@ const Register = () => {
         e.preventDefault();
         axios.post(`http://${cfg.domainname}:${cfg.serverport}/register`, values)
             .then(res => {
-                console.log(res);
+                if (res.data?.Error) {
+                    console.log(res.data.Error);
+                    return;
+                }
                 setValues({ users: '', password: '' });
                 navigate('/');
             })
-            .then(err => console.log(err))
             .catch(err => console.log(err));
     }
 

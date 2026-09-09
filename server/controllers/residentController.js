@@ -1,4 +1,10 @@
-import db from '../config/database.js';
+import db, { queryAsync } from '../config/database.js';
+
+const toBit = (value) => {
+    return value === true || value === 1 || value === '1' || value === 'true' || value === 'yes'
+        ? 1
+        : 0;
+};
 
 export const getAllResidents = async (req, res) => {
     const { id } = req.params;
@@ -22,6 +28,43 @@ export const getAllResidents = async (req, res) => {
             details: error.message,
         });
     }
+};
+
+const toNullableInt = (value) => {
+    if (value === undefined || value === null || value === '') return null;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+};
+
+const toDateOnly = (value) => {
+    if (!value) return null;
+    const raw = String(value);
+    const match = raw.match(/^(\d{4}-\d{2}-\d{2})/);
+    if (match) return match[1];
+    const date = new Date(raw);
+    if (Number.isNaN(date.getTime())) return null;
+    return date.toISOString().split('T')[0];
+};
+
+const requiredText = (value, fallback = '') => {
+    const text = value === undefined || value === null ? '' : String(value).trim();
+    return text || fallback;
+};
+
+let parentColumnsReady = false;
+
+const ensureParentNameColumns = async () => {
+    if (parentColumnsReady) return;
+    const addColumn = async (column, definition) => {
+        try {
+            await queryAsync(`ALTER TABLE cbs_residents ADD COLUMN ${column} ${definition}`);
+        } catch (error) {
+            if (error.code !== 'ER_DUP_FIELDNAME') throw error;
+        }
+    };
+    await addColumn('father_name', 'VARCHAR(150) NULL');
+    await addColumn('mother_name', 'VARCHAR(150) NULL');
+    parentColumnsReady = true;
 };
 
 export const addResident = async (req, res) => {
@@ -56,53 +99,108 @@ export const addResident = async (req, res) => {
             VoterIDNumber,
             IsJuanBataanMember,
             JuanBataanID,
+            FatherName,
+            MotherName,
         } = req.body;
 
-        // Get the profile image filename
+        const firstName = requiredText(FirstName);
+        const lastName = requiredText(LastName);
+        const gender = requiredText(Gender);
+        const address = requiredText(Address);
+        const birthdayDate = toDateOnly(birthday);
+        const regionId = toNullableInt(Region_ID);
+        const provinceId = toNullableInt(Province_ID);
+        const cityId = toNullableInt(City_ID);
+        const barangayId = toNullableInt(Barangay_ID);
+
+        if (!firstName || !lastName || !birthdayDate || !gender || !address || !barangayId) {
+            return res.status(400).json({
+                message: 'First name, last name, birthday, gender, address, and barangay are required.',
+            });
+        }
+
+        if (!regionId || !provinceId || !cityId) {
+            return res.status(400).json({
+                message: 'Region, province, and city are required to add a resident.',
+            });
+        }
+
         const profileImage = req.file ? `/uploads/user_profile/${req.file.filename}` : null;
-
-        // Correct SQL query with proper parameter count (31 total)
+        await ensureParentNameColumns();
         const sql = `CALL AddResident(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-
-        // Matching values with procedure parameters
         const values = [
-            FirstName,
-            LastName,
-            MiddleName || null,
-            Suffix || null,
-            birthday ? new Date(birthday).toISOString().split('T')[0] : null,
-            BirthPlace || null,
-            Occupation || null,
-            CivilStatus || null,
-            Gender,
-            Address,
-            Region_ID || null,
-            Province_ID || null,
-            City_ID || null,
-            Barangay_ID || null,
-            Purok_ID || null,
-            IsLocalResident ? 1 : 0,
-            ResidentType || null,
-            ContactNumber,
-            Email || null,
-            IsSoloParent ? 1 : 0,
-            SoloParentID || null,
-            IsPWD ? 1 : 0,
-            PWDID || null,
-            IsHouseholdHead ? 1 : 0,
-            HouseholdID || null,
-            IsRegisteredVoter ? 1 : 0,
-            VoterIDNumber || null,
-            IsJuanBataanMember ? 1 : 0,
-            JuanBataanID || null,
-            profileImage, // Ensure this is properly passed
+            firstName,
+            lastName,
+            requiredText(MiddleName) || null,
+            requiredText(Suffix) || null,
+            birthdayDate,
+            requiredText(BirthPlace, 'N/A'),
+            requiredText(Occupation) || null,
+            requiredText(CivilStatus, 'Single'),
+            gender,
+            address,
+            regionId,
+            provinceId,
+            cityId,
+            barangayId,
+            toNullableInt(Purok_ID),
+            toBit(IsLocalResident),
+            requiredText(ResidentType) || null,
+            requiredText(ContactNumber) || null,
+            requiredText(Email) || null,
+            toBit(IsSoloParent),
+            requiredText(SoloParentID) || null,
+            toBit(IsPWD),
+            requiredText(PWDID) || null,
+            toBit(IsHouseholdHead),
+            requiredText(HouseholdID) || null,
+            toBit(IsRegisteredVoter),
+            requiredText(VoterIDNumber) || null,
+            toBit(IsJuanBataanMember),
+            requiredText(JuanBataanID) || null,
+            profileImage,
         ];
 
-        const result = await db.query(sql, values);
+        const result = await queryAsync(sql, values);
+        const spMessage = result?.[0]?.[0]?.message || '';
+
+        const insertedRows = await queryAsync(
+            `SELECT * FROM cbs_residents
+             WHERE first_name = ? AND last_name = ? AND barangay_id = ?
+             ORDER BY resident_id DESC
+             LIMIT 1`,
+            [firstName, lastName, barangayId]
+        );
+        const resident = insertedRows[0] || null;
+        const duplicateMessage = String(spMessage).toLowerCase().includes('already a resident');
+
+        if (duplicateMessage) {
+            return res.status(409).json({
+                message: spMessage || 'A resident with similar details already exists.',
+            });
+        }
+
+        if (!resident) {
+            return res.status(500).json({
+                message: spMessage || 'Resident could not be saved. Please try again.',
+            });
+        }
+
+        const fatherName = requiredText(FatherName) || null;
+        const motherName = requiredText(MotherName) || null;
+        await queryAsync(
+            `UPDATE cbs_residents
+             SET father_name = ?, mother_name = ?
+             WHERE resident_id = ?`,
+            [fatherName, motherName, resident.resident_id]
+        );
+        resident.father_name = fatherName;
+        resident.mother_name = motherName;
 
         res.status(201).json({
             message: 'Resident added successfully',
-            residentId: result[0]?.[0]?.resident_id || result.insertId,
+            residentId: resident.resident_id,
+            resident,
         });
     } catch (error) {
         console.error("Complete Error Object:", error);
@@ -112,7 +210,7 @@ export const addResident = async (req, res) => {
 
         if (error.code === 'ER_DUP_ENTRY' ||
             error.sqlState === '45000' ||
-            error.message.includes('already exists')) {
+            (error.message && error.message.includes('already exists'))) {
             return res.status(409).json({
                 message: 'A resident with similar details already exists',
             });
@@ -134,6 +232,7 @@ export const updateResident = async (req, res) => {
         contact_number, email, is_solo_parent, solo_parent_id, is_pwd,
         pwd_id, is_household_head, household_id, is_registered_voter,
         voter_id_number, is_juan_bataan_member, juan_bataan_id,
+        father_name, mother_name, FatherName, MotherName,
     } = req.body;
 
     if (!residentId || !first_name || !last_name || !address || !contact_number) {
@@ -164,19 +263,19 @@ export const updateResident = async (req, res) => {
             city_id || null,
             barangay_id || null,
             purok_id || null,
-            is_local_resident ? 1 : 0,
+            toBit(is_local_resident),
             resident_type || null,
             contact_number,
             email || null,
-            is_solo_parent ? 1 : 0,
+            toBit(is_solo_parent),
             solo_parent_id || null,
-            is_pwd ? 1 : 0,
+            toBit(is_pwd),
             pwd_id || null,
-            is_household_head ? 1 : 0,
+            toBit(is_household_head),
             household_id || null,
-            is_registered_voter ? 1 : 0,
+            toBit(is_registered_voter),
             voter_id_number || null,
-            is_juan_bataan_member ? 1 : 0,
+            toBit(is_juan_bataan_member),
             juan_bataan_id || null,
             profileImage || null
         ];
@@ -194,6 +293,18 @@ export const updateResident = async (req, res) => {
                 message: 'Resident not found or no changes made' 
             });
         }
+
+        await ensureParentNameColumns();
+        await queryAsync(
+            `UPDATE cbs_residents
+             SET father_name = ?, mother_name = ?
+             WHERE resident_id = ?`,
+            [
+                requiredText(father_name || FatherName) || null,
+                requiredText(mother_name || MotherName) || null,
+                residentId,
+            ]
+        );
 
         res.status(200).json({
             message: 'Resident updated successfully',
@@ -213,18 +324,31 @@ export const deleteResident = (req, res) => {
     const residentId = req.params.id;
     const query = 'CALL DeleteResident(?)';
 
-    db.query(query, residentId, (error, results) => {
+    db.query(query, residentId, (error) => {
         if (error) {
             console.error("Error deleting resident:", error);
             return res.status(500).json({ message: 'Error deleting resident' });
         }
 
-        if (results.affectedRows === 0) {
-            return res.status(404).json({ message: 'Resident not found' });
-        }
-
         res.status(200).json({ message: 'Resident deleted successfully' });
     });
+};
+
+export const getResidentById = async (req, res) => {
+    try {
+        await ensureParentNameColumns();
+        const rows = await queryAsync(
+            'SELECT * FROM cbs_residents WHERE resident_id = ? LIMIT 1',
+            [req.params.id]
+        );
+        if (!rows[0]) {
+            return res.status(404).json({ message: 'Resident not found' });
+        }
+        res.json(rows[0]);
+    } catch (error) {
+        console.error('Error fetching resident:', error);
+        res.status(500).json({ message: 'Failed to retrieve resident', error: error.message });
+    }
 };
 
 export const getResidentCount = (req, res) => {

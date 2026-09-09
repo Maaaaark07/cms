@@ -2,21 +2,34 @@ import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { RxDashboard } from 'react-icons/rx';
 import { BsHouseAdd } from 'react-icons/bs';
-import { FaWpforms } from 'react-icons/fa';
+import { FaWpforms, FaNotesMedical } from 'react-icons/fa';
 import { MdOutlineReport } from 'react-icons/md';
 import { LuUsers } from 'react-icons/lu';
-import { HiDocumentReport } from 'react-icons/hi';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { GoDatabase, GoReport } from "react-icons/go";
 import { MdOutlineNotificationImportant } from "react-icons/md";
 import { RiGovernmentLine } from "react-icons/ri";
+import { useAuth } from './AuthContext';
 
-
+const navItems = [
+    { to: '/home', label: 'Dashboard', pageKey: 'home', icon: RxDashboard },
+    { to: '/Resident-Management', label: 'Resident Management', pageKey: 'resident-management', icon: BsHouseAdd },
+    { to: '/health-center', label: 'Health Center', pageKey: 'health-center', icon: FaNotesMedical },
+    { to: '/Application-Request', label: 'Application Request', pageKey: 'application-request', icon: FaWpforms },
+    { to: '/Blotter-Report', label: 'Blotter Report', pageKey: 'blotter-report', icon: MdOutlineReport },
+    { to: '/User-Management', label: 'User Management', pageKey: 'user-management', icon: LuUsers },
+    { to: '/barangay-official', label: 'Barangay Official', pageKey: 'barangay-official', icon: RiGovernmentLine },
+    { to: '/master-data', label: 'Master Data', pageKey: 'master-data', icon: GoDatabase },
+    { to: '/Reports', label: 'Report', pageKey: 'reports', icon: GoReport },
+    { to: '/notification-advisory', label: 'Notification Advisory', pageKey: 'notification-advisory', icon: MdOutlineNotificationImportant, dividerBefore: true },
+];
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(true);
+    const { canAccessPage } = useAuth();
 
     const toggleSidebar = () => setIsOpen(!isOpen);
+    const visibleItems = navItems.filter((item) => canAccessPage(item.pageKey));
 
     return (
         <div className={`relative flex flex-col h-full ${isOpen ? 'w-72 min-w-[300px]' : 'min-w-[70px] w-[70px]'} bg-white text-gray-600 transition-width duration-300 shadow-md`}>
@@ -33,106 +46,25 @@ const Sidebar = () => {
 
             <div className="flex-grow">
                 <ul className="flex flex-col p-4">
-                    <li className="my-2">
-                        <NavLink
-                            to="/home"
-                            className={({ isActive }) =>
-                                `flex items-center p-2 rounded transition-colors duration-200 ${isActive ? 'bg-blue-100 text-blue-500' : 'hover:bg-blue-100 hover:text-blue-500'}`
-                            }
-                        >
-                            <RxDashboard className={`h-6 w-6 ${!isOpen ? 'h-8 w-8' : ''} transition-transform`} />
-                            {isOpen && <span className="ml-3">Dashboard</span>}
-                        </NavLink>
-                    </li>
-                    <li className="my-2">
-                        <NavLink
-                            to="/Resident-Management"
-                            className={({ isActive }) =>
-                                `flex items-center p-2 rounded transition-colors duration-200 ${isActive ? 'bg-blue-100 text-blue-500' : 'hover:bg-blue-100 hover:text-blue-500'}`
-                            }
-                        >
-                            <BsHouseAdd className={`h-6 w-6 ${!isOpen ? 'h-8 w-8' : ''} transition-transform`} />
-                            {isOpen && <span className="ml-3">Resident Management</span>}
-                        </NavLink>
-                    </li>
-                    <li className="my-2">
-                        <NavLink
-                            to="/Application-Request"
-                            className={({ isActive }) =>
-                                `flex items-center p-2 rounded transition-colors duration-200 ${isActive ? 'bg-blue-100 text-blue-500' : 'hover:bg-blue-100 hover:text-blue-500'}`
-                            }
-                        >
-                            <FaWpforms className={`h-6 w-6 ${!isOpen ? 'h-8 w-8' : ''} transition-transform`} />
-                            {isOpen && <span className="ml-3">Application Request</span>}
-                        </NavLink>
-                    </li>
-                    <li className="my-2">
-                        <NavLink
-                            to="/Blotter-Report"
-                            className={({ isActive }) =>
-                                `flex items-center p-2 rounded transition-colors duration-200 ${isActive ? 'bg-blue-100 text-blue-500' : 'hover:bg-blue-100 hover:text-blue-500'}`
-                            }
-                        >
-                            <MdOutlineReport className={`h-6 w-6 ${!isOpen ? 'h-8 w-8' : ''} transition-transform`} />
-                            {isOpen && <span className="ml-3">Blotter Report</span>}
-                        </NavLink>
-                    </li>
-                    <li className="my-2">
-                        <NavLink
-                            to="/User-Management"
-                            className={({ isActive }) =>
-                                `flex items-center p-2 rounded transition-colors duration-200 ${isActive ? 'bg-blue-100 text-blue-500' : 'hover:bg-blue-100 hover:text-blue-500'}`
-                            }
-                        >
-                            <LuUsers className={`h-6 w-6 ${!isOpen ? 'h-8 w-8' : ''} transition-transform`} />
-                            {isOpen && <span className="ml-3">User Management</span>}
-                        </NavLink>
-                    </li>
-                    <li className="my-2">
-                        <NavLink
-                            to="/barangay-official"
-                            className={({ isActive }) =>
-                                `flex items-center p-2 rounded transition-colors duration-200 ${isActive ? 'bg-blue-100 text-blue-500' : 'hover:bg-blue-100 hover:text-blue-500'}`
-                            }
-                        >
-                            <RiGovernmentLine className={`h-6 w-6 ${!isOpen ? 'h-8 w-8' : ''} transition-transform`} />
-                            {isOpen && <span className="ml-3">Barangay Official</span>}
-                        </NavLink>
-                    </li>
-                    <li className="my-2">
-                        <NavLink
-                            to="/master-data"
-                            className={({ isActive }) =>
-                                `flex items-center p-2 rounded transition-colors duration-200 ${isActive ? 'bg-blue-100 text-blue-500' : 'hover:bg-blue-100 hover:text-blue-500'}`
-                            }
-                        >
-                            <GoDatabase className={`h-6 w-6 ${!isOpen ? 'h-8 w-8' : ''} transition-transform`} />
-                            {isOpen && <span className="ml-3">Master Data</span>}
-                        </NavLink>
-                    </li>
-                    <li className="my-2">
-                        <NavLink
-                            to="/Reports"
-                            className={({ isActive }) =>
-                                `flex items-center p-2 rounded transition-colors duration-200 ${isActive ? 'bg-blue-100 text-blue-500' : 'hover:bg-blue-100 hover:text-blue-500'}`
-                            }
-                        >
-                            <GoReport className={`h-6 w-6 ${!isOpen ? 'h-8 w-8' : ''} transition-transform`} />
-                            {isOpen && <span className="ml-3">Report</span>}
-                        </NavLink>
-                    </li>
-                    <hr />
-                    <li className="my-3">
-                        <NavLink
-                            to="/notification-advisory"
-                            className={({ isActive }) =>
-                                `flex items-center p-2 rounded transition-colors duration-200 ${isActive ? 'bg-blue-100 text-blue-500' : 'hover:bg-blue-100 hover:text-blue-500'}`
-                            }
-                        >
-                            <MdOutlineNotificationImportant className={`h-6 w-6 ${!isOpen ? 'h-8 w-8' : ''} transition-transform`} />
-                            {isOpen && <span className="ml-3">Notification Advisory</span>}
-                        </NavLink>
-                    </li>
+                    {visibleItems.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                            <React.Fragment key={item.pageKey}>
+                                {item.dividerBefore && <hr />}
+                                <li className={item.dividerBefore ? 'my-3' : 'my-2'}>
+                                    <NavLink
+                                        to={item.to}
+                                        className={({ isActive }) =>
+                                            `flex items-center p-2 rounded transition-colors duration-200 ${isActive ? 'bg-blue-100 text-blue-500' : 'hover:bg-blue-100 hover:text-blue-500'}`
+                                        }
+                                    >
+                                        <Icon className={`h-6 w-6 ${!isOpen ? 'h-8 w-8' : ''} transition-transform`} />
+                                        {isOpen && <span className="ml-3">{item.label}</span>}
+                                    </NavLink>
+                                </li>
+                            </React.Fragment>
+                        );
+                    })}
                 </ul>
             </div>
 

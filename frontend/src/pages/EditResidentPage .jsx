@@ -20,7 +20,7 @@ const EditResidentPage = ({ }) => {
         is_solo_parent: false, solo_parent_id: '', is_pwd: false, pwd_id: '',
         civil_status: '', occupation: '', is_household_head: false, household_id: '',
         is_registered_voter: false, voter_id_number: '', is_juan_bataan_member: false,
-        juan_bataan_id: '', profile_image: ''
+        juan_bataan_id: '', father_name: '', mother_name: '', profile_image: ''
     });
 
     const [errorMessage, setErrorMessage] = useState('');
@@ -55,6 +55,22 @@ const EditResidentPage = ({ }) => {
             setSelectedBarangay(residentData.barangay_id);
             setSelectedPurok(residentData.purok_id);
             console.log(residentData);
+
+            if (residentData.resident_id) {
+                axios.get(
+                    `http://${cfg.domainname}:${cfg.serverport}/residents/details/${residentData.resident_id}`,
+                    { withCredentials: true }
+                ).then((response) => {
+                    const details = response.data || {};
+                    setFormData((prev) => ({
+                        ...prev,
+                        father_name: details.father_name || prev.father_name || '',
+                        mother_name: details.mother_name || prev.mother_name || '',
+                    }));
+                }).catch((error) => {
+                    console.error('Error fetching resident parent names:', error);
+                });
+            }
         }
     }, [residentData]);
 
@@ -387,7 +403,7 @@ const EditResidentPage = ({ }) => {
 
             // Send the PUT request with FormData containing the image and other form fields
             const response = await axios.put(
-                `http://${cfg.domainname}:${cfg.serverport}/residents/update/${formData.ResidentID}`,
+                `http://${cfg.domainname}:${cfg.serverport}/residents/update/${formData.resident_id}`,
                 formDataWithImage,
                 {
                     headers: {
@@ -539,6 +555,14 @@ const EditResidentPage = ({ }) => {
                                                 <option value="Female">Female</option>
                                                 <option value="Other">Other</option>
                                             </select>
+                                        </div>
+                                        <div>
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">Father's Name</label>
+                                            <input type="text" name="father_name" value={formData.father_name || ''} onChange={handleChange} placeholder="Father's Name" className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div>
+                                        <div>
+                                            <label className="block mb-2 text-sm font-medium text-gray-500">Mother's Name</label>
+                                            <input type="text" name="mother_name" value={formData.mother_name || ''} onChange={handleChange} placeholder="Mother's Name" className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                         </div>
                                         <div className="relative w-full">
                                             <label className="block mb-2 text-sm font-medium text-gray-500">

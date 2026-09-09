@@ -76,6 +76,7 @@ const Home = () => {
     };
 
     useEffect(() => {
+        if (!barangayId) return;
         axios
             .get(`http://${cfg.domainname}:${cfg.serverport}/blotter/${barangayId}`, { withCredentials: true })
             .then((response) => setBlotterData(response.data))
@@ -106,6 +107,7 @@ const Home = () => {
 
     useEffect(() => {
         const fetchPopulationData = async () => {
+            if (!barangayId) return;
             try {
                 const response = await axios.get(
                     `http://${cfg.domainname}:${cfg.serverport}/stats/population/${barangayId}`,

@@ -40,9 +40,12 @@ const ResidentManagement = () => {
     const { setSuccessMessage } = location.state || {};
 
     useEffect(() => {
+        if (!barangayId) return;
         fetchResidents();
         fetchTotalResidentCount();
+    }, [barangayId]);
 
+    useEffect(() => {
         const editSuccessMessage = sessionStorage.getItem('residentEditSuccess');
         const addedSuccessMessage = sessionStorage.getItem('residentAddedSuccess');
 

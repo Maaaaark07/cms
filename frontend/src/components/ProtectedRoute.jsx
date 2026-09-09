@@ -1,19 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import cfg from '../../../server/config/domain.js';
+import { useAuth } from './AuthContext';
+import { pageKeyFromPath } from '../utils/pageAccess';
 
 import Loader from "../components/Loader";
 
 const ProtectedRoute = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(null);
     const [loading, setLoading] = useState(true);
+    const location = useLocation();
+    const { canAccessPage, pagesLoaded, refreshAccessPages } = useAuth();
 
     useEffect(() => {
         axios.get(`http://${cfg.domainname}:${cfg.serverport}/home`, { withCredentials: true })
-            .then((res) => {
+            .then(async (res) => {
                 if (res.data.Status === 'Success') {
                     setIsAuthenticated(true);
+                    await refreshAccessPages();
                 } else {
                     setIsAuthenticated(false);
                 }
@@ -24,15 +29,24 @@ const ProtectedRoute = ({ children }) => {
             .finally(() => {
                 setLoading(false);
             });
-    }, []);
+    }, [refreshAccessPages]);
 
-    if (loading) {
+    if (loading || (isAuthenticated && !pagesLoaded)) {
         return <div className='h-screen'>
             <Loader />
         </div>;
     }
 
-    return isAuthenticated ? children : <Navigate to="/login" />;
+    if (!isAuthenticated) {
+        return <Navigate to="/login" />;
+    }
+
+    const pageKey = pageKeyFromPath(location.pathname);
+    if (pageKey && !canAccessPage(pageKey)) {
+        return <Navigate to="/home" replace />;
+    }
+
+    return children;
 };
 
 export default ProtectedRoute;

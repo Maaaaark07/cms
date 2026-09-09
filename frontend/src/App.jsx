@@ -22,6 +22,9 @@ import AddIncidentReportPage from "./pages/AddIncidentReportPage";
 import EditIncidentReportPage from "./pages/EditIncidentReportPage";
 import BlotterIncidentViewPage from "./pages/BlotterIncidentViewPage";
 import BarangayOfficials from "./pages/BarangayOfficials";
+import HealthCenter from "./pages/HealthCenter";
+import HealthCenterHistoryPage from "./pages/HealthCenterHistoryPage";
+import HealthCenterRecordPage from "./pages/HealthCenterRecordPage";
 
 const App = () => {
     return (
@@ -193,6 +196,50 @@ const App = () => {
                         <ProtectedRoute>
                             <AppLayout>
                                 <Reports />
+                            </AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/health-center"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout>
+                                <HealthCenter />
+                            </AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/health-center/history"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout>
+                                <HealthCenterHistoryPage />
+                            </AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/health-center/add"
+                    element={<Navigate to="/health-center" replace />}
+                />
+                <Route
+                    path="/health-center/edit"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout>
+                                <HealthCenterRecordPage mode="edit" />
+                            </AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/health-center/view"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout>
+                                <HealthCenterRecordPage mode="view" />
                             </AppLayout>
                         </ProtectedRoute>
                     }

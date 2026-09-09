@@ -96,11 +96,11 @@ export const addCertificationRequest = async (req, res) => {
                     resident_id,
                     certification_type_id,
                     status_id || 4,
-                    issued_by,
+                    issued_by || req.user_data?.user_id,
                     amount,
                     purpose || null,
                     certificate,
-                    barangay_id,
+                    barangay_id || req.user_data?.barangay_id,
                 ],
                 (err, results) => {
                     if (err) {

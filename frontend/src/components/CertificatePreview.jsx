@@ -16,7 +16,8 @@ import Calistoga from '../../src/assets/fonts/Calistoga-Regular.ttf';
 import Arial from '../../src/assets/fonts/arial.ttf';
 //import certificateTemplate from "../assets/templates/ColoCertificateTemplate.jpg";
 
-Font.registerHyphenationCallback(word => [word]);
+// Keep justified lines, but never split a word with a hyphen.
+Font.registerHyphenationCallback((word) => [word]);
 
 Font.register({
     family: "Arimo",
@@ -211,7 +212,7 @@ const CertificatePreview = ({
       fontFamily: "Times New Roman",
       fontSize: 12,
       textIndent: 4,
-      textAlign: "left",
+      textAlign: "justify",
     },
     esignature_img: {
       width: 125
@@ -306,33 +307,31 @@ const CertificatePreview = ({
           <View style={[styles.messageSection, styles.indent]}>
             <Text style={styles.dateText}></Text>
             <Text style={[styles.messageText, styles.indent]}>
-              {message.map((part, index) => (
-                <Text
-                key={index}
-                style={
-                  part.isBold
-                    ? {
-                        fontWeight: "bold",
-                        fontFamily: "Times New Roman Bold",
-                        fontSize: 14,
-                      }
-                    : {
-                        fontSize: 14,
-                      }
-                }
-                 >
-                   {(part.text ?? "").toString().split("").map((char, i) => (
-                    <Text
-                      key={i}
-                      style={{
-                        color: char === "_" ? "transparent" : "black",
-                      }}
-                    >
-                      {char}
-                    </Text>
-                  ))}
-                </Text>
-              ))}
+              {message.map((part, index) => {
+                const partStyle = part.isBold
+                  ? {
+                      fontWeight: "bold",
+                      fontFamily: "Times New Roman Bold",
+                      fontSize: 14,
+                    }
+                  : {
+                      fontSize: 14,
+                    };
+                const text = (part.text ?? "").toString();
+                const segments = text.split(/(_+)/g).filter(Boolean);
+
+                return segments.map((segment, segmentIndex) => (
+                  <Text
+                    key={`${index}-${segmentIndex}`}
+                    style={{
+                      ...partStyle,
+                      color: /^_+$/.test(segment) ? "transparent" : "black",
+                    }}
+                  >
+                    {segment}
+                  </Text>
+                ));
+              })}
             </Text>
           </View>
           {withProfilePic && (
