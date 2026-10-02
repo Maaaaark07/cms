@@ -14,10 +14,10 @@ import cfg from '../../../server/config/domain.js';
 
 import { RxAvatar } from "react-icons/rx";
 import { GrEdit } from "react-icons/gr";
-import { FaRegEye, FaRegTrashAlt } from "react-icons/fa";
-import { IoFingerPrint } from 'react-icons/io5';
-import { IoPersonAddOutline } from "react-icons/io5";
+import { FaRegEye, FaRegTrashAlt, FaFileUpload } from "react-icons/fa";
+import { IoFingerPrint, IoPersonAddOutline } from 'react-icons/io5';
 import { useAuth } from '../components/AuthContext';
+import UploadResidentsModal from '../components/UploadResidentsModal.jsx';
 
 const ResidentManagement = () => {
     const [residents, setResidents] = useState([]);
@@ -34,6 +34,7 @@ const ResidentManagement = () => {
     const [updateSuccess, setupdatedSuccess] = useState(false);
     const [isViewPageOpen, setIsViewPageOpen] = useState(false);
     const [successMessageText, setSuccessMessageText] = useState('');
+    const [isUploadOpen, setIsUploadOpen] = useState(false);
     const navigate = useNavigate();
     const { barangayId } = useAuth();
     const location = useLocation();
@@ -181,7 +182,14 @@ const ResidentManagement = () => {
                                     onSearchChange={handleSearchChange}
                                 />
                             </div>
-                            <div>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    className='bg-white text-blue-600 border border-blue-600 px-5 py-3 text-sm flex items-center gap-2 rounded-full hover:bg-blue-50'
+                                    onClick={() => setIsUploadOpen(true)}
+                                >
+                                    <FaFileUpload className='w-4 h-4' />
+                                    Upload
+                                </button>
                                 <button
                                     className='bg-blue-600 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full'
                                     onClick={handleAddResidentClick}
@@ -304,9 +312,13 @@ const ResidentManagement = () => {
                             isVisible={deleteSuccess}
                             variant="delete"
                         />
-                        <SuccessMessage
-                            message={successMessageText}
-                            isVisible={updateSuccess}
+                        <UploadResidentsModal
+                            isOpen={isUploadOpen}
+                            onClose={() => setIsUploadOpen(false)}
+                            onComplete={() => {
+                                fetchResidents();
+                                fetchTotalResidentCount();
+                            }}
                         />
                     </div>
                 </main>
