@@ -7,7 +7,7 @@ import { useAuth } from './AuthContext';
 import Card from './Card';
 import cfg from '../../../server/config/domain.js';
 
-const DashboardCard = () => {
+const DashboardCard = ({ stats }) => {
     const [registeredVoters, setRegisteredVoters] = useState(0);
     const [residentCount, setResidentCount] = useState(0);
     const [householdCount, setHouseholdCount] = useState(0); // Placeholder value
@@ -25,8 +25,33 @@ const DashboardCard = () => {
 
     const { barangayId } = useAuth();
 
+    const applyStats = (data = {}) => {
+        setRegisteredVoters(data.NumberOfRegisteredVoters || 0);
+        setResidentCount(data.NumberOfResidents ?? data.totalPopulation ?? 0);
+        setHouseholdCount(data.NumberOfHousehold || 0);
+        setPwdCount(data.NumberOfPWD || 0);
+        setDisplayedVoters(0);
+        setDisplayedResidents(0);
+        setDisplayedHousehold(0);
+        setDisplayedPwd(0);
+        setLoadingVoters(false);
+        setLoadingResidents(false);
+        setLoadingHousehold(false);
+        setLoadingPwd(false);
+    };
+
     const fetchData = async () => {
-        if (!barangayId) return;
+        if (stats) {
+            applyStats(stats);
+            return;
+        }
+        if (!barangayId) {
+            setLoadingVoters(false);
+            setLoadingResidents(false);
+            setLoadingHousehold(false);
+            setLoadingPwd(false);
+            return;
+        }
 
         const API_URLS = {
             registeredVoters: `http://${cfg.domainname}:${cfg.serverport}/stats/registered-voters/` + barangayId,
@@ -154,7 +179,7 @@ const DashboardCard = () => {
 
     useEffect(() => {
         fetchData();
-    }, [barangayId]);
+    }, [barangayId, stats]);
 
     return (
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 md:gap-x-6 md:gap-y-0'>

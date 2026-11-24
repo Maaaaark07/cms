@@ -6,9 +6,13 @@ import { FaFileUpload } from 'react-icons/fa';
 import { useAuth } from './AuthContext';
 import cfg from '../../../server/config/domain.js';
 
-const UploadResidentsModal = ({ isOpen, onClose, onComplete }) => {
+const UploadResidentsModal = ({ isOpen, onClose, onComplete, locationIds }) => {
     const fileInputRef = useRef(null);
     const { barangayId, cityId, provinceId, regionId } = useAuth();
+    const uploadBarangayId = locationIds?.barangayId || barangayId;
+    const uploadCityId = locationIds?.cityId || cityId;
+    const uploadProvinceId = locationIds?.provinceId || provinceId;
+    const uploadRegionId = locationIds?.regionId || regionId;
     const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -62,10 +66,16 @@ const UploadResidentsModal = ({ isOpen, onClose, onComplete }) => {
 
         const payload = new FormData();
         payload.append('excel_file', file);
-        payload.append('barangay_id', barangayId || '');
-        payload.append('city_id', cityId || '');
-        payload.append('province_id', provinceId || '');
-        payload.append('region_id', regionId || '');
+        if (!uploadBarangayId || !uploadCityId || !uploadProvinceId) {
+            setErrorMessage('Please select a barangay before uploading residents.');
+            setLoading(false);
+            return;
+        }
+
+        payload.append('barangay_id', uploadBarangayId || '');
+        payload.append('city_id', uploadCityId || '');
+        payload.append('province_id', uploadProvinceId || '');
+        payload.append('region_id', uploadRegionId || '');
 
         try {
             const response = await axios.post(

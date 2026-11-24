@@ -156,12 +156,12 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         if (!hydrated) return;
-        if (barangayId || roleId) {
+        if (barangayId || roleId || cityId || provinceId) {
             refreshAccessPages();
         } else {
             setPagesLoaded(true);
         }
-    }, [hydrated, barangayId, roleId, refreshAccessPages]);
+    }, [hydrated, barangayId, cityId, provinceId, roleId, refreshAccessPages]);
 
     return (
         <AuthContext.Provider value={{

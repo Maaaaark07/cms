@@ -5,7 +5,9 @@ import {
     getResidentCount,
     getHouseholdCount,
     getAllPopulationStats,
-    getPwdCount
+    getPwdCount,
+    getCityPopulationStats,
+    getProvincePopulationStats,
 } from '../controllers/statsController.js';
 import { verifyUser } from '../middleware/authMiddleware.js';
 
@@ -17,5 +19,7 @@ router.get('/all-population-stats/:id', verifyUser, getAllPopulationStats);
 router.get('/count/:id', verifyUser, getResidentCount);
 router.get('/household/:id', verifyUser, getHouseholdCount)
 router.get('/pwd/:id', verifyUser, getPwdCount)
+router.get('/city/:id', verifyUser, getCityPopulationStats);
+router.get('/province/:id', verifyUser, getProvincePopulationStats);
 
 export default router;

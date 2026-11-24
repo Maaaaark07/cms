@@ -25,6 +25,8 @@ import BarangayOfficials from "./pages/BarangayOfficials";
 import HealthCenter from "./pages/HealthCenter";
 import HealthCenterHistoryPage from "./pages/HealthCenterHistoryPage";
 import HealthCenterRecordPage from "./pages/HealthCenterRecordPage";
+import ResolutionPage from "./pages/ResolutionPage";
+import ResolutionFormPage from "./pages/ResolutionFormPage";
 
 const App = () => {
     return (
@@ -240,6 +242,46 @@ const App = () => {
                         <ProtectedRoute>
                             <AppLayout>
                                 <HealthCenterRecordPage mode="view" />
+                            </AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/resolution"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout>
+                                <ResolutionPage />
+                            </AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/resolution/add"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout>
+                                <ResolutionFormPage mode="add" />
+                            </AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/resolution/edit"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout>
+                                <ResolutionFormPage mode="edit" />
+                            </AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/resolution/view"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout>
+                                <ResolutionFormPage mode="view" />
                             </AppLayout>
                         </ProtectedRoute>
                     }

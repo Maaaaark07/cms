@@ -7,7 +7,7 @@ import SearchModalDynamic from '../components/SearchModalDynamic.jsx'
 import { IoSearch } from "react-icons/io5";
 import { RxAvatar } from 'react-icons/rx';
 
-const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
+const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId, locationIds }) => {
     const [formData, setFormData] = useState({
         barangay_id: barangayId,
         city_id: "",
@@ -49,6 +49,22 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
             fetchAllLguTypes();
         }
     }, [isOpen]);
+
+    useEffect(() => {
+        if (!isOpen || !isCbsAdmin || !locationIds?.barangayId) return;
+        setSelectedRegion(locationIds.regionId || '');
+        setSelectedProvince(locationIds.provinceId || '');
+        setSelectedCity(locationIds.cityId || '');
+        setSelectedBarangay(locationIds.barangayId || '');
+        setSelectedUserBarangayId(locationIds.barangayId || '');
+        setFormData((prev) => ({
+            ...prev,
+            region_id: locationIds.regionId || '',
+            province_id: locationIds.provinceId || '',
+            city_id: locationIds.cityId || '',
+            barangay_id: locationIds.barangayId || '',
+        }));
+    }, [isOpen, isCbsAdmin, locationIds]);
 
     // Auto-fill location for non-cbsadmin when modal opens
     useEffect(() => {
@@ -263,11 +279,12 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
     };
 
     const handleBarangayChange = (e) => {
-        const barangayId = e.target.value;
-        setSelectedBarangay(barangayId);
+        const nextBarangayId = e.target.value;
+        setSelectedBarangay(nextBarangayId);
+        setSelectedUserBarangayId(nextBarangayId);
         setFormData(prevState => ({
             ...prevState,
-            barangay_id: barangayId
+            barangay_id: nextBarangayId
         }));
     };
 
@@ -307,9 +324,9 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
         e.preventDefault();
 
         const payload = {
-            barangay_id: selectedUserBarangayId,
-            city_id: formData.city_id,
-            province_id: formData.province_id,
+            barangay_id: selectedBarangay || selectedUserBarangayId || barangayId,
+            city_id: formData.city_id || locationIds?.cityId,
+            province_id: formData.province_id || locationIds?.provinceId,
             user: formData.user,
             password: formData.password,
             role_id: formData.role_id,
@@ -460,7 +477,13 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
                                     />
                                     <div
                                         className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md"
-                                        onClick={() => setSelectResidentModal(true)}
+                                        onClick={() => {
+                                            if (isCbsAdmin && !selectedBarangay) {
+                                                setError("Please select a barangay first.");
+                                                return;
+                                            }
+                                            setSelectResidentModal(true);
+                                        }}
                                     >
                                         <IoSearch className="w-5 h-5 text-white" />
                                     </div>

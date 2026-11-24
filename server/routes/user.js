@@ -5,6 +5,7 @@ import {
     getUserRolesByLguType,
     getAllLguTypes,
     getAllCbsUsers,
+    getUsersByBarangayScope,
     deleteCbsUser
 } from "../controllers/userController.js";
 import {
@@ -31,6 +32,7 @@ router.put('/assign-role/:userId', verifyUser, assignUserAppRole);
 router.post('/add-user', verifyUser, addCbsUser);
 router.get('/lgu-type', verifyUser, getAllLguTypes);
 router.get('/get-user-role/:id', verifyUser, getUserRolesByLguType);
+router.get('/by-barangay/:id', verifyUser, getUsersByBarangayScope);
 router.get('/:lguTypeId/:id', verifyUser, getAllCbsUsers);
 router.get('/:id', verifyUser, getCbsUsersByBarangay);
 router.delete("/delete-user/:id", verifyUser, deleteCbsUser);

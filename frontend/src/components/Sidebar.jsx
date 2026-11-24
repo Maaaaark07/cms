@@ -9,27 +9,37 @@ import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { GoDatabase, GoReport } from "react-icons/go";
 import { MdOutlineNotificationImportant } from "react-icons/md";
 import { RiGovernmentLine } from "react-icons/ri";
+import { HiOutlineDocumentText } from 'react-icons/hi';
 import { useAuth } from './AuthContext';
+import { LGU_BARANGAY, LGU_MUNICIPALITY, LGU_PROVINCE, getLguType } from '../utils/lgu';
 
 const navItems = [
-    { to: '/home', label: 'Dashboard', pageKey: 'home', icon: RxDashboard },
-    { to: '/Resident-Management', label: 'Resident Management', pageKey: 'resident-management', icon: BsHouseAdd },
-    { to: '/health-center', label: 'Health Center', pageKey: 'health-center', icon: FaNotesMedical },
-    { to: '/Application-Request', label: 'Application Request', pageKey: 'application-request', icon: FaWpforms },
-    { to: '/Blotter-Report', label: 'Blotter Report', pageKey: 'blotter-report', icon: MdOutlineReport },
-    { to: '/User-Management', label: 'User Management', pageKey: 'user-management', icon: LuUsers },
-    { to: '/barangay-official', label: 'Barangay Official', pageKey: 'barangay-official', icon: RiGovernmentLine },
-    { to: '/master-data', label: 'Master Data', pageKey: 'master-data', icon: GoDatabase },
-    { to: '/Reports', label: 'Report', pageKey: 'reports', icon: GoReport },
-    { to: '/notification-advisory', label: 'Notification Advisory', pageKey: 'notification-advisory', icon: MdOutlineNotificationImportant, dividerBefore: true },
+    { to: '/home', label: 'Dashboard', pageKey: 'home', icon: RxDashboard, lguTypes: [LGU_BARANGAY, LGU_MUNICIPALITY, LGU_PROVINCE] },
+    { to: '/Resident-Management', label: 'Resident Management', pageKey: 'resident-management', icon: BsHouseAdd, lguTypes: [LGU_BARANGAY] },
+    { to: '/health-center', label: 'Health Center', pageKey: 'health-center', icon: FaNotesMedical, lguTypes: [LGU_BARANGAY] },
+    { to: '/Application-Request', label: 'Application Request', pageKey: 'application-request', icon: FaWpforms, lguTypes: [LGU_BARANGAY] },
+    { to: '/Blotter-Report', label: 'Blotter Report', pageKey: 'blotter-report', icon: MdOutlineReport, lguTypes: [LGU_BARANGAY, LGU_MUNICIPALITY] },
+    { to: '/resolution', label: 'Resolution', pageKey: 'resolution', icon: HiOutlineDocumentText, lguTypes: [LGU_BARANGAY, LGU_MUNICIPALITY] },
+    { to: '/User-Management', label: 'User Management', pageKey: 'user-management', icon: LuUsers, lguTypes: [LGU_BARANGAY] },
+    { to: '/barangay-official', label: 'Barangay Official', pageKey: 'barangay-official', icon: RiGovernmentLine, lguTypes: [LGU_BARANGAY] },
+    { to: '/master-data', label: 'Master Data', pageKey: 'master-data', icon: GoDatabase, lguTypes: [LGU_BARANGAY] },
+    { to: '/Reports', label: 'Report', pageKey: 'reports', icon: GoReport, lguTypes: [LGU_BARANGAY] },
+    { to: '/notification-advisory', label: 'Notification Advisory', pageKey: 'notification-advisory', icon: MdOutlineNotificationImportant, dividerBefore: true, lguTypes: [LGU_BARANGAY] },
 ];
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(true);
-    const { canAccessPage } = useAuth();
+    const { canAccessPage, lguId, roleId } = useAuth();
+    const lguType = getLguType(lguId);
+    const isCbsAdmin = Number(roleId) === 1;
 
     const toggleSidebar = () => setIsOpen(!isOpen);
-    const visibleItems = navItems.filter((item) => canAccessPage(item.pageKey));
+    const visibleItems = navItems.filter((item) => {
+        if (!canAccessPage(item.pageKey)) return false;
+        if (isCbsAdmin) return true;
+        if (item.lguTypes && !item.lguTypes.includes(lguType)) return false;
+        return true;
+    });
 
     return (
         <div className={`relative flex flex-col h-full ${isOpen ? 'w-72 min-w-[300px]' : 'min-w-[70px] w-[70px]'} bg-white text-gray-600 transition-width duration-300 shadow-md`}>

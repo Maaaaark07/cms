@@ -1,5 +1,62 @@
 import db from "../config/database.js";
 
+export const getCityBlotters = async (req, res) => {
+    const { id } = req.params;
+    const sql = `
+        SELECT
+            b.blotter_id,
+            b.report_date,
+            b.incident_date,
+            b.complainant_id,
+            b.complainant,
+            r.profile_image,
+            r.occupation,
+            b.address,
+            b.contact,
+            b.witnesses,
+            b.incident_type,
+            b.incident_location,
+            b.incident_description,
+            hs.iname AS status,
+            b.resolution,
+            b.notes,
+            b.barangay_id,
+            br.iname AS barangay
+        FROM cbs_blotters b
+        LEFT JOIN cbs_residents r
+            ON r.resident_id = b.complainant_id
+        LEFT JOIN ph_barangays br
+            ON br.iid = b.barangay_id
+        LEFT JOIN cbs_blotter_hearings bh
+            ON bh.blotter_id = b.blotter_id
+            AND bh.iid = (
+                SELECT MAX(iid)
+                FROM cbs_blotter_hearings
+                WHERE blotter_id = b.blotter_id
+            )
+        LEFT JOIN cbs_hearing_statuses hs
+            ON bh.status_id = hs.iid
+        WHERE br.city_id = ?
+        ORDER BY b.incident_date DESC, b.blotter_id DESC
+    `;
+
+    try {
+        const results = await new Promise((resolve, reject) => {
+            db.query(sql, [id], (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows);
+            });
+        });
+        res.json(results);
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({
+            error: "Failed to retrieve municipality blotter data",
+            details: error.message,
+        });
+    }
+};
+
 export const getAllBlotters = async (req, res) => {
     const { id } = req.params;
     const sql = "CALL GetAllBlotters(?)";

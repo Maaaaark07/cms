@@ -18,6 +18,7 @@ import reportRoutes from './routes/report.js'
 import purokRoutes from './routes/purok.js'
 import healthRoutes from './routes/health.js'
 import notificationRoutes from './routes/notification.js'
+import resolutionRoutes from './routes/resolution.js'
 import cfg from './config/origin.js';
 
 const app = express();
@@ -28,7 +29,7 @@ console.log(`DOMAIN: ${cfg.domainname}`)
 // Middleware
 app.use(express.json());
 
-const uploadDirs = ['user_profile', 'certificates', 'brgy_logo', 'others'].map(
+const uploadDirs = ['user_profile', 'certificates', 'brgy_logo', 'others', 'resolutions'].map(
     dir => path.join('./uploads', dir)
 );
 
@@ -64,6 +65,7 @@ app.use('/report', reportRoutes)
 app.use('/purok', purokRoutes)
 app.use('/health', healthRoutes)
 app.use('/notification', notificationRoutes)
+app.use('/resolutions', resolutionRoutes)
 
 app.use((err, req, res, next) => {
     if (err instanceof multer.MulterError) {

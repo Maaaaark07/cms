@@ -5,6 +5,7 @@ export const pageKeyFromPath = (pathname) => {
         { key: 'health-center', prefix: '/health-center' },
         { key: 'application-request', prefix: '/application-request' },
         { key: 'blotter-report', prefix: '/blotter-report' },
+        { key: 'resolution', prefix: '/resolution' },
         { key: 'user-management', prefix: '/user-management' },
         { key: 'barangay-official', prefix: '/barangay-official' },
         { key: 'master-data', prefix: '/master-data' },

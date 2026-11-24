@@ -4,6 +4,7 @@ export const PAGE_CATALOG = [
     { key: 'health-center', label: 'Health Center', paths: ['/health-center'] },
     { key: 'application-request', label: 'Application Request', paths: ['/application-request'] },
     { key: 'blotter-report', label: 'Blotter Report', paths: ['/blotter-report'] },
+    { key: 'resolution', label: 'Resolution', paths: ['/resolution'] },
     { key: 'user-management', label: 'User Management', paths: ['/user-management'] },
     { key: 'barangay-official', label: 'Barangay Official', paths: ['/barangay-official'] },
     { key: 'master-data', label: 'Master Data', paths: ['/master-data'] },

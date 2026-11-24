@@ -23,7 +23,7 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!values.users || !values.password) {
-            setError("Email and password are required.");
+            setError("Username and password are required.");
             setTimeout(() => {
                 setError("");
                 setValues({ users: '', password: '' });
@@ -68,9 +68,8 @@ const Login = () => {
         }}>
             <div className="flex flex-col items-center justify-center bg-white max-w-96 w-full h-auto px-6 py-8 rounded-lg shadow-md">
                 <div className='text-center mb-4'>
-                    <img src={cmsLogo} className='w-[114px] h-[114px]' alt="logo" />
+                    <img src={cmsLogo} className='w-[170px] h-[170px]' alt="logo" />
                 </div>
-                <h1 className="text-3xl font-bold mb-6">Login</h1>
                 {
                     error &&
                     <div className='bg-red-500 p-2 mb-4 w-full text-center rounded-lg'>
@@ -90,7 +89,7 @@ const Login = () => {
                             onFocus={() => setIsEmailFocused(true)}
                             onBlur={() => setIsEmailFocused(false)}
                             className="pl-10 py-2 text-sm border-2 border-gray-300 focus:border-blue-500 focus:outline-none rounded-md transition-colors duration-300 w-full"
-                            placeholder="Email"
+                            placeholder="Username"
                         />
                     </div>
 

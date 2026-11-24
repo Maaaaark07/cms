@@ -2,6 +2,7 @@ import axios from "axios";
 import cfg from '../../../server/config/domain.js';
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../components/AuthContext";
+import { isMunicipalityUser } from "../utils/lgu";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDateFormatter } from "../hooks/useDateFormatter";
 import { encryptId } from "../utils/encryption.js";
@@ -25,7 +26,8 @@ import Tabs from "../components/Tabs.jsx";
 
 
 const BlotterComplaintPage = () => {
-    const { barangayId } = useAuth();
+    const { barangayId, cityId, lguId } = useAuth();
+    const municipalityView = isMunicipalityUser(lguId);
     const { formatIncidentDate } = useDateFormatter();
 
     const navigate = useNavigate();
@@ -44,13 +46,16 @@ const BlotterComplaintPage = () => {
 
     useEffect(() => {
         fetchBlotters();
-    }, [barangayId]);
+    }, [barangayId, cityId, municipalityView]);
 
 
     async function fetchBlotters() {
         setLoading(true);
         try {
-            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/blotter/` + barangayId, {
+            const url = municipalityView
+                ? `http://${cfg.domainname}:${cfg.serverport}/blotter/city/${cityId}`
+                : `http://${cfg.domainname}:${cfg.serverport}/blotter/` + barangayId;
+            const response = await axios.get(url, {
                 withCredentials: true,
             });
             setBlotters(response.data);
@@ -65,10 +70,12 @@ const BlotterComplaintPage = () => {
 
     const filteredBlotters = blotters?.filter(blotter => {
         const complainantName = `${blotter.complainant || ''}`.toLowerCase();
+        const barangayName = `${blotter.barangay || ''}`.toLowerCase();
         const blotterId = blotter.blotter_id != null
             ? blotter.blotter_id.toString()
             : '';
         return complainantName.includes(searchQuery.toLowerCase()) ||
+            barangayName.includes(searchQuery.toLowerCase()) ||
             blotterId.includes(searchQuery.toLowerCase())
     });
     const totalFilteredPages = Math.ceil((filteredBlotters?.length) / itemsPerPage);
@@ -88,7 +95,7 @@ const BlotterComplaintPage = () => {
     };
 
     const handleViewBlotter = (id) => {
-        navigate("/Blotter-Report/Blotter-Report-View", { state: { blotter_id: id } });
+        navigate("/Blotter-Report/Blotter-Report-View", { state: { blotter_id: id, viewOnly: municipalityView } });
     };
 
     const handleEditBlotter = (id) => {
@@ -130,12 +137,14 @@ const BlotterComplaintPage = () => {
                         placeholder="Search Complainant Name, Blotter ID"
                     />
                 </div>
-                <div className="flex gap-5">
-                    <button className='bg-blue-600 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full' onClick={() => navigate("/blotter-report/add-complaint")}>
-                        <IoPersonAddOutline className='w-4 h-4 text-white font-bold' />
-                        Add Complaint
-                    </button>
-                </div>
+                {!municipalityView && (
+                    <div className="flex gap-5">
+                        <button className='bg-blue-600 text-white px-5 py-3 text-sm flex items-center gap-2 rounded-full' onClick={() => navigate("/blotter-report/add-complaint")}>
+                            <IoPersonAddOutline className='w-4 h-4 text-white font-bold' />
+                            Add Complaint
+                        </button>
+                    </div>
+                )}
             </div>
             {error && <div className="text-red-500 text-center mb-4">{error}</div>}
             {
@@ -143,6 +152,7 @@ const BlotterComplaintPage = () => {
                     <table className="min-w-full bg-white shadow-md overflow-hidden text-sm">
                         <thead className='bg-gray-200'>
                             <tr>
+                                {municipalityView && <th className="text-left p-3 font-semibold text-gray-700">Barangay</th>}
                                 <th className="text-left p-3 font-semibold text-gray-700">Complainant Name</th>
                                 <th className="text-left p-3 font-semibold text-gray-700">Blotter Report ID</th>
                                 <th className="text-left p-3 font-semibold text-gray-700">Nature of Incident</th>
@@ -155,6 +165,7 @@ const BlotterComplaintPage = () => {
                             {
                                 filteredBlotters.length > 0 ? displayedBlotters.map((blotter) => (
                                     <tr key={blotter.blotter_id} className="border-b hover:bg-gray-100 even:bg-gray-50">
+                                        {municipalityView && <td className="p-3 text-gray-500">{blotter.barangay || 'N/A'}</td>}
                                         <td className="p-3 flex items-center gap-2">
                                             {blotter?.profile_image ? (
                                                 <div
@@ -185,22 +196,26 @@ const BlotterComplaintPage = () => {
                                         <td className="p-3 text-gray-500">{formatIncidentDate(blotter.incident_date)}</td>
                                         <td className="p-3 text-gray-500">{<StatusBadge status={blotter.status} />}</td>
                                         <td className="p-3 text-gray-500 flex items-center justify-center gap-2">
-                                            <div
-                                                className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer' onClick={() => handleEditBlotter(blotter?.blotter_id)}>
-                                                <GrEdit className='w-5 h-5 text-gray-500' />
-                                            </div>
+                                            {!municipalityView && (
+                                                <div
+                                                    className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer' onClick={() => handleEditBlotter(blotter?.blotter_id)}>
+                                                    <GrEdit className='w-5 h-5 text-gray-500' />
+                                                </div>
+                                            )}
                                             <div className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer' onClick={() => handleViewBlotter(blotter?.blotter_id)}>
                                                 <FaRegEye className='w-5 h-5 text-gray-500' />
                                             </div>
-                                            <div
-                                                className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer' onClick={() => handleDeleteConfirmation(blotter?.blotter_id)}>
-                                                <FaRegTrashAlt className='w-5 h-5 text-red-500' />
-                                            </div>
+                                            {!municipalityView && (
+                                                <div
+                                                    className='bg-gray-200 p-2 w-max rounded-lg cursor-pointer' onClick={() => handleDeleteConfirmation(blotter?.blotter_id)}>
+                                                    <FaRegTrashAlt className='w-5 h-5 text-red-500' />
+                                                </div>
+                                            )}
                                         </td>
                                     </tr>
                                 )) : (
                                     <tr>
-                                        <td colSpan="6" className="p-4 text-center text-sm text-gray-500">
+                                        <td colSpan={municipalityView ? "7" : "6"} className="p-4 text-center text-sm text-gray-500">
                                             No Data Available.
                                         </td>
                                     </tr>

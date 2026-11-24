@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../components/AuthContext";
+import { isMunicipalityUser } from "../utils/lgu";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import Breadcrumbs from "../components/Breadcrumbs";
@@ -13,6 +14,8 @@ const IncidentReport = () => {
 
     const location = useLocation();
     const navigate = useNavigate();
+    const { lguId } = useAuth();
+    const municipalityView = isMunicipalityUser(lguId);
 
     //Toast
     const [showSuccessToastComplaint, setShowSuccessToastComplaint] = useState(false);
@@ -54,7 +57,9 @@ const IncidentReport = () => {
             <Breadcrumbs />
             <h1 className='text-2xl font-bold text-gray-500 mb-4'>Blotter Report</h1>
 
-            <Tabs id="blotterActiveTab" tabs={[
+            <Tabs id="blotterActiveTab" tabs={municipalityView ? [
+                { label: "Complaint", content: <BlotterComplaintPage /> },
+            ] : [
                 { label: "Complaint", content: <BlotterComplaintPage /> },
                 { label: "Incident", content: <BlotterIncidentPage /> },
             ]} />

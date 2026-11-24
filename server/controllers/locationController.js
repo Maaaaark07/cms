@@ -41,6 +41,27 @@ export const getAllProvinces = (req, res) => {
     });
 };
 
+export const getCityById = (req, res) => {
+    const city_id = req.params.id.replace('${', '').replace('}', '');
+    const parsedCityId = parseInt(city_id, 10);
+
+    if (!parsedCityId) {
+        return res.status(400).json({ error: 'Invalid City ID' });
+    }
+
+    const sql = `SELECT iid, iname, icode, province_id, city_logo FROM ph_cities WHERE iid = ?`;
+    db.query(sql, [parsedCityId], (err, results) => {
+        if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ error: 'Failed to retrieve city' });
+        }
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'City not found' });
+        }
+        res.json(results[0]);
+    });
+};
+
 export const getAllCities = (req, res) => {
     const province_id = req.params.id.replace('${', '').replace('}', '');
 

@@ -18,6 +18,7 @@ import { FaRegEye, FaRegTrashAlt, FaFileUpload } from "react-icons/fa";
 import { IoFingerPrint, IoPersonAddOutline } from 'react-icons/io5';
 import { useAuth } from '../components/AuthContext';
 import UploadResidentsModal from '../components/UploadResidentsModal.jsx';
+import LocationCascade from '../components/LocationCascade.jsx';
 
 const ResidentManagement = () => {
     const [residents, setResidents] = useState([]);
@@ -35,16 +36,28 @@ const ResidentManagement = () => {
     const [isViewPageOpen, setIsViewPageOpen] = useState(false);
     const [successMessageText, setSuccessMessageText] = useState('');
     const [isUploadOpen, setIsUploadOpen] = useState(false);
+    const [adminLocation, setAdminLocation] = useState({
+        regionId: '',
+        provinceId: '',
+        cityId: '',
+        barangayId: '',
+    });
     const navigate = useNavigate();
-    const { barangayId } = useAuth();
+    const { barangayId, roleId } = useAuth();
+    const isCbsAdmin = Number(roleId) === 1;
+    const activeBarangayId = isCbsAdmin ? adminLocation.barangayId : barangayId;
     const location = useLocation();
     const { setSuccessMessage } = location.state || {};
 
     useEffect(() => {
-        if (!barangayId) return;
+        if (!activeBarangayId) {
+            setResidents([]);
+            setTotalResidents(0);
+            return;
+        }
         fetchResidents();
         fetchTotalResidentCount();
-    }, [barangayId]);
+    }, [activeBarangayId]);
 
     useEffect(() => {
         const editSuccessMessage = sessionStorage.getItem('residentEditSuccess');
@@ -65,7 +78,7 @@ const ResidentManagement = () => {
 
     const fetchResidents = async () => {
         try {
-            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/residents/` + barangayId, { withCredentials: true });
+            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/residents/` + activeBarangayId, { withCredentials: true });
             setResidents(response.data);
         } catch (error) {
             console.error("Error fetching residents data:", error);
@@ -88,7 +101,7 @@ const ResidentManagement = () => {
 
     const fetchTotalResidentCount = async () => {
         try {
-            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/residents/count/` + barangayId, { withCredentials: true });
+            const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/residents/count/` + activeBarangayId, { withCredentials: true });
             setTotalResidents(response.data.count);
         } catch (error) {
             console.error("Error fetching residents count:", error);
@@ -175,6 +188,14 @@ const ResidentManagement = () => {
                     <div className="flex-grow p-6 bg-gray-100">
                         <Breadcrumbs />
                         <h1 className='text-2xl font-bold text-gray-500 mb-6'>Resident Management</h1>
+                        {isCbsAdmin && (
+                            <div className="mb-4">
+                                <LocationCascade value={adminLocation} onChange={setAdminLocation} />
+                                {!adminLocation.barangayId && (
+                                    <p className="text-xs text-gray-400 mt-2">Select a barangay to view and add residents.</p>
+                                )}
+                            </div>
+                        )}
                         <div className='flex items-center justify-between mb-6'>
                             <div className='relative max-w-96 w-full'>
                                 <Search
@@ -184,7 +205,8 @@ const ResidentManagement = () => {
                             </div>
                             <div className="flex items-center gap-2">
                                 <button
-                                    className='bg-white text-blue-600 border border-blue-600 px-5 py-3 text-sm flex items-center gap-2 rounded-full hover:bg-blue-50'
+                                    className='bg-white text-blue-600 border border-blue-600 px-5 py-3 text-sm flex items-center gap-2 rounded-full hover:bg-blue-50 disabled:opacity-50'
+                                    disabled={isCbsAdmin && !adminLocation.barangayId}
                                     onClick={() => setIsUploadOpen(true)}
                                 >
                                     <FaFileUpload className='w-4 h-4' />
@@ -315,6 +337,12 @@ const ResidentManagement = () => {
                         <UploadResidentsModal
                             isOpen={isUploadOpen}
                             onClose={() => setIsUploadOpen(false)}
+                            locationIds={isCbsAdmin ? {
+                                barangayId: adminLocation.barangayId,
+                                cityId: adminLocation.cityId,
+                                provinceId: adminLocation.provinceId,
+                                regionId: adminLocation.regionId,
+                            } : null}
                             onComplete={() => {
                                 fetchResidents();
                                 fetchTotalResidentCount();

@@ -13,6 +13,7 @@ import AlertDialog from "../components/AlertDialog.jsx";
 import Tabs from "../components/Tabs.jsx";
 import RoleManagementTab from "../components/RoleManagementTab.jsx";
 import AssignRoleModal from "../components/AssignRoleModal.jsx";
+import LocationCascade from "../components/LocationCascade.jsx";
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
@@ -24,7 +25,15 @@ const UserManagement = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showToastMessage, setShowToastMessage] = useState(false);
     const [showDeleteToastMessage, setShowDeleteToastMessage] = useState(false);
-    const { barangayId, lguId } = useAuth();
+    const { barangayId, lguId, roleId } = useAuth();
+    const isCbsAdmin = Number(roleId) === 1;
+    const [adminLocation, setAdminLocation] = useState({
+        regionId: '',
+        provinceId: '',
+        cityId: '',
+        barangayId: '',
+    });
+    const activeBarangayId = isCbsAdmin ? adminLocation.barangayId : barangayId;
     const [selectedDeleteId, setSelectedDeleteId] = useState(null);
     const [isAlertDeleteOpen, setIsAlertDeleteOpen] = useState(false);
     const [appRoles, setAppRoles] = useState([]);
@@ -35,18 +44,21 @@ const UserManagement = () => {
     useEffect(() => {
         fetchUsers();
         fetchAppRoles();
-        console.log(barangayId, lguId);
-    }, [barangayId, lguId]);
+    }, [activeBarangayId, lguId, isCbsAdmin]);
 
     async function fetchUsers() {
+        if (isCbsAdmin && !activeBarangayId) {
+            setUsers([]);
+            setLoading(false);
+            return;
+        }
         setLoading(true);
         try {
-            const response = await axios.get(
-                `http://${cfg.domainname}:${cfg.serverport}/user/${lguId}/${barangayId}`,
-                { withCredentials: true }
-            );
+            const url = isCbsAdmin
+                ? `http://${cfg.domainname}:${cfg.serverport}/user/by-barangay/${activeBarangayId}`
+                : `http://${cfg.domainname}:${cfg.serverport}/user/${lguId}/${barangayId}`;
+            const response = await axios.get(url, { withCredentials: true });
             setUsers(response.data || []);
-            console.log(response.data);
         } catch (error) {
             console.error("Error fetching user data:", error);
             setError("Failed to fetch users. Please try again later.");
@@ -56,12 +68,12 @@ const UserManagement = () => {
     }
 
     async function fetchAppRoles() {
-        if (!barangayId) return;
+        if (!activeBarangayId) return;
         try {
             const response = await axios.get(
                 `http://${cfg.domainname}:${cfg.serverport}/user/app-roles`,
                 {
-                    params: { barangay_id: barangayId, lgu_type_id: lguId },
+                    params: { barangay_id: activeBarangayId, lgu_type_id: lguId },
                     withCredentials: true,
                 }
             );
@@ -159,6 +171,14 @@ const UserManagement = () => {
             <Breadcrumbs />
             <div>
                 <h1 className="text-2xl font-bold text-gray-500 mb-6">User Management</h1>
+                {isCbsAdmin && (
+                    <div className="mb-4">
+                        <LocationCascade value={adminLocation} onChange={setAdminLocation} />
+                        {!adminLocation.barangayId && (
+                            <p className="text-xs text-gray-400 mt-2">Select a barangay to view and add users.</p>
+                        )}
+                    </div>
+                )}
 
                 <Tabs
                     id="userManagementTab"
@@ -176,7 +196,8 @@ const UserManagement = () => {
                                     <div className="mb-6 flex justify-between items-center">
                                         <Search searchQuery={searchQuery} onSearchChange={handleSearchChange} />
                                         <button
-                                            className="bg-blue-500 text-white rounded-full px-6 py-2 shadow hover:bg-blue-600 transition duration-200"
+                                            className="bg-blue-500 text-white rounded-full px-6 py-2 shadow hover:bg-blue-600 transition duration-200 disabled:opacity-50"
+                                            disabled={isCbsAdmin && !adminLocation.barangayId}
                                             onClick={() => setIsModalOpen(true)}
                                         >
                                             + Add User
@@ -253,7 +274,7 @@ const UserManagement = () => {
                         },
                         {
                             label: "Roles",
-                            content: <RoleManagementTab barangayId={barangayId} lguTypeId={lguId} />,
+                            content: <RoleManagementTab barangayId={activeBarangayId} lguTypeId={lguId} />,
                         },
                     ]}
                 />
@@ -263,8 +284,9 @@ const UserManagement = () => {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleOnSubmit} // Correctly pass function reference
-                barangayId={barangayId}
+                barangayId={activeBarangayId}
                 lguTypeId={lguId}
+                locationIds={isCbsAdmin ? adminLocation : null}
             />
 
             <ToastMessage

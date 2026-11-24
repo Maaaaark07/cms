@@ -52,7 +52,9 @@ const BlotterReportViewPage = () => {
     const [isEditRecordModalOpen, setIsEditRecordModalOpen] = useState(false);
     const [isViewRecordModalOpen, setIsViewRecordModalOpen] = useState(false);
 
-    const { blotter_id } = location.state || {};
+    const { blotter_id, viewOnly: viewOnlyState } = location.state || {};
+    const { lguId } = useAuth();
+    const viewOnly = Boolean(viewOnlyState) || Number(lguId) === 2 || Number(lguId) === 3;
 
     useEffect(() => {
         localStorage.setItem("isSingleColumn", isSingleColumn);
@@ -231,6 +233,7 @@ const BlotterReportViewPage = () => {
                             </div>
                         </div>
                         <div>
+                            {!viewOnly && (
                             <div className="flex items-center justify-end mb-6">
                                 <button
                                     className={`px-5 py-3 text-sm flex items-center gap-2 rounded-full ${blotterHearingDetails?.length > 0 && blotterHearingDetails[blotterHearingDetails.length - 1].status === "Closed"
@@ -244,6 +247,7 @@ const BlotterReportViewPage = () => {
                                     Record Session
                                 </button>
                             </div>
+                            )}
                             <div className="overflow-x-auto rounded-lg mt-4">
                                 {hearingLoading ? (<div className="text-center">Loading... </div>
                                 ) : (
@@ -282,7 +286,7 @@ const BlotterReportViewPage = () => {
                                                                 <StatusBadge status={hearing.status} />
                                                             </td>
                                                             <td className="p-3 text-gray-500 flex items-center justify-center gap-2">
-                                                                {isLatest && hearing.status !== "Closed" ? (
+                                                                {isLatest && hearing.status !== "Closed" && !viewOnly ? (
                                                                     <>
                                                                         <div
                                                                             className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer"

@@ -39,6 +39,44 @@ export const getCbsUsersByBarangay = async (req, res) => {
 };
 
 
+export const getUsersByBarangayScope = async (req, res) => {
+    const barangayId = req.params.id;
+    if (!barangayId) {
+        return res.status(400).json({ error: 'barangay_id is required' });
+    }
+
+    try {
+        const rows = await queryAsync(
+            `SELECT u.id userid,
+                    u.user username,
+                    u.resident_id,
+                    u.fullname,
+                    u.password,
+                    r.iid roleid,
+                    r.iname rolename,
+                    l.iname userlevel,
+                    u.barangay_id,
+                    u.city_id,
+                    u.province_id,
+                    u.lgu_type_id
+             FROM cbs_users u
+             JOIN cbs_user_roles r ON u.role_id = r.iid
+             JOIN lgu_types l ON u.lgu_type_id = l.iid
+             WHERE u.barangay_id = ?
+             ORDER BY u.fullname ASC`,
+            [barangayId]
+        );
+        const users = await attachAppRolesToUsers(rows || []);
+        res.json(users);
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({
+            error: "Failed to retrieve CBS users data",
+            details: error.message,
+        });
+    }
+};
+
 export const getAllCbsUsers = async (req, res) => {
     const {lguTypeId, id } = req.params;
     const sql = "CALL getAllCBSUsers(?, ?)";
