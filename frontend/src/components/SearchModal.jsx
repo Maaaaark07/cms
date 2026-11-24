@@ -13,6 +13,9 @@ export default function SearchModal({
     onClose,
     onSelect,
     options,
+    allowAddNew = false,
+    onAddNew,
+    addNewLabel = "Add New Resident",
 }) {
     const { barangayId } = useAuth();
     const [residents, setResidents] = useState([]);
@@ -38,11 +41,15 @@ export default function SearchModal({
 
     const filteredResidents = useMemo(() => {
         return residents.filter((resident) => {
-            const residentFullName = `${resident?.first_name} ${resident?.last_name}`.toLowerCase();
-            const residentAddress = `${resident?.purok}`.toLowerCase();
-            return residentFullName.includes(searchTerm.toLowerCase())
-                || residentAddress.includes(searchTerm.toLowerCase())
-                || resident?.barangay.toLowerCase().includes(searchTerm.toLowerCase());
+            const query = searchTerm.toLowerCase();
+            const residentFullName = `${resident?.first_name || ''} ${resident?.middle_name || ''} ${resident?.last_name || ''}`.toLowerCase();
+            const residentAddress = `${resident?.purok || ''}`.toLowerCase();
+            const contact = `${resident?.contact_number || ''}`.toLowerCase();
+            const barangay = `${resident?.barangay || ''}`.toLowerCase();
+            return residentFullName.includes(query)
+                || residentAddress.includes(query)
+                || barangay.includes(query)
+                || contact.includes(query);
         });
     }, [residents, searchTerm]);
 
@@ -65,6 +72,11 @@ export default function SearchModal({
         onClose();
         setSearchTerm("");
         setCurrentPage(0);
+    };
+
+    const handleAddNew = () => {
+        if (onAddNew) onAddNew(searchTerm);
+        handleOnClose();
     };
 
     const handleNextPage = () => {
@@ -103,11 +115,34 @@ export default function SearchModal({
                         {
                             paginatedResidents?.length > 0 ? paginatedResidents?.map((resident) => (
                                 <Card key={resident.resident_id} resident={resident} onClick={() => handleSelect(resident)} />
-                            )) : <div className='my-auto text-center'>No residents found.</div>
+                            )) : (
+                                <div className="my-auto text-center px-4">
+                                    <p className="text-gray-500 mb-3">No residents found.</p>
+                                    {allowAddNew && (
+                                        <button
+                                            type="button"
+                                            onClick={handleAddNew}
+                                            className="bg-blue-600 text-white px-4 py-2 text-sm rounded-full hover:bg-blue-700"
+                                        >
+                                            {addNewLabel}
+                                        </button>
+                                    )}
+                                </div>
+                            )
                         }
                     </CardList>
                 </div>
-                <div className="flex justify-end items-center mt-4 gap-2">
+                <div className="flex justify-between items-center mt-4 gap-2">
+                    {allowAddNew && paginatedResidents?.length > 0 ? (
+                        <button
+                            type="button"
+                            onClick={handleAddNew}
+                            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                        >
+                            + {addNewLabel}
+                        </button>
+                    ) : <span />}
+                    <div className="flex items-center gap-2">
                     <IoIosArrowBack
                         className={`w-9 h-9 text-gray-500 p-2 border border-gray-300 rounded-lg cursor-pointer ${currentPage === 0 ? 'bg-gray-200 cursor-not-allowed' : 'hover:bg-gray-200'
                             }`}
@@ -120,6 +155,7 @@ export default function SearchModal({
                         onClick={handleNextPage}
                         disabled={(currentPage + 1) * itemsPerPage >= filteredResidents.length}
                     />
+                    </div>
                 </div>
             </div>
         </div>, document.body
@@ -158,7 +194,7 @@ function Card({ resident, onClick }) {
             )}
             <div className="ml-4">
                 <h3 className="font-bold text-gray-800">{`${resident.first_name} ${resident.last_name}`}</h3>
-                <p className="text-sm text-gray-600">{`${resident.address}${resident.address.trim() ? "," : ""} ${resident.purok}, ${resident.barangay}`}</p>
+                <p className="text-sm text-gray-600">{`${resident.address || ''}${resident.address?.trim() ? "," : ""} ${resident.purok || ''}${resident.barangay ? `, ${resident.barangay}` : ''}`}</p>
             </div>
         </li>
     );

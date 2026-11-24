@@ -58,27 +58,31 @@ const CertificationForm = () => {
     const [currentdate, setcurrentdate] = useState(today);
     const [controlNumber, setcontrolNumber] = useState('');
     const [indigentControlNumber, setindigentControlNumber] = useState('');
+    const controlNumberRef = useRef('');
 
-    useEffect(() => {
-       const fetchControlNumber = async () => {
-           try {
-               const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/certificate/controlno`, {
-               withCredentials: true 
-               });
-               if (response.status === 200) {
-                   setcontrolNumber(response.data.control_number);
-                   console.log("CTRL Data:" + response.data.control_number);
-               }
-           } catch (error) {
-               console.error("Error fetching control number:", error);
-           }
-       };
+    const ensureControlNumber = async () => {
+        if (controlNumberRef.current) return controlNumberRef.current;
 
-      fetchControlNumber();
-    }, []);
+        const response = await axios.get(`http://${cfg.domainname}:${cfg.serverport}/certificate/controlno`, {
+            withCredentials: true
+        });
+        if (response.status === 200 && response.data.control_number) {
+            controlNumberRef.current = response.data.control_number;
+            setcontrolNumber(response.data.control_number);
+            return response.data.control_number;
+        }
+        return '';
+    };
 
     const handleOpenPreviewInNewTab = async () => {
         if (!isMessageGenerated || !finalMessage) return;
+
+        let previewControlNumber = controlNumber;
+        try {
+            previewControlNumber = await ensureControlNumber();
+        } catch (error) {
+            console.error("Error fetching control number:", error);
+        }
 
         // Generate the PDF document as a blob
         const blob = await pdf(
@@ -89,7 +93,7 @@ const CertificationForm = () => {
                 certificateTitle={selectedCertificateType?.iname || ''}
                 certificateTemplate={CertificateTemplate}
                 applicant_image={formData.applicant_image}
-                controlnumber={controlNumber}
+                controlnumber={previewControlNumber}
                 date={formData.issuanceDate
                     ? new Date(formData.issuanceDate).toLocaleDateString('en-US', {
                         year: 'numeric',
@@ -152,14 +156,21 @@ const CertificationForm = () => {
     };
 
     const handleSubmit = async () => {
-        setIsLoading(true);
-
         if (!isMessageGenerated || !finalMessage) {
             alert("Please generate the certificate content before submitting.");
             return;
         }
 
+        setIsLoading(true);
+
         try {
+            let submitControlNumber = controlNumber;
+            try {
+                submitControlNumber = await ensureControlNumber();
+            } catch (error) {
+                console.error("Error fetching control number:", error);
+            }
+
             // Generate the PDF as a Blob
             const blob = await pdf(
                 <CertificatePreview
@@ -168,7 +179,7 @@ const CertificationForm = () => {
                     certificateTitle={selectedCertificateType?.iname || ''}
                     certificateTemplate={CertificateTemplate}
                     applicant_image={formData.applicant_image}
-                    controlnumber={controlNumber}
+                    controlnumber={submitControlNumber}
                     date={
                         formData.issuanceDate
                             ? new Date(formData.issuanceDate).toLocaleDateString('en-US', {

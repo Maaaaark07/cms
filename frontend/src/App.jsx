@@ -22,6 +22,11 @@ import AddIncidentReportPage from "./pages/AddIncidentReportPage";
 import EditIncidentReportPage from "./pages/EditIncidentReportPage";
 import BlotterIncidentViewPage from "./pages/BlotterIncidentViewPage";
 import BarangayOfficials from "./pages/BarangayOfficials";
+import HealthCenter from "./pages/HealthCenter";
+import HealthCenterHistoryPage from "./pages/HealthCenterHistoryPage";
+import HealthCenterRecordPage from "./pages/HealthCenterRecordPage";
+import ResolutionPage from "./pages/ResolutionPage";
+import ResolutionFormPage from "./pages/ResolutionFormPage";
 
 const App = () => {
     return (
@@ -193,6 +198,90 @@ const App = () => {
                         <ProtectedRoute>
                             <AppLayout>
                                 <Reports />
+                            </AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/health-center"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout>
+                                <HealthCenter />
+                            </AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/health-center/history"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout>
+                                <HealthCenterHistoryPage />
+                            </AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/health-center/add"
+                    element={<Navigate to="/health-center" replace />}
+                />
+                <Route
+                    path="/health-center/edit"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout>
+                                <HealthCenterRecordPage mode="edit" />
+                            </AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/health-center/view"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout>
+                                <HealthCenterRecordPage mode="view" />
+                            </AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/resolution"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout>
+                                <ResolutionPage />
+                            </AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/resolution/add"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout>
+                                <ResolutionFormPage mode="add" />
+                            </AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/resolution/edit"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout>
+                                <ResolutionFormPage mode="edit" />
+                            </AppLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/resolution/view"
+                    element={
+                        <ProtectedRoute>
+                            <AppLayout>
+                                <ResolutionFormPage mode="view" />
                             </AppLayout>
                         </ProtectedRoute>
                     }

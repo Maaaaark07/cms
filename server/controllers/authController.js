@@ -1,19 +1,26 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import db from '../config/database.js';
+import { JWT_SECRET, buildUserClaims } from '../config/jwt.js';
 
 const salt = 10;
 
 export const register = (req, res) => {
-    const { user, password } = req.body;
+    const user = req.body.user || req.body.users;
+    const { password } = req.body;
+
+    if (!user || !password) {
+        return res.status(400).json({ Error: "Username and password are required" });
+    }
+
     const sql = "INSERT INTO cbs_users (`user`, `password`) VALUES (?, ?)";
 
     bcrypt.hash(password, salt, (err, hash) => {
-        if (err) return res.json({ Error: "Error hashing password" });
+        if (err) return res.status(500).json({ Error: "Error hashing password" });
 
         const values = [user, hash];
-        db.query(sql, values, (err, result) => {
-            if (err) return res.json({ Error: "Inserting Data error" });
+        db.query(sql, values, (err) => {
+            if (err) return res.status(500).json({ Error: "Inserting Data error" });
             return res.json({ Status: "Success" });
         });
     });
@@ -27,13 +34,16 @@ export const login = (req, res) => {
         if (err) return res.status(500).json({ Error: "Database error" });
 
         if (data[0].length > 0) {
-            console.log("DB user data:", data[0][0]); // CHECK region_id in terminal
+            if (password == null || password === '') {
+                return res.status(400).json({ Error: "Password is required" });
+            }
+            console.log("DB user data:", buildUserClaims(data[0][0]));
             bcrypt.compare(password.toString(), data[0][0].password, (err, result) => {
                 if (err) return res.status(500).json({ Error: "Password Compare Error" });
                 if (result) {
                     const token = jwt.sign(
-                        { user_data: data[0][0] },
-                        "jwt-secret-key",
+                        { user_data: buildUserClaims(data[0][0]) },
+                        JWT_SECRET,
                         { expiresIn: '1d' }
                     );
 
@@ -54,10 +64,10 @@ export const login = (req, res) => {
                         RegionId: data[0][0].region_id  // ADDED
                     });
                 }
-                return res.json({ Error: "Invalid password" });
+                return res.status(401).json({ Error: "Invalid password" });
             });
         } else {
-            return res.json({ Error: "User not found" });
+            return res.status(401).json({ Error: "User not found" });
         }
     });
 };

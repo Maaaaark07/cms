@@ -7,7 +7,7 @@ import SearchModalDynamic from '../components/SearchModalDynamic.jsx'
 import { IoSearch } from "react-icons/io5";
 import { RxAvatar } from 'react-icons/rx';
 
-const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
+const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId, locationIds }) => {
     const [formData, setFormData] = useState({
         barangay_id: barangayId,
         city_id: "",
@@ -49,6 +49,22 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
             fetchAllLguTypes();
         }
     }, [isOpen]);
+
+    useEffect(() => {
+        if (!isOpen || !isCbsAdmin || !locationIds?.barangayId) return;
+        setSelectedRegion(locationIds.regionId || '');
+        setSelectedProvince(locationIds.provinceId || '');
+        setSelectedCity(locationIds.cityId || '');
+        setSelectedBarangay(locationIds.barangayId || '');
+        setSelectedUserBarangayId(locationIds.barangayId || '');
+        setFormData((prev) => ({
+            ...prev,
+            region_id: locationIds.regionId || '',
+            province_id: locationIds.provinceId || '',
+            city_id: locationIds.cityId || '',
+            barangay_id: locationIds.barangayId || '',
+        }));
+    }, [isOpen, isCbsAdmin, locationIds]);
 
     // Auto-fill location for non-cbsadmin when modal opens
     useEffect(() => {
@@ -119,7 +135,7 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
         if (formData.lgu_type_id) {
             fetchUserRolesByLguType(formData.lgu_type_id);
         }
-    }, [formData.lgu_type_id]);
+    }, [formData.lgu_type_id, selectedUserBarangayId]);
 
     const fetchAllRegion = async () => {
         try {
@@ -187,12 +203,35 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
     };
 
     const fetchUserRolesByLguType = async (lguTypeId) => {
+        const barangayForRoles = selectedUserBarangayId || formData.barangay_id || barangayId;
         try {
-            const response = await axios.get(
-                `http://${cfg.domainname}:${cfg.serverport}/user/get-user-role/${lguTypeId}`,
-                { withCredentials: true }
-            );
-            setUserRoles(response.data?.data || []);
+            const [systemRes, customRes] = await Promise.all([
+                axios.get(
+                    `http://${cfg.domainname}:${cfg.serverport}/user/get-user-role/${lguTypeId}`,
+                    { withCredentials: true }
+                ).catch(() => ({ data: { data: [] } })),
+                barangayForRoles
+                    ? axios.get(
+                        `http://${cfg.domainname}:${cfg.serverport}/user/app-roles`,
+                        {
+                            params: { barangay_id: barangayForRoles, lgu_type_id: lguTypeId },
+                            withCredentials: true,
+                        }
+                    )
+                    : Promise.resolve({ data: { data: [] } }),
+            ]);
+
+            const customRoles = (customRes.data?.data || []).map((role) => ({
+                iid: role.iid,
+                iname: role.iname,
+                is_custom: true,
+            }));
+            const systemRoles = (systemRes.data?.data || []).map((role) => ({
+                ...role,
+                is_custom: false,
+            }));
+
+            setUserRoles([...customRoles, ...systemRoles]);
             setFormData(prev => ({ ...prev, role_id: "" }));
         } catch (error) {
             console.error("Error fetching user roles:", error);
@@ -240,11 +279,12 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
     };
 
     const handleBarangayChange = (e) => {
-        const barangayId = e.target.value;
-        setSelectedBarangay(barangayId);
+        const nextBarangayId = e.target.value;
+        setSelectedBarangay(nextBarangayId);
+        setSelectedUserBarangayId(nextBarangayId);
         setFormData(prevState => ({
             ...prevState,
-            barangay_id: barangayId
+            barangay_id: nextBarangayId
         }));
     };
 
@@ -284,15 +324,18 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
         e.preventDefault();
 
         const payload = {
-            barangay_id: selectedUserBarangayId,
-            city_id: formData.city_id,
-            province_id: formData.province_id,
+            barangay_id: selectedBarangay || selectedUserBarangayId || barangayId,
+            city_id: formData.city_id || locationIds?.cityId,
+            province_id: formData.province_id || locationIds?.provinceId,
             user: formData.user,
             password: formData.password,
             role_id: formData.role_id,
             lgu_type_id: formData.lgu_type_id,
             resident_id: formData.resident_id,
             fullname: residentName,
+            app_role_id: String(formData.role_id).startsWith('custom-')
+                ? Number(String(formData.role_id).replace('custom-', ''))
+                : null,
         };
 
         try {
@@ -434,7 +477,13 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
                                     />
                                     <div
                                         className="h-full w-9 absolute flex items-center justify-center right-0 top-0 bg-blue-600 cursor-pointer rounded-r-md"
-                                        onClick={() => setSelectResidentModal(true)}
+                                        onClick={() => {
+                                            if (isCbsAdmin && !selectedBarangay) {
+                                                setError("Please select a barangay first.");
+                                                return;
+                                            }
+                                            setSelectResidentModal(true);
+                                        }}
                                     >
                                         <IoSearch className="w-5 h-5 text-white" />
                                     </div>
@@ -526,11 +575,24 @@ const UserManagementModal = ({ isOpen, onClose, onSubmit, barangayId }) => {
                                     required
                                 >
                                     <option value="">Select Role</option>
-                                    {userRoles.map(role => (
-                                        <option key={role.iid} value={role.iid}>
-                                            {role.iname}
-                                        </option>
-                                    ))}
+                                    {userRoles.some((role) => role.is_custom) && (
+                                        <optgroup label="Custom Roles">
+                                            {userRoles.filter((role) => role.is_custom).map((role) => (
+                                                <option key={role.iid} value={role.iid}>
+                                                    {role.iname}
+                                                </option>
+                                            ))}
+                                        </optgroup>
+                                    )}
+                                    {userRoles.some((role) => !role.is_custom) && (
+                                        <optgroup label="System Roles">
+                                            {userRoles.filter((role) => !role.is_custom).map((role) => (
+                                                <option key={role.iid} value={role.iid}>
+                                                    {role.iname}
+                                                </option>
+                                            ))}
+                                        </optgroup>
+                                    )}
                                 </select>
                             </div>
                         </div>

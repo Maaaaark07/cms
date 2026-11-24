@@ -16,6 +16,9 @@ import brgyOfficialsRoutes from './routes/officials.js';
 import userRoutes from './routes/user.js'
 import reportRoutes from './routes/report.js'
 import purokRoutes from './routes/purok.js'
+import healthRoutes from './routes/health.js'
+import notificationRoutes from './routes/notification.js'
+import resolutionRoutes from './routes/resolution.js'
 import cfg from './config/origin.js';
 
 const app = express();
@@ -26,27 +29,7 @@ console.log(`DOMAIN: ${cfg.domainname}`)
 // Middleware
 app.use(express.json());
 
-app.use((err, req, res, next) => {
-    if (err instanceof multer.MulterError) {
-        return res.status(400).json({ message: err.message });
-    }
-    return res.status(500).json({ message: 'Internal Server Error' });
-});
-
-app.use((err, req, res, next) => {
-    if (err instanceof multer.MulterError) {
-        if (err.code === 'LIMIT_FILE_SIZE') {
-            return res.status(400).json({ message: 'File is too large. Maximum size is 5MB.' });
-        }
-        return res.status(400).json({ message: err.message });
-    } else if (err) {
-        return res.status(500).json({ message: err.message });
-    }
-    next();
-});
-
-
-const uploadDirs = ['user_profile', 'certificates', 'brgy_logo', 'others'].map(
+const uploadDirs = ['user_profile', 'certificates', 'brgy_logo', 'others', 'resolutions'].map(
     dir => path.join('./uploads', dir)
 );
 
@@ -54,18 +37,6 @@ uploadDirs.forEach(dir => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
     }
-});
-
-app.use((err, req, res, next) => {
-    if (err instanceof multer.MulterError) {
-        if (err.code === 'LIMIT_FILE_SIZE') {
-            return res.status(400).json({ message: 'File is too large. Maximum size is 5MB.' });
-        }
-        return res.status(400).json({ message: err.message });
-    } else if (err) {
-        return res.status(500).json({ message: err.message });
-    }
-    next();
 });
 
 app.use('/uploads', express.static('uploads'));
@@ -92,6 +63,22 @@ app.use('/official', brgyOfficialsRoutes)
 app.use('/user', userRoutes)
 app.use('/report', reportRoutes)
 app.use('/purok', purokRoutes)
+app.use('/health', healthRoutes)
+app.use('/notification', notificationRoutes)
+app.use('/resolutions', resolutionRoutes)
+
+app.use((err, req, res, next) => {
+    if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+            return res.status(400).json({ message: 'File is too large. Maximum size is 5MB.' });
+        }
+        return res.status(400).json({ message: err.message });
+    }
+    if (err) {
+        return res.status(500).json({ message: err.message || 'Internal Server Error' });
+    }
+    next();
+});
 
 const PORT = cfg.serverport || 8080;
 

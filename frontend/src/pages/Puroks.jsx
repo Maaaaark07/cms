@@ -26,8 +26,9 @@ const Puroks = () => {
     const { barangayId } = useAuth();
 
     useEffect(() => {
+        if (!barangayId) return;
         fetchPurok();
-    }, []);
+    }, [barangayId]);
 
     const fetchPurok = async () => {
         try {

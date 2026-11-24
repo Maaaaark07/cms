@@ -1,6 +1,14 @@
-import db from '../config/database.js';
+import db, { queryAsync } from '../config/database.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import {
+    attachAppRolesToUsers,
+    assignAppRoleToUser,
+    ensureRoleTables,
+    findUserIdByUsername,
+    getFallbackSystemRoleId,
+    parseCustomRoleId,
+} from './roleController.js';
 
 const saltRounds = 10;
 
@@ -31,6 +39,44 @@ export const getCbsUsersByBarangay = async (req, res) => {
 };
 
 
+export const getUsersByBarangayScope = async (req, res) => {
+    const barangayId = req.params.id;
+    if (!barangayId) {
+        return res.status(400).json({ error: 'barangay_id is required' });
+    }
+
+    try {
+        const rows = await queryAsync(
+            `SELECT u.id userid,
+                    u.user username,
+                    u.resident_id,
+                    u.fullname,
+                    u.password,
+                    r.iid roleid,
+                    r.iname rolename,
+                    l.iname userlevel,
+                    u.barangay_id,
+                    u.city_id,
+                    u.province_id,
+                    u.lgu_type_id
+             FROM cbs_users u
+             JOIN cbs_user_roles r ON u.role_id = r.iid
+             JOIN lgu_types l ON u.lgu_type_id = l.iid
+             WHERE u.barangay_id = ?
+             ORDER BY u.fullname ASC`,
+            [barangayId]
+        );
+        const users = await attachAppRolesToUsers(rows || []);
+        res.json(users);
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({
+            error: "Failed to retrieve CBS users data",
+            details: error.message,
+        });
+    }
+};
+
 export const getAllCbsUsers = async (req, res) => {
     const {lguTypeId, id } = req.params;
     const sql = "CALL getAllCBSUsers(?, ?)";
@@ -46,8 +92,9 @@ export const getAllCbsUsers = async (req, res) => {
             });
         });
 
-        res.json(results[0]);
-        console.log("result: ", results); // Assuming the stored procedure returns the results in the first element of the array
+        const users = await attachAppRolesToUsers(results[0] || []);
+        res.json(users);
+        console.log("result: ", results);
     } catch (error) {
         console.error("Database error:", error);
         res.status(500).json({
@@ -100,11 +147,15 @@ export const addCbsUser = async (req, res) => {
         lgu_type_id,
         resident_id,
         fullname,
+        app_role_id,
     } = req.body;
 
     try {
-        // Hash the password before inserting it into the database
         const hashedPassword = await bcrypt.hash(password, saltRounds);
+        const customRoleId = parseCustomRoleId(role_id) || (app_role_id ? Number(app_role_id) : null);
+        const systemRoleId = customRoleId
+            ? await getFallbackSystemRoleId(lgu_type_id)
+            : role_id;
 
         const sql = "CALL AddCBSUser(?, ?, ?, ?, ?, ?, ?, ?, ?)";
         const values = [
@@ -112,8 +163,8 @@ export const addCbsUser = async (req, res) => {
             city_id,
             province_id,
             user,
-            hashedPassword, // Use the hashed password
-            role_id,
+            hashedPassword,
+            systemRoleId,
             lgu_type_id,
             resident_id,
             fullname,
@@ -129,9 +180,16 @@ export const addCbsUser = async (req, res) => {
             });
         });
 
+        if (customRoleId) {
+            const createdUserId = await findUserIdByUsername(user);
+            if (createdUserId) {
+                await assignAppRoleToUser(createdUserId, customRoleId);
+            }
+        }
+
         res.status(201).json({
             message: "User created successfully",
-            data: results[0], // Assuming the stored procedure returns some data
+            data: results[0],
         });
     } catch (error) {
         console.error("Database error:", error);
@@ -196,7 +254,13 @@ export const deleteCbsUser = async (req, res) => {
             });
         });
 
-        if (result.affectedRows > 0) {
+        if (result) {
+            try {
+                await ensureRoleTables();
+                await queryAsync('DELETE FROM cbs_user_app_roles WHERE user_id = ?', [id]);
+            } catch (cleanupError) {
+                console.error("Failed to clean up user role assignment:", cleanupError);
+            }
             res.status(200).json({ message: "User deleted successfully" });
         } else {
             res.status(404).json({ error: "User not found or already deleted" });

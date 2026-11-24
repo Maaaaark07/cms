@@ -24,7 +24,7 @@ router.get("/controlno", verifyUser, getControlNumber);
 router.get("/indigent-controlno", verifyUser, getIndigencyControlNumber);
 router.get("/barangay-details/:id", verifyUser, getBarangayDetails);
 router.delete('/delete-certificate/:id', verifyUser, deleteCertificate);
-router.put('/update-certificate/:id', updateCertificationType);
+router.put('/update-certificate/:id', verifyUser, updateCertificationType);
 router.get("/:id", verifyUser, getAllCertificateRequest);
 
 export default router;

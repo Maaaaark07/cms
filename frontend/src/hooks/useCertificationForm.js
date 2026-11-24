@@ -63,6 +63,8 @@ export const useCertificationForm = () => {
     const [formData, setFormData] = useState(initialFormData);
 
     useEffect(() => {
+        if (!barangayId) return;
+
         const fetchInitialData = async () => {
             try {
                 setLoading(true);
@@ -133,6 +135,15 @@ export const useCertificationForm = () => {
 
         fetchReporterId();
     }, []);
+
+    useEffect(() => {
+        if (!reporterId && !barangayId) return;
+        setFormData(prev => ({
+            ...prev,
+            issued_by: reporterId ?? prev.issued_by,
+            barangay_id: barangayId ?? prev.barangay_id,
+        }));
+    }, [reporterId, barangayId]);
 
     const handleCertificateTypeChange = (selectedValue) => {
         const selectedCertificate = certificateTypes.find(cert => cert?.iid === selectedValue?.iid);

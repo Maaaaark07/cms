@@ -1,5 +1,8 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import axios from 'axios';
 import { encryptId, decryptId } from '../utils/encryption';
+import cfg from '../../../server/config/domain.js';
+import { pageKeyFromPath } from '../utils/pageAccess';
 
 const AuthContext = createContext();
 
@@ -10,6 +13,34 @@ export const AuthProvider = ({ children }) => {
     const [regionId, setRegionId] = useState(null);
     const [lguId, setLguId] = useState(null);
     const [roleId, setRoleId] = useState(null);
+    const [allowedPages, setAllowedPages] = useState([]);
+    const [pagesLoaded, setPagesLoaded] = useState(false);
+    const [hydrated, setHydrated] = useState(false);
+
+    const refreshAccessPages = useCallback(async () => {
+        try {
+            const response = await axios.get(
+                `http://${cfg.domainname}:${cfg.serverport}/user/access-pages`,
+                { withCredentials: true }
+            );
+            setAllowedPages(response.data?.pages || []);
+        } catch (error) {
+            setAllowedPages([]);
+        } finally {
+            setPagesLoaded(true);
+        }
+    }, []);
+
+    const canAccessPage = useCallback((pageKeyOrPath) => {
+        if (!pageKeyOrPath) return true;
+        const pageKey = pageKeyOrPath.startsWith('/')
+            ? pageKeyFromPath(pageKeyOrPath)
+            : pageKeyOrPath;
+        if (!pageKey || pageKey === 'home') return true;
+        if (!pagesLoaded) return true;
+        if (!allowedPages.length) return true;
+        return allowedPages.includes(pageKey);
+    }, [allowedPages, pagesLoaded]);
 
     useEffect(() => {
         const loadEncryptedData = () => {
@@ -82,9 +113,12 @@ export const AuthProvider = ({ children }) => {
         };
 
         loadEncryptedData();
+        setHydrated(true);
     }, []);
 
     useEffect(() => {
+        if (!hydrated) return;
+
         const storeEncryptedData = () => {
             if (barangayId) {
                 try { localStorage.setItem('barangayId', encryptId(barangayId)); }
@@ -118,16 +152,29 @@ export const AuthProvider = ({ children }) => {
         };
 
         storeEncryptedData();
-    }, [barangayId, cityId, provinceId, regionId, lguId, roleId]);
+    }, [hydrated, barangayId, cityId, provinceId, regionId, lguId, roleId]);
+
+    useEffect(() => {
+        if (!hydrated) return;
+        if (barangayId || roleId || cityId || provinceId) {
+            refreshAccessPages();
+        } else {
+            setPagesLoaded(true);
+        }
+    }, [hydrated, barangayId, cityId, provinceId, roleId, refreshAccessPages]);
 
     return (
-        <AuthContext.Provider value={{ 
-            barangayId, setBarangayId, 
-            cityId, setCityId, 
+        <AuthContext.Provider value={{
+            barangayId, setBarangayId,
+            cityId, setCityId,
             provinceId, setProvinceId,
             regionId, setRegionId,
             lguId, setLguId,
-            roleId, setRoleId
+            roleId, setRoleId,
+            allowedPages,
+            pagesLoaded,
+            refreshAccessPages,
+            canAccessPage,
         }}>
             {children}
         </AuthContext.Provider>

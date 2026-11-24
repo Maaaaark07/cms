@@ -27,6 +27,18 @@ const statusStyles = {
         backgroundColor: "#0078D4",
         color: "#fff",
     },
+    Saved: {
+        backgroundColor: "#94A3B8",
+        color: "#fff",
+    },
+    Submitted: {
+        backgroundColor: "#2563EB",
+        color: "#fff",
+    },
+    Approved: {
+        backgroundColor: "#16A34A",
+        color: "#fff",
+    },
 };
 
 const StatusBadge = ({ status }) => {

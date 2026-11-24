@@ -9,7 +9,10 @@ import axios from "axios";
 import Breadcrumbs from "../components/Breadcrumbs";
 import DashboardCard from "../components/DashboardCard";
 import BlotterList from "../components/BlotterList";
+import MunicipalityDashboard from "./MunicipalityDashboard";
+import ProvincialDashboard from "./ProvincialDashboard";
 import { useAuth } from '../components/AuthContext';
+import { isMunicipalityUser, isProvinceUser } from '../utils/lgu';
 import cfg from '../../../server/config/domain.js';
 
 ChartJS.register(ArcElement, Tooltip);
@@ -36,7 +39,9 @@ const Home = () => {
     const [blotterData, setBlotterData] = useState([]);
 
     const navigate = useNavigate();
-    const { barangayId } = useAuth();
+    const { barangayId, lguId } = useAuth();
+    const municipalityView = isMunicipalityUser(lguId);
+    const provinceView = isProvinceUser(lguId);
     const chartOptions = {
         maintainAspectRatio: false, // Allow responsive resizing
         cutout: "70%",
@@ -76,13 +81,14 @@ const Home = () => {
     };
 
     useEffect(() => {
+        if (!barangayId || municipalityView || provinceView) return;
         axios
             .get(`http://${cfg.domainname}:${cfg.serverport}/blotter/${barangayId}`, { withCredentials: true })
             .then((response) => setBlotterData(response.data))
             .catch((error) => {
                 console.error("Error fetching blotter data:", error);
             });
-    }, [barangayId]);
+    }, [barangayId, municipalityView, provinceView]);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -106,6 +112,7 @@ const Home = () => {
 
     useEffect(() => {
         const fetchPopulationData = async () => {
+            if (!barangayId || municipalityView || provinceView) return;
             try {
                 const response = await axios.get(
                     `http://${cfg.domainname}:${cfg.serverport}/stats/population/${barangayId}`,
@@ -133,7 +140,7 @@ const Home = () => {
         };
 
         fetchPopulationData();
-    }, [barangayId]);
+    }, [barangayId, municipalityView, provinceView]);
 
     if (error) return <div>{error}</div>;
 
@@ -145,74 +152,79 @@ const Home = () => {
                 <main className="flex-grow p-4 bg-gray-100">
                     <div className="flex-grow p-6 bg-gray-100">
                         <Breadcrumbs />
-                        <div className="">
-                            <DashboardCard />
-                        </div>
-                        {loading ? (
-                            <p>Loading chart data...</p>
+                        {municipalityView ? (
+                            <MunicipalityDashboard />
+                        ) : provinceView ? (
+                            <ProvincialDashboard />
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-                                <div className="p-4 bg-white rounded-md">
-                                    <h3 className="text-gray-500 text-xl font-bold mb-4">
-                                        Population Statistics
-                                    </h3>
-                                    <div
-                                        className="relative flex items-center justify-center"
-                                        style={{ height: "484px" }}
-                                    >
-                                        <Doughnut
-                                            data={chartData}
-                                            options={chartOptions}
-                                        />
-                                        {/* Overlay with pointer-events: none */}
-                                        <div
-                                            className="absolute inset-0 flex items-center justify-center"
-                                            style={{ pointerEvents: "none" }}
-                                        >
-                                            {hoverData ? (
-                                                <div className="text-center transition-all duration-200">
-                                                    <p className="text-2xl font-bold text-gray-700">
-                                                        {hoverData.value.toLocaleString()}
-                                                    </p>
-                                                    <p className="text-lg text-gray-600 font-medium">
-                                                        {hoverData.label}
-                                                    </p>
-                                                    <p className="text-sm text-gray-500">
-                                                        {hoverData.percentage}% of total
-                                                    </p>
-                                                </div>
-                                            ) : (
-                                                <div className="text-center">
-                                                    <p className="text-2xl font-bold text-gray-700">
-                                                        {totalPopulation?.toLocaleString() || "N/A"}
-                                                    </p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-wrap justify-center mt-4 gap-4">
-                                        <div className="flex items-center space-x-2">
-                                            <span className="block w-4 h-4 bg-[#0F3D3E]"></span>
-                                            <span className="text-sm sm:text-base">Male</span>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <span className="block w-4 h-4 bg-[#8E0553]"></span>
-                                            <span className="text-sm sm:text-base">Female</span>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <span className="block w-4 h-4 bg-[#F86151]"></span>
-                                            <span className="text-sm sm:text-base">Sr. Citizen</span>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <span className="block w-4 h-4 bg-[#FFBA42]"></span>
-                                            <span className="text-sm sm:text-base">Youth</span>
-                                        </div>
-                                    </div>
+                            <>
+                                <div className="">
+                                    <DashboardCard />
                                 </div>
-
-                                {/* Second column with BlotterList */}
-                                <BlotterList blotterData={blotterData} />
-                            </div>
+                                {loading ? (
+                                    <p>Loading chart data...</p>
+                                ) : (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                                        <div className="p-4 bg-white rounded-md">
+                                            <h3 className="text-gray-500 text-xl font-bold mb-4">
+                                                Population Statistics
+                                            </h3>
+                                            <div
+                                                className="relative flex items-center justify-center"
+                                                style={{ height: "484px" }}
+                                            >
+                                                <Doughnut
+                                                    data={chartData}
+                                                    options={chartOptions}
+                                                />
+                                                <div
+                                                    className="absolute inset-0 flex items-center justify-center"
+                                                    style={{ pointerEvents: "none" }}
+                                                >
+                                                    {hoverData ? (
+                                                        <div className="text-center transition-all duration-200">
+                                                            <p className="text-2xl font-bold text-gray-700">
+                                                                {hoverData.value.toLocaleString()}
+                                                            </p>
+                                                            <p className="text-lg text-gray-600 font-medium">
+                                                                {hoverData.label}
+                                                            </p>
+                                                            <p className="text-sm text-gray-500">
+                                                                {hoverData.percentage}% of total
+                                                            </p>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="text-center">
+                                                            <p className="text-2xl font-bold text-gray-700">
+                                                                {totalPopulation?.toLocaleString() || "N/A"}
+                                                            </p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-wrap justify-center mt-4 gap-4">
+                                                <div className="flex items-center space-x-2">
+                                                    <span className="block w-4 h-4 bg-[#0F3D3E]"></span>
+                                                    <span className="text-sm sm:text-base">Male</span>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <span className="block w-4 h-4 bg-[#8E0553]"></span>
+                                                    <span className="text-sm sm:text-base">Female</span>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <span className="block w-4 h-4 bg-[#F86151]"></span>
+                                                    <span className="text-sm sm:text-base">Sr. Citizen</span>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <span className="block w-4 h-4 bg-[#FFBA42]"></span>
+                                                    <span className="text-sm sm:text-base">Youth</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <BlotterList blotterData={blotterData} />
+                                    </div>
+                                )}
+                            </>
                         )}
                     </div>
                 </main>

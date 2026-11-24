@@ -10,6 +10,10 @@ import { GrEdit } from "react-icons/gr";
 import { FaRegTrashAlt } from "react-icons/fa";
 import ToastMessage from "../components/ToastMessage.jsx";
 import AlertDialog from "../components/AlertDialog.jsx";
+import Tabs from "../components/Tabs.jsx";
+import RoleManagementTab from "../components/RoleManagementTab.jsx";
+import AssignRoleModal from "../components/AssignRoleModal.jsx";
+import LocationCascade from "../components/LocationCascade.jsx";
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
@@ -21,24 +25,40 @@ const UserManagement = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showToastMessage, setShowToastMessage] = useState(false);
     const [showDeleteToastMessage, setShowDeleteToastMessage] = useState(false);
-    const { barangayId, lguId } = useAuth();
+    const { barangayId, lguId, roleId } = useAuth();
+    const isCbsAdmin = Number(roleId) === 1;
+    const [adminLocation, setAdminLocation] = useState({
+        regionId: '',
+        provinceId: '',
+        cityId: '',
+        barangayId: '',
+    });
+    const activeBarangayId = isCbsAdmin ? adminLocation.barangayId : barangayId;
     const [selectedDeleteId, setSelectedDeleteId] = useState(null);
     const [isAlertDeleteOpen, setIsAlertDeleteOpen] = useState(false);
+    const [appRoles, setAppRoles] = useState([]);
+    const [assignUser, setAssignUser] = useState(null);
+    const [assignError, setAssignError] = useState("");
+    const [showAssignToast, setShowAssignToast] = useState(false);
 
     useEffect(() => {
         fetchUsers();
-        console.log(barangayId, lguId);
-    }, [barangayId]);
+        fetchAppRoles();
+    }, [activeBarangayId, lguId, isCbsAdmin]);
 
     async function fetchUsers() {
+        if (isCbsAdmin && !activeBarangayId) {
+            setUsers([]);
+            setLoading(false);
+            return;
+        }
         setLoading(true);
         try {
-            const response = await axios.get(
-                `http://${cfg.domainname}:${cfg.serverport}/user/${lguId}/${barangayId}`,
-                { withCredentials: true }
-            );
+            const url = isCbsAdmin
+                ? `http://${cfg.domainname}:${cfg.serverport}/user/by-barangay/${activeBarangayId}`
+                : `http://${cfg.domainname}:${cfg.serverport}/user/${lguId}/${barangayId}`;
+            const response = await axios.get(url, { withCredentials: true });
             setUsers(response.data || []);
-            console.log(response.data);
         } catch (error) {
             console.error("Error fetching user data:", error);
             setError("Failed to fetch users. Please try again later.");
@@ -47,8 +67,42 @@ const UserManagement = () => {
         }
     }
 
-    const handleDeleteConfirmation = async (id) => {
-        setSelectedDeleteId(id);
+    async function fetchAppRoles() {
+        if (!activeBarangayId) return;
+        try {
+            const response = await axios.get(
+                `http://${cfg.domainname}:${cfg.serverport}/user/app-roles`,
+                {
+                    params: { barangay_id: activeBarangayId, lgu_type_id: lguId },
+                    withCredentials: true,
+                }
+            );
+            setAppRoles(response.data?.data || []);
+        } catch (error) {
+            console.error("Error fetching roles:", error);
+            setAppRoles([]);
+        }
+    }
+
+    const handleAssignRole = async (appRoleId) => {
+        if (!assignUser) return;
+        try {
+            await axios.put(
+                `http://${cfg.domainname}:${cfg.serverport}/user/assign-role/${assignUser.userid || assignUser.user_id || assignUser.id}`,
+                { app_role_id: appRoleId },
+                { withCredentials: true }
+            );
+            setAssignUser(null);
+            setAssignError("");
+            setShowAssignToast(true);
+            fetchUsers();
+        } catch (error) {
+            console.error("Error assigning role:", error);
+            setAssignError(error.response?.data?.error || "Failed to assign role.");
+        }
+    };
+
+    const handleDeleteConfirmation = async (id) => {        setSelectedDeleteId(id);
         setIsAlertDeleteOpen(true);
     }
 
@@ -92,7 +146,7 @@ const UserManagement = () => {
     const displayedUsers = filteredUser?.slice(startIndex, startIndex + itemsPerPage);
 
     const handlePageChange = (page) => {
-        if (page >= 1 && page <= totalPages) setCurrentPage(page);
+        if (page >= 1 && page <= totalFilteredPages) setCurrentPage(page);
     };
 
     const handleItemsPerPageChange = (newItemsPerPage) => {
@@ -102,7 +156,8 @@ const UserManagement = () => {
 
     const handleOnSubmit = () => {
         setIsModalOpen(false);
-        fetchUsers(); // Fetch updated user data
+        fetchUsers();
+        fetchAppRoles();
         setShowToastMessage(true)
     };
 
@@ -116,88 +171,122 @@ const UserManagement = () => {
             <Breadcrumbs />
             <div>
                 <h1 className="text-2xl font-bold text-gray-500 mb-6">User Management</h1>
-
-                {error && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                        {error}
+                {isCbsAdmin && (
+                    <div className="mb-4">
+                        <LocationCascade value={adminLocation} onChange={setAdminLocation} />
+                        {!adminLocation.barangayId && (
+                            <p className="text-xs text-gray-400 mt-2">Select a barangay to view and add users.</p>
+                        )}
                     </div>
                 )}
 
-                <div className="mb-6 flex justify-between items-center">
-                    <Search searchQuery={searchQuery} onSearchChange={handleSearchChange} />
-                    <button
-                        className="bg-blue-500 text-white rounded-full px-6 py-2 shadow hover:bg-blue-600 transition duration-200"
-                        onClick={() => setIsModalOpen(true)}
-                    >
-                        + Add User
-                    </button>
-                </div>
-
-                {loading ? (
-                    <div className="text-center py-4">Loading...</div>
-                ) : (
-                    <div>
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full bg-white shadow-lg rounded-lg overflow-hidden text-sm">
-                                <thead className="bg-gray-200">
-                                    <tr>
-                                        <th className="text-left p-4 font-semibold text-gray-800">Name</th>
-                                        <th className="text-left p-4 font-semibold text-gray-800">Username</th>
-                                        <th className="text-left p-4 font-semibold text-gray-800">Password</th>
-                                        <th className="text-left p-4 font-semibold text-gray-800">Role</th>
-                                        <th className="text-center p-4 font-semibold text-gray-800">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {displayedUsers.map((user, index) => (
-                                        <tr key={user.id || index} className="hover:bg-gray-50">
-                                            <td className="px-4 py-3 text-gray-700 border-b">{user.fullname}</td>
-                                            <td className="px-4 py-3 text-gray-700 border-b">{user.username}</td>
-                                            <td className="px-4 py-3 text-gray-700 border-b">
-                                                {user.password ? "••••••••" : ""}
-                                            </td>
-                                            <td className="px-4 py-3 text-gray-700 border-b">{user.rolename}</td>
-                                            <td className="p-3 text-gray-500 flex items-center border-b justify-center gap-2">
-                                                <div className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer">
-                                                    <GrEdit className="w-5 h-5 text-gray-500" />
-                                                </div>
-                                                <div
-                                                    className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer"
-                                                    onClick={() => handleDeleteConfirmation(user.userid)}
-                                                >
-                                                    <FaRegTrashAlt className="w-5 h-5 text-red-500" />
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                    {displayedUsers.length === 0 && (
-                                        <tr>
-                                            <td colSpan="5" className="px-4 py-3 text-center text-gray-500">
-                                                No users found
-                                            </td>
-                                        </tr>
+                <Tabs
+                    id="userManagementTab"
+                    tabs={[
+                        {
+                            label: "Users",
+                            content: (
+                                <>
+                                    {error && (
+                                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                                            {error}
+                                        </div>
                                     )}
-                                </tbody>
-                            </table>
-                        </div>
 
-                        <Pagination
-                            currentPage={currentPage}
-                            totalPages={totalFilteredPages}
-                            onPageChange={handlePageChange}
-                            itemsPerPage={itemsPerPage}
-                            onItemsPerPageChange={handleItemsPerPageChange}
-                        />
-                    </div>
-                )}
+                                    <div className="mb-6 flex justify-between items-center">
+                                        <Search searchQuery={searchQuery} onSearchChange={handleSearchChange} />
+                                        <button
+                                            className="bg-blue-500 text-white rounded-full px-6 py-2 shadow hover:bg-blue-600 transition duration-200 disabled:opacity-50"
+                                            disabled={isCbsAdmin && !adminLocation.barangayId}
+                                            onClick={() => setIsModalOpen(true)}
+                                        >
+                                            + Add User
+                                        </button>
+                                    </div>
+
+                                    {loading ? (
+                                        <div className="text-center py-4">Loading...</div>
+                                    ) : (
+                                        <div>
+                                            <div className="overflow-x-auto">
+                                                <table className="min-w-full bg-white shadow-lg rounded-lg overflow-hidden text-sm">
+                                                    <thead className="bg-gray-200">
+                                                        <tr>
+                                                            <th className="text-left p-4 font-semibold text-gray-800">Name</th>
+                                                            <th className="text-left p-4 font-semibold text-gray-800">Username</th>
+                                                            <th className="text-left p-4 font-semibold text-gray-800">Password</th>
+                                                            <th className="text-left p-4 font-semibold text-gray-800">Role</th>
+                                                            <th className="text-center p-4 font-semibold text-gray-800">Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {displayedUsers.map((user, index) => (
+                                                            <tr key={user.id || index} className="hover:bg-gray-50">
+                                                                <td className="px-4 py-3 text-gray-700 border-b">{user.fullname}</td>
+                                                                <td className="px-4 py-3 text-gray-700 border-b">{user.username}</td>
+                                                                <td className="px-4 py-3 text-gray-700 border-b">
+                                                                    {user.password ? "••••••••" : ""}
+                                                                </td>
+                                                                <td className="px-4 py-3 text-gray-700 border-b">{user.rolename}</td>
+                                                                <td className="p-3 text-gray-500 flex items-center border-b justify-center gap-2">
+                                                                    <div
+                                                                        className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer"
+                                                                        title="Assign role"
+                                                                        onClick={() => {
+                                                                            fetchAppRoles();
+                                                                            setAssignError("");
+                                                                            setAssignUser(user);
+                                                                        }}
+                                                                    >
+                                                                        <GrEdit className="w-5 h-5 text-gray-500" />
+                                                                    </div>
+                                                                    <div
+                                                                        className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer"
+                                                                        onClick={() => handleDeleteConfirmation(user.userid)}
+                                                                    >
+                                                                        <FaRegTrashAlt className="w-5 h-5 text-red-500" />
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                        {displayedUsers.length === 0 && (
+                                                            <tr>
+                                                                <td colSpan="5" className="px-4 py-3 text-center text-gray-500">
+                                                                    No users found
+                                                                </td>
+                                                            </tr>
+                                                        )}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            <Pagination
+                                                currentPage={currentPage}
+                                                totalPages={totalFilteredPages}
+                                                onPageChange={handlePageChange}
+                                                itemsPerPage={itemsPerPage}
+                                                onItemsPerPageChange={handleItemsPerPageChange}
+                                            />
+                                        </div>
+                                    )}
+                                </>
+                            ),
+                        },
+                        {
+                            label: "Roles",
+                            content: <RoleManagementTab barangayId={activeBarangayId} lguTypeId={lguId} />,
+                        },
+                    ]}
+                />
             </div>
 
             <UserManagementModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleOnSubmit} // Correctly pass function reference
-                barangayId={barangayId}
+                barangayId={activeBarangayId}
                 lguTypeId={lguId}
+                locationIds={isCbsAdmin ? adminLocation : null}
             />
 
             <ToastMessage
@@ -214,6 +303,26 @@ const UserManagement = () => {
                 isVisible={showDeleteToastMessage}
                 duration={3000}
                 onClose={() => setShowDeleteToastMessage(false)}
+            />
+
+            <ToastMessage
+                message="Role assigned successfully"
+                variant="default"
+                isVisible={showAssignToast}
+                duration={3000}
+                onClose={() => setShowAssignToast(false)}
+            />
+
+            <AssignRoleModal
+                isOpen={!!assignUser}
+                user={assignUser}
+                roles={appRoles}
+                error={assignError}
+                onClose={() => {
+                    setAssignUser(null);
+                    setAssignError("");
+                }}
+                onSubmit={handleAssignRole}
             />
 
             <AlertDialog

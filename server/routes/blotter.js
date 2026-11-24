@@ -1,6 +1,7 @@
 import express from "express";
 import {
     getAllBlotters,
+    getCityBlotters,
     getBlottersById,
     addBlotter,
     addBlotterHearings,
@@ -20,6 +21,7 @@ router.get("/get-hearing-statuses/", verifyUser, getAllBlotterHearingStatuses);
 router.get("/get-all-hearing/:id", verifyUser, getAllBlotterHearing);
 router.get("/get-hearing/:id", verifyUser, getBlotterHearingById);
 router.get("/get/:id", verifyUser, getBlottersById);
+router.get("/city/:id", verifyUser, getCityBlotters);
 router.get("/:id", verifyUser, getAllBlotters);
 
 router.post("/add/blotter-hearings", verifyUser, addBlotterHearings);

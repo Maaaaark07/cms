@@ -52,7 +52,9 @@ const BlotterReportViewPage = () => {
     const [isEditRecordModalOpen, setIsEditRecordModalOpen] = useState(false);
     const [isViewRecordModalOpen, setIsViewRecordModalOpen] = useState(false);
 
-    const { blotter_id } = location.state || {};
+    const { blotter_id, viewOnly: viewOnlyState } = location.state || {};
+    const { lguId } = useAuth();
+    const viewOnly = Boolean(viewOnlyState) || Number(lguId) === 2 || Number(lguId) === 3;
 
     useEffect(() => {
         localStorage.setItem("isSingleColumn", isSingleColumn);
@@ -231,6 +233,7 @@ const BlotterReportViewPage = () => {
                             </div>
                         </div>
                         <div>
+                            {!viewOnly && (
                             <div className="flex items-center justify-end mb-6">
                                 <button
                                     className={`px-5 py-3 text-sm flex items-center gap-2 rounded-full ${blotterHearingDetails?.length > 0 && blotterHearingDetails[blotterHearingDetails.length - 1].status === "Closed"
@@ -244,6 +247,7 @@ const BlotterReportViewPage = () => {
                                     Record Session
                                 </button>
                             </div>
+                            )}
                             <div className="overflow-x-auto rounded-lg mt-4">
                                 {hearingLoading ? (<div className="text-center">Loading... </div>
                                 ) : (
@@ -282,7 +286,7 @@ const BlotterReportViewPage = () => {
                                                                 <StatusBadge status={hearing.status} />
                                                             </td>
                                                             <td className="p-3 text-gray-500 flex items-center justify-center gap-2">
-                                                                {isLatest && hearing.status !== "Closed" ? (
+                                                                {isLatest && hearing.status !== "Closed" && !viewOnly ? (
                                                                     <>
                                                                         <div
                                                                             className="bg-gray-200 p-2 w-max rounded-lg cursor-pointer"
@@ -413,6 +417,7 @@ function AddRecordModal({ isOpen, onClose, blotter_id, onSuccess, }) {
     const [selectedHearingStatus, setSelectedHearingStatus] = useState(null);
     const [selectedAttendess, setSelectedAttendess] = useState([]);
     const [remarks, setRemarks] = useState("");
+    const [hearingDate, setHearingDate] = useState(new Date().toISOString().split('T')[0]);
 
     const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
     const [isAlertSubmitOpen, setIsAlertSubmitOpen] = useState(false);
@@ -455,7 +460,7 @@ function AddRecordModal({ isOpen, onClose, blotter_id, onSuccess, }) {
     const handleSubmit = async () => {
 
         const payload = {
-            hearing_date: null,
+            hearing_date: hearingDate || new Date().toISOString().split('T')[0],
             blotter_id: blotter_id,
             attendees: selectedAttendess,
             remarks: remarks,
@@ -498,6 +503,11 @@ function AddRecordModal({ isOpen, onClose, blotter_id, onSuccess, }) {
             resetError();
             return;
         }
+        if (!hearingDate) {
+            setError("Hearing date is required.");
+            resetError();
+            return;
+        }
 
         setIsAlertSubmitOpen(true);
     }
@@ -507,6 +517,7 @@ function AddRecordModal({ isOpen, onClose, blotter_id, onSuccess, }) {
         setSelectedHearingStatus("");
         setRemarks("");
         setSelectedAttendess([]);
+        setHearingDate(new Date().toISOString().split('T')[0]);
         setIsAlertModalOpen(false);
         setIsAlertSubmitOpen(false);
         onClose();
@@ -579,6 +590,15 @@ function AddRecordModal({ isOpen, onClose, blotter_id, onSuccess, }) {
                                 uniqueKey={"iname"}
                                 placeholder={"Search Status"}
                                 title="Select Hearing Status" />
+                        </div>
+                        <div className="mb-6">
+                            <label className="block mb-2 text-base font-medium text-gray-500">Hearing Date<span className="text-red-600">*</span></label>
+                            <input
+                                type="date"
+                                className="border text-sm border-gray-300 p-2 w-full text-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value={hearingDate}
+                                onChange={(e) => setHearingDate(e.target.value)}
+                            />
                         </div>
                         <div className="col-span-full">
                             <label className="block mb-2 text-base font-medium text-gray-500">Resolution Remarks<span className="text-red-600">*</span></label>

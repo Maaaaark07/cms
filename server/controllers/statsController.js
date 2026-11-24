@@ -130,4 +130,63 @@ export const getAllPopulationStats = async (req, res) => {
             details: error.message,
         });
     }
-}
+};
+
+const emptyPopulationStats = {
+    male: 0,
+    female: 0,
+    seniorCitizens: 0,
+    youth: 0,
+    NumberOfPWD: 0,
+    NumberOfsoloParent: 0,
+    NumberOfHousehold: 0,
+    NumberOfRegisteredVoters: 0,
+    totalPopulation: 0,
+    NumberOfResidents: 0,
+};
+
+const normalizePopulationStats = (stats = {}) => {
+    const safeStats = { ...emptyPopulationStats };
+    Object.keys(stats || {}).forEach((key) => {
+        safeStats[key] = stats[key] ?? 0;
+    });
+    safeStats.NumberOfResidents = safeStats.totalPopulation ?? 0;
+    return safeStats;
+};
+
+const queryProcedure = (sql, params) => new Promise((resolve, reject) => {
+    db.query(sql, params, (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+    });
+});
+
+export const getCityPopulationStats = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const results = await queryProcedure('CALL GetCityPopulationStats(?)', [id]);
+        const stats = results?.[0]?.[0];
+        if (!stats) {
+            return res.json(emptyPopulationStats);
+        }
+        return res.json(normalizePopulationStats(stats));
+    } catch (error) {
+        console.error('Database error:', error);
+        res.status(500).json({ Error: 'Database error', details: error.message });
+    }
+};
+
+export const getProvincePopulationStats = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const results = await queryProcedure('CALL GetProvincePopulationStats(?)', [id]);
+        const stats = results?.[0]?.[0];
+        if (!stats) {
+            return res.json(emptyPopulationStats);
+        }
+        return res.json(normalizePopulationStats(stats));
+    } catch (error) {
+        console.error('Database error:', error);
+        res.status(500).json({ Error: 'Database error', details: error.message });
+    }
+};

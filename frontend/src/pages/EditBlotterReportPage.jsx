@@ -271,8 +271,8 @@ const EditBlotterReportPage = () => {
                 incident_date: selectedIncidentDate,
                 incident_type: selectedComplaintType,
                 incident_location: selectedIncidentLocation,
-                incident_description: "Sample Description",
-                resolution: "Sample Resolution",
+                incident_description: statement,
+                resolution: blotterDetails?.resolution === "Sample Resolution" ? "" : (blotterDetails?.resolution || ""),
                 notes: statement,
                 ...defendantData
             };

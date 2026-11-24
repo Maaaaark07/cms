@@ -174,8 +174,8 @@ const AddIncidentReportPage = () => {
             witnesses: selectedWitnesses,
             incident_type: selectedComplaintType?.title,
             incident_location: selectedIncidentLocation,
-            incident_description: "Sample Description",
-            resolution: "Sample Resolution",
+            incident_description: statement,
+            resolution: "",
             notes: statement,
             barangay_id: barangayId
         };

@@ -45,9 +45,23 @@ const Header = () => {
     return (
         <header className="bg-white shadow-md p-4 flex justify-between items-center">
             <div className="flex items-center">
-                <img src={userData.barangay_logo} alt="Logo" className="h-12 w-12 mr-3" />
+                <img
+                    src={Number(userData.lgu_type_id) === 3
+                        ? (userData.province_logo || userData.city_logo || userData.barangay_logo)
+                        : Number(userData.lgu_type_id) === 2
+                            ? (userData.city_logo || userData.barangay_logo)
+                            : userData.barangay_logo}
+                    alt="Logo"
+                    className="h-12 w-12 mr-3"
+                />
                 <div className='leading-[1px]'>
-                    <h1 className="text-xl font-semibold text-gray-600">{userData.barangay_name}</h1>
+                    <h1 className="text-xl font-semibold text-gray-600">
+                        {Number(userData.lgu_type_id) === 3
+                            ? (userData.province_name || userData.city_name || userData.barangay_name)
+                            : Number(userData.lgu_type_id) === 2
+                                ? (userData.city_name || userData.barangay_name)
+                                : userData.barangay_name}
+                    </h1>
                     <span className='text-xs text-gray-400'>Resident Management System</span>
                 </div>
             </div>
